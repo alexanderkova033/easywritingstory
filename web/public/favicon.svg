@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <!-- Rounded square background with padding from edge -->
-  <rect x="4" y="4" width="24" height="24" rx="6" fill="#0a0f0d"/>
-  <!-- Quill feather body (scaled/shifted to sit inside the padded area) -->
-  <path d="M21 8C23.5 9 25 12.5 21 18L16 23.5L14.5 27L13 23.5C10.5 19.5 11.5 14 21 8Z" fill="#7a9b7c"/>
-  <!-- Quill tip / nib -->
-  <path d="M13 23.5L14.5 27" stroke="#d5ddd7" stroke-width="1.3" stroke-linecap="round" fill="none"/>
-  <!-- Central quill spine -->
-  <path d="M21 8L13.5 22" stroke="#0a0f0d" stroke-width="0.85" stroke-linecap="round" opacity="0.5" fill="none"/>
+  <rect x="4" y="4" width="24" height="24" rx="6" fill="#1a0f08"/>
+  <!-- Open book body (amber, scaled to fit padded area) -->
+  <path d="M8 12C11 11 14 11 16 12.5C18 11 21 11 24 12L24 22C21 21 18 21 16 22.5C14 21 11 21 8 22Z" fill="#d98c3e"/>
+  <!-- Page-line highlights (suggest text) -->
+  <path d="M10.5 14.5L14.5 14.8M10.5 16.5L14.5 16.8M17.5 14.8L21.5 14.5M17.5 16.8L21.5 16.5" stroke="#fbe2c2" stroke-width="0.6" stroke-linecap="round" fill="none"/>
+  <!-- Spine -->
+  <path d="M16 12.5L16 22.5" stroke="#1a0f08" stroke-width="0.85" stroke-linecap="round" opacity="0.55" fill="none"/>
 </svg>

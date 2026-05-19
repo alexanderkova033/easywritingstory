@@ -31,105 +31,6 @@ const IS_TOUCH_DEVICE: boolean =
   typeof window.matchMedia === "function" &&
   window.matchMedia("(pointer: coarse)").matches;
 
-// ---- Per-line font scaling: shrink long lines to fit without wrapping ----
-// We use CM line decorations (not direct DOM mutation) so CM owns the style
-// and its MutationObserver won't fight us and reset the font back.
-
-const setLineFontScaleDecos = StateEffect.define<DecorationSet>();
-
-const lineFontScaleField = StateField.define<DecorationSet>({
-  create: () => Decoration.none,
-  update(deco, tr) {
-    deco = deco.map(tr.changes);
-    for (const e of tr.effects) {
-      if (e.is(setLineFontScaleDecos)) return e.value;
-    }
-    return deco;
-  },
-  provide: (f) => EditorView.decorations.from(f),
-});
-
-const lineFontScalePlugin = ViewPlugin.fromClass(
-  class {
-    private rafId = 0;
-    private lastW = 0;
-    private ro: ResizeObserver;
-    constructor(view: EditorView) {
-      this.lastW = view.scrollDOM.clientWidth;
-      this.ro = new ResizeObserver((entries) => {
-        const w = entries[0]?.contentRect.width ?? 0;
-        if (Math.abs(w - this.lastW) > 0.5) {
-          this.lastW = w;
-          this.schedule(view);
-        }
-      });
-      this.ro.observe(view.scrollDOM);
-      this.schedule(view);
-    }
-    update(u: ViewUpdate) {
-      if (u.docChanged) this.schedule(u.view);
-    }
-    schedule(view: EditorView) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = requestAnimationFrame(() => this.measureAndApply(view));
-    }
-    measureAndApply(view: EditorView) {
-      const scroller = view.scrollDOM;
-      const contentEl = view.contentDOM;
-      const gutters = scroller.querySelector<HTMLElement>(".cm-gutters");
-      const gutterW = gutters ? gutters.offsetWidth : 0;
-      const cs = getComputedStyle(contentEl);
-      const paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-      const availW = scroller.clientWidth - gutterW - paddingX;
-      if (availW <= 50) return;
-
-      // Step 1: remove all scale decorations so lines render at their natural size.
-      // CM's dispatch() applies DOM changes synchronously, so the DOM reflects
-      // natural sizes immediately when we measure below.
-      view.dispatch({ effects: setLineFontScaleDecos.of(Decoration.none) });
-
-      // Step 2: measure each line at its natural (unscaled) width
-      const lineEls = contentEl.querySelectorAll<HTMLElement>(".cm-line");
-      const decos: Range<Decoration>[] = [];
-      const docLineCount = view.state.doc.lines;
-
-      for (let i = 0; i < lineEls.length && i < docLineCount; i++) {
-        const el = lineEls[i];
-        let maxRight = -Infinity, minLeft = Infinity;
-        for (const node of el.childNodes) {
-          const child = node as HTMLElement;
-          if (child.nodeType === Node.ELEMENT_NODE && child.classList?.contains("cm-syllable-wrap")) continue;
-          const r = document.createRange();
-          r.selectNode(node);
-          for (const rect of r.getClientRects()) {
-            if (rect.width < 1) continue;
-            maxRight = Math.max(maxRight, rect.right);
-            minLeft = Math.min(minLeft, rect.left);
-          }
-        }
-        if (!isFinite(maxRight) || !isFinite(minLeft)) continue;
-        const textW = maxRight - minLeft;
-        if (textW > availW + 1) {
-          const base = parseFloat(getComputedStyle(el).fontSize);
-          const scaled = Math.max(base * (availW / textW), 8);
-          const docLine = view.state.doc.line(i + 1);
-          decos.push(
-            Decoration.line({ attributes: { style: `font-size:${scaled.toFixed(2)}px` } })
-              .range(docLine.from),
-          );
-        }
-      }
-
-      // Step 3: apply the new scale decorations (CM owns these, won't reset them)
-      view.dispatch({ effects: setLineFontScaleDecos.of(decos.length ? Decoration.set(decos) : Decoration.none) });
-    }
-    destroy() {
-      cancelAnimationFrame(this.rafId);
-      this.ro.disconnect();
-    }
-  }
-);
-
 // ---- Syllable count + rhythm bar widgets ----
 class SyllableWidget extends WidgetType {
   constructor(readonly count: number, readonly pct: number) { super(); }
@@ -867,11 +768,10 @@ export function PoemBodyEditor(props: PoemBodyEditorProps) {
       EditorState.transactionExtender.of((tr) =>
         tr.annotation(ExternalChange) ? { annotations: Transaction.addToHistory.of(false) } : null
       ),
-      // lineFontScale measures every .cm-line via getClientRects on each doc
-      // change. Skipped on touch — mobile viewports are narrow and wrap anyway,
-      // so the auto-shrink rarely fires, and the measurement cost is the single
-      // biggest source of typing lag on iPad.
-      ...(IS_TOUCH_DEVICE ? [] : [lineFontScaleField, lineFontScalePlugin]),
+      // Soft-wrap long lines instead of shrinking the font. Prose lines run
+      // long; for story writing the user expects text to flow to the next
+      // visual row, not get squeezed.
+      EditorView.lineWrapping,
       EditorView.contentAttributes.of({ spellcheck: "false" }),
       spellSyncFacet.of(spellFacetValue(props.spellBump, props.spellMode)),
       search({ top: true }),

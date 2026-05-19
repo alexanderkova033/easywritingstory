@@ -19,7 +19,7 @@ export function LinesPanel({ docStats, heavyToolsStale, goToLine }: LinesPanelPr
     return docStats.lines.filter((r) => r.text.trim().length > 0);
   }, [docStats.lines, hideEmptyLines]);
 
-  const lineStanzaMap = useMemo(() => {
+  const lineParagraphMap = useMemo(() => {
     const m = new Map<number, number>();
     for (const s of docStats.stanzaStats) {
       for (let ln = s.startLine; ln <= s.endLine; ln++) {
@@ -29,18 +29,18 @@ export function LinesPanel({ docStats, heavyToolsStale, goToLine }: LinesPanelPr
     return m;
   }, [docStats.stanzaStats]);
 
-  const maxLineSyllables = useMemo(() => {
+  const maxLineWords = useMemo(() => {
     let max = 0;
     for (const r of displayedLineRows) {
-      if (r.syllables > max) max = r.syllables;
+      if (r.words > max) max = r.words;
     }
     return max || 1;
   }, [displayedLineRows]);
 
-  const syllOutlierBounds = useMemo(() => {
+  const wordOutlierBounds = useMemo(() => {
     const nums = docStats.lines
       .filter((r) => r.text.trim().length > 0)
-      .map((r) => r.syllables)
+      .map((r) => r.words)
       .sort((a, b) => a - b);
     if (nums.length < 4) return null;
     const q = (p: number) => {
@@ -65,13 +65,39 @@ export function LinesPanel({ docStats, heavyToolsStale, goToLine }: LinesPanelPr
     >
       <LiveSectionTitle>Line table</LiveSectionTitle>
       {docStats.nonEmptyLines === 0 ? <NoLinesYetHint /> : null}
+      {docStats.nonEmptyLines > 0 && docStats.prose.sentences.length > 0 ? (
+        <ul className="prose-stats-strip" aria-label="Prose statistics">
+          <li>
+            <span className="prose-stats-k">{docStats.prose.readingGrade.toFixed(1)}</span>
+            <span className="prose-stats-l muted small" title="Flesch-Kincaid reading grade level">grade</span>
+          </li>
+          <li>
+            <span className="prose-stats-k">{docStats.prose.avgWordsPerSentence.toFixed(1)}</span>
+            <span className="prose-stats-l muted small" title="Average words per sentence">w/sent</span>
+          </li>
+          <li>
+            <span className="prose-stats-k">{docStats.prose.sentences.length}</span>
+            <span className="prose-stats-l muted small">sentences</span>
+          </li>
+          <li>
+            <span className="prose-stats-k">{Math.round(docStats.prose.dialogueFraction * 100)}%</span>
+            <span className="prose-stats-l muted small" title="Share of words inside dialogue quotes">dialogue</span>
+          </li>
+          {docStats.prose.longestSentence ? (
+            <li>
+              <span className="prose-stats-k">{docStats.prose.longestSentence.words}w</span>
+              <span className="prose-stats-l muted small" title={`Longest sentence — starts at line ${docStats.prose.longestSentence.startLine}`}>longest sent.</span>
+            </li>
+          ) : null}
+        </ul>
+      ) : null}
       {heavyToolsStale ? (
         <p
           className="tools-stale-hint muted small"
           role="status"
           aria-live="polite"
         >
-          Table syllable estimates match your text in a moment.
+          Table catches up to your text in a moment.
         </p>
       ) : null}
       <form
@@ -114,9 +140,9 @@ export function LinesPanel({ docStats, heavyToolsStale, goToLine }: LinesPanelPr
           title="Per-line stats; click a row to jump in the editor."
         >
           <caption className="sr-only">
-            Per line: line number, estimated syllables, word count,
-            and character count. Activate a row to move the cursor
-            there.
+            Per line: line number, word count (with a bar relative to the
+            longest line), character count, and a secondary estimated-syllable
+            count. Activate a row to move the cursor there.
           </caption>
           <thead>
             <tr>
@@ -125,25 +151,29 @@ export function LinesPanel({ docStats, heavyToolsStale, goToLine }: LinesPanelPr
               </th>
               <th scope="col" className="line-table-preview-th">Text</th>
               <th scope="col" className="line-table-syll-th">
-                <abbr title="Estimated syllables (heuristic) with bar relative to longest line">
+                <abbr title="Word count with bar relative to the longest line">
+                  Words
+                </abbr>
+              </th>
+              <th scope="col">Chars</th>
+              <th scope="col">
+                <abbr title="Estimated syllables (heuristic) — secondary indicator">
                   Syll.
                 </abbr>
               </th>
-              <th scope="col">Words</th>
-              <th scope="col">Chars</th>
             </tr>
           </thead>
           <tbody>
             {(() => {
               const rows = displayedLineRows.slice(0, LINES_TABLE_MAX);
               const out: ReactNode[] = [];
-              let prevStanza: number | null = null;
+              let prevParagraph: number | null = null;
               for (const row of rows) {
-                const stanza = lineStanzaMap.get(row.lineNumber) ?? null;
+                const paragraph = lineParagraphMap.get(row.lineNumber) ?? null;
                 if (
-                  stanza != null &&
-                  prevStanza != null &&
-                  stanza !== prevStanza
+                  paragraph != null &&
+                  prevParagraph != null &&
+                  paragraph !== prevParagraph
                 ) {
                   out.push(
                     <tr
@@ -157,7 +187,7 @@ export function LinesPanel({ docStats, heavyToolsStale, goToLine }: LinesPanelPr
                     </tr>,
                   );
                 }
-                prevStanza = stanza ?? prevStanza;
+                prevParagraph = paragraph ?? prevParagraph;
                 const trimmed = row.text.trim();
                 const preview =
                   trimmed.length > 22
@@ -168,19 +198,19 @@ export function LinesPanel({ docStats, heavyToolsStale, goToLine }: LinesPanelPr
                   ? 0
                   : Math.max(
                       4,
-                      Math.round((row.syllables / maxLineSyllables) * 100),
+                      Math.round((row.words / maxLineWords) * 100),
                     );
                 const outlier =
                   !isBlank &&
-                  syllOutlierBounds != null &&
-                  (row.syllables < syllOutlierBounds.lo ||
-                    row.syllables > syllOutlierBounds.hi);
+                  wordOutlierBounds != null &&
+                  (row.words < wordOutlierBounds.lo ||
+                    row.words > wordOutlierBounds.hi);
                 out.push(
                   <tr
                     key={row.lineNumber}
                     className={`line-table-data-row line-table-row-jump${outlier ? " is-syll-outlier" : ""}${isBlank ? " is-blank-line" : ""}`}
                     tabIndex={0}
-                    aria-label={`Line ${row.lineNumber}: ${row.syllables} syllables, ${row.words} words${outlier ? " (syllable outlier)" : ""}. Open in editor.`}
+                    aria-label={`Line ${row.lineNumber}: ${row.words} words, ${row.chars} characters${outlier ? " (length outlier)" : ""}. Open in editor.`}
                     onClick={() => goToLine(row.lineNumber)}
                     onKeyDown={(e: KeyboardEvent<HTMLTableRowElement>) => {
                       if (e.key === "Enter" || e.key === " ") {
@@ -210,20 +240,20 @@ export function LinesPanel({ docStats, heavyToolsStale, goToLine }: LinesPanelPr
                         />
                       </span>
                       <span className="line-table-syll-num">
-                        {row.syllables}
+                        {row.words}
                         {outlier ? (
                           <span
                             className="line-table-syll-flag"
                             aria-hidden
-                            title="Syllable outlier vs. rest of the poem"
+                            title="Length outlier vs. the rest of the story"
                           >
                             !
                           </span>
                         ) : null}
                       </span>
                     </td>
-                    <td className="line-table-metric">{row.words}</td>
                     <td className="line-table-metric">{row.chars}</td>
+                    <td className="line-table-metric muted">{row.syllables}</td>
                   </tr>,
                 );
               }

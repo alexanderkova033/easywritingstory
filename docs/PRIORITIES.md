@@ -1,62 +1,74 @@
 # Demand & delivery priorities (MVP → later)
 
-This document turns [REQUIREMENTS.md](./REQUIREMENTS.md) into **what to build first**. **Current shipped focus:** English-only **local workshop**—multiple drafts, writing tools, snapshots, export, and backup—**without** built-in paid AI. Optional **ChatGPT** (external tab) is linked from the UI.
+This document turns [REQUIREMENTS.md](./REQUIREMENTS.md) into **what to build first**. **Current shipped focus:** English-only **local short-story workshop** — multiple drafts, prose tools, snapshots, export, backup — with **optional on-demand AI** feedback. AI is opt-in, selection-scoped where possible, and protected by spend caps.
 
-Stakeholder choices that still apply: **website**, **English only**, **local poem storage**, **maximize writing tools**. **Deferred:** in-app **1–100 AI analysis** and server-side OpenAI until/unless you opt in to cost and operations (see [AI_INTEGRATION.md](./AI_INTEGRATION.md)).
+Stakeholder choices that still apply: website, English only, local story storage, IGCSE creative-writing scope (under 2,000 words).
 
 ## Core user flow (current)
 
-1. Pick or create a **draft** in the browser → **local autosave** (poem library + per-poem snapshots).
-2. Use **tools** while writing: syllables, line table, approximate **stress/meter**, rhyme/sound hints, repeats (separate tab under Sound), spelling, goals, publication checklist.
-3. **Export** single poem (.txt / .md / .docx) or **backup** all drafts + snapshots as JSON; **import** backups to merge poems in.
-4. For human or third-party AI feedback: **copy/export** and paste where you choose (e.g. linked ChatGPT).
+1. Pick or create a **draft** in the browser → **local autosave** (story library + per-story snapshots).
+2. See live **prose metrics** as you write: word count + target, sentence count, average words/sentence, sentence-length variance, longest sentence, Flesch-Kincaid reading grade, dialogue %, paragraph count, spelling flags, repeated words.
+3. Trigger **on-demand AI** when you want it: full-story analysis with selectable harshness, sentence-scoped rewrites in the selection popover, post-analysis chat for follow-ups, or "Refine" to compare against your previous draft.
+4. **Export** a single story (.txt / .md / .docx / PDF / image) or **backup** all drafts + snapshots as JSON; **import** backups to merge.
 
-## MoSCoW (aligned with shipping app)
+## MoSCoW
 
-### Must (delivered in tools-first MVP)
+### Must (delivered)
 
-- Poem editor with line structure, title, optional form note, **local persistence** (multiple drafts).
-- Syllable estimates, word/character counts, line table with **jump to line**.
-- Suggestive English spelling with ignore / personal dictionary (local); **poetry-friendly vs strict** modes.
-- **Revision snapshots** scoped to the active poem; compare and restore.
-- **Goals** and **publication checklist** (heuristic).
-- **Export** poem files; **workshop backup** import/export (JSON).
-- Privacy copy: drafts and tools stay in the browser unless the user exports/copies.
+- Story editor with title + prose body, **soft-wrap**, local persistence (multiple drafts).
+- Word / character / sentence / paragraph counts, line table with jump-to-line.
+- Flesch-Kincaid reading grade, sentence-length variance, dialogue %, longest sentence.
+- Suggestive English spelling with ignore / personal dictionary (local); permissive vs strict modes.
+- Repeated-word detection, cliché scan.
+- Story-length presets (Flash 500 / Short 1,000 / IGCSE 1,500 / Long 2,000) with min/max word guards.
+- Revision snapshots scoped to the active story; compare and restore.
+- Export single story (.txt / .md / .docx / PDF / image); workshop backup import/export (JSON).
+- Optional AI: full-story analysis, compare-with-previous, suggestion modes (idea / continue / spark / words / line), post-analysis chat, selection-scoped sentence rewrites. Protected by per-IP and global spend caps + per-endpoint cooldowns.
+- Privacy copy: drafts stay in the browser unless the user explicitly triggers AI.
+- Story-starter templates (8 openings).
 
 ### Should (next)
 
-- Jump from **more** tool hits to lines (ongoing polish).
-- Publish a **senior-friendly guide** (plain language, large text, step-by-step): how to create/open drafts, use Commands, enter reading view, and—most importantly—**export a backup (JSON)** and restore it.
-- Richer **meter** (dictionary-backed stress) if you add data or a library—still labeled approximate.
-- Optional **in-app AI** via `server/` proxy when budget/ops allow ([AI_INTEGRATION.md](./AI_INTEGRATION.md)).
+- More user-facing copy polish (LinesPanel column labels, hover hints, sample stories).
+- Senior/student-friendly guide: how to create drafts, save snapshots, export backups.
+- IGCSE rubric-explainer mode for AI feedback — surface the content/structure (24) vs style/accuracy (16) split alongside the 1–100 score.
+- Streaming AI results so the user sees feedback as it generates (instead of waiting for the full JSON).
 
 ### Could
 
-- Debounced or streaming **AI** results; regenerate one suggestion.
-- Reading-time, stanza grouping, or other low-ambiguity stats.
-- **Future / community:** poem pages with **threaded comments or critiques** (e.g. AllPoetry-style exchange), optional structured critique prompts, **moderation** and reporting—**only after** accounts, backend storage, and abuse-handling design.
+- Phase 3 prose-craft analyses (deferred during the pivot):
+  - show-don't-tell detector (telling verbs flagged)
+  - sensory-detail counter (five-senses keyword scan)
+  - tense-consistency check (mid-paragraph past↔present flips)
+  - adverb-density heatmap
+  - dialogue-tag variety check
+  - opening-hook strength heuristic
+- AI-generated title suggestions.
+- IndexedDB + CRDT layer for multi-device sync (data model is already serialisable JSON).
 
-### Won’t (for now)
+### Won't (for now)
 
-- Accounts and **cloud sync** in the **local-first MVP** (backups remain manual JSON + export). A later **community phase** may add accounts for comments, publishing, or sync by explicit product decision.
+- Accounts and cloud sync.
 - Real-time multi-user editing.
-- Non-English UI and poem tooling at launch.
+- Non-English UI and writing tools.
+- Community features (comments, sharing for peer feedback, ratings) — separate problem space (identity, moderation, abuse handling).
 
 ## Rough phases
 
 | Phase | Focus |
 |-------|--------|
-| **Done (tools)** | Editor + multi-draft library + autosave + syllables + lines + meter (heuristic) + rhyme + repeats + spell + goals + checklist + snapshots + export + backup |
-| **Next** | Tool polish, optional AI via server when desired |
-| **Later** | Streaming AI, advanced meter data |
-| **Future (community)** | Accounts, optional publish/share, **comments or critiques on poems**, moderation—see [REQUIREMENTS.md](./REQUIREMENTS.md) §7.6 |
+| **Done** | Editor + multi-draft library + autosave + prose metrics + spell + repeats + cliché + snapshots + export + backup + on-demand AI + spend caps |
+| **Next** | Copy polish, senior-friendly guide, IGCSE rubric view, streaming AI |
+| **Later** | Phase 3 craft analyses, AI title suggestions |
+| **Future** | Multi-device sync, teacher-assisted classroom mode |
 
-## Success metrics (tools-first)
+## Success metrics
 
-- Time from open to first useful **local** insight (stats, spell, line jump).
-- Users who **switch drafts** or **save snapshots** while revising.
-- Users who **export or backup** before closing the tab.
+- Time from open to first useful insight (word count, grade, first AI feedback if requested).
+- Story-length targets hit on export (% of stories within ±10% of selected preset).
+- Snapshots saved per story (a proxy for revision discipline).
+- AI spend per user per month (operator-side cost predictability).
 
 ---
 
-*Version: 0.5 — tools-first MVP; AI optional / deferred; future poem commentary (Could / Future phase)*
+*Version: 1.0 (post-story-pivot) — supersedes the poetry-era PRIORITIES.md.*

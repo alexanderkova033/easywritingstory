@@ -107,10 +107,10 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
       {/* Sticky mini-header — appears after hero scrolls out of view */}
       <header className={`landing-sticky-bar${stickyVisible ? " is-visible" : ""}`} aria-hidden={!stickyVisible}>
         <svg className="landing-sticky-logo" viewBox="0 0 24 24" aria-hidden width="20" height="20">
-          <path d="M19 3C19 3 20 8 16 13L13 18L12 21L11 18C9.5 14.5 10 9 16 4C17 3.3 18.2 3 19 3Z" fill="#68aa6e" stroke="white" strokeWidth="0.7" strokeLinejoin="round" />
-          <path d="M19 3L12 21" stroke="rgba(0,0,0,0.18)" strokeWidth="0.55" strokeLinecap="round" fill="none" />
-          <path d="M11 18L12 21" stroke="#c5e0c8" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-          <path d="M19 3C19 3 20 8 16 13L13 18L12 21L11 18C9.5 14.5 10 9 16 4C17 3.3 18.2 3 19 3Z" fill="none" stroke="rgba(30,60,35,0.22)" strokeWidth="0.8" strokeLinejoin="round" />
+          <path d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z" fill="#d98c3e" stroke="white" strokeWidth="0.7" strokeLinejoin="round" />
+          <path d="M12 7L12 19" stroke="rgba(0,0,0,0.22)" strokeWidth="0.55" strokeLinecap="round" fill="none" />
+          <path d="M5.5 9.5L10 10M5.5 11.5L10 12M14 10L18.5 9.5M14 12L18.5 11.5" stroke="#fbe2c2" strokeWidth="0.7" strokeLinecap="round" fill="none" />
+          <path d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z" fill="none" stroke="rgba(80,40,10,0.25)" strokeWidth="0.8" strokeLinejoin="round" />
         </svg>
         <span className="landing-sticky-name">easywriting <span className="landing-brand-badge">story</span></span>
         <button type="button" className="landing-btn landing-btn-primary landing-sticky-cta" onClick={onEnter}>
@@ -163,8 +163,9 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
         <div className="landing-hero-inner">
           <div className="landing-hero-eyebrow landing-hero-eyebrow-desktop">
             <svg className="landing-hero-feather" viewBox="0 0 24 24" aria-hidden width="22" height="22">
-              <path d="M19 3C19 3 20 8 16 13L13 18L12 21L11 18C9.5 14.5 10 9 16 4C17 3.3 18.2 3 19 3Z" fill="#68aa6e" stroke="white" strokeWidth="0.7" strokeLinejoin="round" />
-              <path d="M19 3L12 21" stroke="rgba(0,0,0,0.18)" strokeWidth="0.55" strokeLinecap="round" fill="none" />
+              <path d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z" fill="#d98c3e" stroke="white" strokeWidth="0.7" strokeLinejoin="round" />
+              <path d="M12 7L12 19" stroke="rgba(0,0,0,0.22)" strokeWidth="0.55" strokeLinecap="round" fill="none" />
+              <path d="M5.5 9.5L10 10M5.5 11.5L10 12M14 10L18.5 9.5M14 12L18.5 11.5" stroke="#fbe2c2" strokeWidth="0.7" strokeLinecap="round" fill="none" />
             </svg>
             <span className="landing-brand-name">easywriting <span className="landing-brand-badge">story</span></span>
           </div>
@@ -268,9 +269,9 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
             <div className="lp-topbar-left">
               <span className="lp-brand">
                 <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden>
-                  <path d="M19 3C19 3 20 8 16 13L13 18L12 21L11 18C9.5 14.5 10 9 16 4C17 3.3 18.2 3 19 3Z" fill="currentColor" />
+                  <path d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z" fill="currentColor" />
                 </svg>
-                easywriting<span className="lp-brand-badge">poem</span>
+                easywriting<span className="lp-brand-badge">story</span>
               </span>
               <span className="lp-draft-pill">
                 <span className="lp-draft-tag">DRAFT</span>

@@ -2,27 +2,34 @@
  * Spend caps for Vercel serverless functions.
  *
  * Three layers:
- *   1. Per-IP, per-calendar-month cap (default $2.00).
- *   2. Global, per-UTC-day cap (default $5.00) — kill switch for the whole app.
- *   3. Per-IP, per-endpoint cooldown (5 s default, 60 s for heavy analysis).
+ *   1. Per-IP, per-calendar-month cap.
+ *   2. Global, per-UTC-day cap — kill switch for the whole app.
+ *   3. Per-IP, per-endpoint cooldown (5 s default, longer for heavy analysis).
  *
  * State lives in Vercel KV when configured, falling back to a process-local
  * Map in local dev. With KV enabled the counters are durable across cold
  * starts and shared across all concurrent warm containers.
+ *
+ * Story app context: a full /api/analyze on a 2,000-word IGCSE story sends
+ * ~3,000 input tokens and ~1,000 output tokens — roughly 3–4× the load of
+ * the previous poetry workshop. Caps and analyze cooldown are tightened
+ * accordingly. OpenAI's automatic prompt caching on gpt-5 family prefixes
+ * >1,024 tokens further reduces repeat-analysis cost without explicit
+ * cache_control plumbing (unlike Anthropic).
  */
 
 import { kvGetNumber, kvIncrBy, kvSetPxIfAbsent } from "./_kv";
 
-const PER_IP_MONTHLY_CAP_CENTS = 500;
-const GLOBAL_DAILY_CAP_CENTS = 500;
+const PER_IP_MONTHLY_CAP_CENTS = 300;
+const GLOBAL_DAILY_CAP_CENTS = 300;
 
 const DEFAULT_COOLDOWN_MS = 5_000;
 const ANALYZE_COOLDOWN_BY_MODEL_MS: Record<string, number> = {
-  "gpt-5-nano": 60_000,
-  "gpt-5-mini": 120_000,
-  "gpt-5": 180_000,
+  "gpt-5-nano": 90_000,
+  "gpt-5-mini": 180_000,
+  "gpt-5": 240_000,
 };
-const ANALYZE_COOLDOWN_FALLBACK_MS = 120_000;
+const ANALYZE_COOLDOWN_FALLBACK_MS = 180_000;
 
 interface ModelPrice {
   inCentsPerMTok: number;

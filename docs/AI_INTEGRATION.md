@@ -1,122 +1,164 @@
-# AI integration — Easy-poems
+# AI integration
 
-> **Status (current codebase):** server-side `POST /api/analyze` and the OpenAI-based flow described below **have been removed**. The web app is a **local-only workshop** (plus optional **ChatGPT** in your own browser tab). This document is kept as a **design / history reference** if you reintroduce an API later.
-
-Previously, the **implemented product decision** was: poem analysis ran through a **small backend** that called the **OpenAI API**. Keys never shipped to the browser.
+Server-side OpenAI calls live under [`api/`](../api/) as Vercel serverless functions. The browser never sees an API key; every call is user-triggered (no background polling).
 
 ## Stack
 
 | Piece | Choice |
-|--------|--------|
+|---|---|
 | Provider | **OpenAI** |
-| Default model | **`gpt-5-mini`** (cost/latency for short texts) |
-| Upgrade | **`gpt-5`** via `OPENAI_MODEL` if critiques need more nuance |
-| Transport | HTTPS **POST** from the website to your deploy of `server/` |
-| Response shape | **JSON object** validated server-side (see schema below) |
+| Default model | **`gpt-5-nano`** (cheapest tier — fine for stories ≤ 2,000 words) |
+| Upgrade path | `gpt-5-mini` / `gpt-5` via the per-request `model` field if a critique needs more nuance |
+| Transport | HTTPS **POST** from the browser to `/api/*` on the same origin (Vercel) |
+| Response shape | JSON validated server-side |
 
-## Machine-readable contract
+## Endpoints
 
-- ~~OpenAPI 3.1: `server/openapi.yaml`~~ (removed with the analyze endpoint.)
-- ~~Shared types under `server/poem-analysis/`~~ (removed; rebuild this tree if you restore analyze.)
+All endpoints accept JSON via `POST`, return JSON, and share a small set of cross-cutting concerns documented at the bottom of this file (rate limits, spend caps, cooldowns, gibberish guard).
 
-## Endpoint (MVP)
+### `POST /api/analyze`
 
-**`POST /api/analyze`**
+One-shot critique of a story.
 
-### Request body
-
+**Request:**
 ```json
 {
   "title": "string (optional)",
-  "lines": ["line 1 text", "line 2 text", "..."]
+  "lines": ["line 1", "line 2", "..."],
+  "model": "gpt-5-nano",
+  "harshness": "baby|casual|student|editor|critic",
+  "writingFocus": "optional 1-sentence focus the writer wants critiqued",
+  "goals": {
+    "minWords": 1200, "maxWords": 1800, "targetWords": 1500,
+    "minLines": 0,    "maxLines": 0
+  },
+  "localAnalysis": {
+    "cliches":          [{ "phrase": "...", "lineNumber": 1 }],
+    "repeatedWords":    [{ "word": "...", "count": 3, "lines": [2, 7, 14] }],
+    "avgWordsPerSentence":  12.4,
+    "sentenceLengthStdDev": 5.1,
+    "readingGrade":         7.4,
+    "dialogueFraction":     0.18,
+    "sentenceCount":        92,
+    "paragraphCount":       12,
+    "longestSentence":      { "words": 43, "startLine": 18 }
+  }
 }
 ```
 
-- **`lines`**: one array element per **visual line** of the poem (same numbering as FR-03 in requirements).
-- Max payload ~256 KB (server enforces a limit).
-- Max line count: **`MAX_POEM_LINES`** (default **500**, hard cap 10 000).
+- `lines`: max 800 (configured in `api/analyze.ts`).
+- Total characters across title + lines: max **15,000** (~2,500 words — generous headroom over the 2,000-word IGCSE target).
+- `harshness` chooses the persona — `critic` is a senior IGCSE creative-writing examiner judging against the rubric for content/structure (24) and style/accuracy (16).
 
-### Success response
-
-`200` `application/json` — must match this shape (extra fields allowed but should stay backward-compatible).
+**Response (the model returns this verbatim as JSON, no fences):**
 
 ```json
 {
-  "meta": {
-    "model": "gpt-5-mini",
-    "analyzedAt": "2026-03-29T12:00:00.000Z"
-  },
-  "overall_score": 72,
-  "dimensions": {
-    "imagery": 70,
-    "musicality": 75,
-    "originality": 68,
-    "clarity": 74
-  },
+  "overall_score": 73,
+  "warm_reaction": "Tense opening; ending drifts.",
+  "strengths": ["dialogue feels lived-in", "specific sensory detail"],
+  "weaknesses": ["repeated adverbs", "weak verb choices"],
+  "strongest_line": { "line": 12, "why": "anchors mood in concrete object" },
   "issues": [
     {
       "id": "issue-1",
-      "line_start": 3,
-      "line_end": 3,
-      "excerpt": "optional short quote",
-      "rationale": "Why this is flagged (polite, direct).",
-      "improvements": [
-        "First concrete direction",
-        "Optional second direction"
-      ]
+      "severity": "medium",
+      "line_start": 18,
+      "line_end": 18,
+      "headline": "Adverb pile-up",
+      "problem_words": ["quickly", "suddenly", "loudly"],
+      "rationale": "Three adverbs in two sentences blur the action ...",
+      "improvements": ["replace adverbs with stronger verbs", "let dialogue stand alone"],
+      "rewrite": "He shut the door."
     }
-  ]
+  ],
+  "overall_feedback": "Holistic 1–2 sentences.",
+  "personal_feedback": "Mentor 1–2 sentences addressed to the writer."
 }
 ```
 
-**Scores:** integers **1–100** inclusive for `overall_score` and each dimension.
+### `POST /api/compare`
 
-**Issues:**
+Revision-aware critique. Accepts a diff of the previous draft + the current full text, scores the current version, and reports `comparison: { improvements, regressions, unchanged }`.
 
-- `line_start` / `line_end`: **1-based** indexes into `lines`.
-- `improvements`: **1–3** short strings per issue.
+Request adds: `changesText` (the diff, ≤ 8,000 chars), optional `previousScores`, optional `scoreHistory[]`. Limits and `localAnalysis` shape match `/api/analyze`.
 
-### Errors
+### `POST /api/suggest`
 
-JSON body is `{ "error": string, "code"?: string }`. Stable `code` values include `content_policy` and `rate_limit` when applicable.
+Suggestion generator with five modes:
 
-| Status | Meaning |
-|--------|---------|
-| `400` | Missing/invalid body, or too many lines |
-| `422` | Model declined the request (content safety); safe explanation in `error`, often `code: "content_policy"` |
-| `429` | Rate limit (your `RATE_LIMIT_MAX` limiter or upstream OpenAI); may include `Retry-After`; may include `code: "rate_limit"` |
-| `500` | Missing API key (misconfiguration) |
-| `502` | Other upstream OpenAI errors or invalid/unusable model JSON (message truncated) |
-| `504` | Analysis timed out (OpenAI or server request timeout) |
+| `type` | Returns |
+|---|---|
+| `idea` | 3 story concepts (situation + character + hint of tension) |
+| `continue` | 3 ways to continue the story from cursor / selection |
+| `words` | 6 vivid, register-matched word choices |
+| `spark` | 3 structural / angular pivots on the existing draft |
+| `line` | 4 rewrites of a target sentence (optional `wordTarget` + `wordTolerance`) |
 
-## Environment variables (`server/.env`)
+Backward-compat: `syllableTarget` / `syllableTolerance` are accepted as aliases for `wordTarget` / `wordTolerance` during the rollout.
 
-See `server/.env.example`. Required:
+Response is always `{ "suggestions": ["...", "...", ...] }`.
 
-- **`OPENAI_API_KEY`** — from [OpenAI API keys](https://platform.openai.com/api-keys)
+### `POST /api/chat`
 
-Optional:
+Conversational follow-up to a recent analysis. Accepts `{ title, lines, message, analysisContext?, history?, model? }`. Returns `{ "reply": "string" }`. The full story body is sent in the system message only on the first turn; subsequent turns rely on chat history to keep token usage flat. OpenAI's automatic prompt caching on gpt-5 prefixes > 1,024 tokens means the cached story body re-uses cache hits across rapid follow-ups.
 
-- **`OPENAI_MODEL`** — default `gpt-5-mini`
-- **`PORT`** — default `8787`
-- **`CORS_ORIGIN`** — e.g. `http://localhost:5173` for local Vite; omit in dev for permissive `*` (tighten in production)
-- **`OPENAI_TIMEOUT_MS`** — OpenAI client timeout (default `90000`)
-- **`SERVER_REQUEST_TIMEOUT_MS`** — Node HTTP `requestTimeout` (default `120000`)
-- **`MAX_POEM_LINES`** — reject requests over this many lines (default `500`, max `10000`)
-- **`RATE_LIMIT_MAX`** — if set to a positive number, caps `POST /api/analyze` per client IP per window
-- **`RATE_LIMIT_WINDOW_MS`** — window for the limiter (default `60000`)
+### `POST /api/generate-background`
 
-## Privacy copy (for UI)
-
-- Drafts stay in the **browser** until the user clicks **Analyze**.
-- **Title + lines** are sent **to your server**, then **to OpenAI** for that request.
-- Align your deployed policy with [OpenAI’s enterprise/API data terms](https://openai.com/policies) at launch.
-
-## Frontend contract
-
-`fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title, lines }) })`  
-Use the **same origin** as the site if the API is reverse-proxied, or set `CORS_ORIGIN` and call the absolute API base URL. The **`web/`** app uses the Vite dev proxy to `server/` on port `8787`.
+Generates a custom background palette + image from a text prompt. Unchanged from the poetry version of the project.
 
 ---
 
-*Version: 1.1 — TypeScript server, hardening envs, `web/` client*
+## Cross-cutting concerns
+
+All endpoints flow through the same guards in [`api/_rate-limit.ts`](../api/_rate-limit.ts), [`api/_usage-cap.ts`](../api/_usage-cap.ts), and [`api/_gibberish.ts`](../api/_gibberish.ts).
+
+### Rate limit
+
+Per-IP per minute, in-memory.
+
+### Spend cap
+
+- **Per-IP monthly cap:** $3.00 (300¢)
+- **Global daily kill switch:** $3.00 (300¢) — when hit, all AI endpoints return `503`
+- **Per-IP per-endpoint cooldown:**
+  - `analyze` / `compare`: 90 s (nano), 180 s (mini), 240 s (gpt-5)
+  - everything else: 5 s
+
+State lives in Vercel KV when configured, falls back to a process-local Map in local dev.
+
+### Gibberish guard
+
+A cheap guard call to OpenAI checks whether the submitted text is recognisable English (or recognisable as a story-in-progress) before the expensive analysis call. Returns 422 on rejection so users with nonsense input don't burn budget.
+
+### Errors
+
+`{ "error": string, "retryAfterSec"?: number, "reason"?: string }`.
+
+| Status | Meaning |
+|--------|---------|
+| `400` | Missing/invalid body, payload too large, unknown suggest type |
+| `422` | Gibberish guard rejected the input |
+| `429` | Cooldown or rate limit hit. `Retry-After` header set. |
+| `402` | Per-IP monthly cap reached |
+| `500` | `OPENAI_API_KEY` missing |
+| `503` | Global daily cap reached, or `OPENAI_DISABLED=true` kill switch on |
+| `502` | Upstream OpenAI error, or model returned invalid JSON |
+| `504` | OpenAI / function timeout |
+
+---
+
+## Environment variables (Vercel)
+
+| Var | Purpose |
+|---|---|
+| `OPENAI_API_KEY` | Required. Project-owned key. |
+| `OPENAI_DISABLED` | Set to `true` to flip the AI kill switch without redeploying. |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Required in production for durable rate-limit + spend counters. Without KV the limits work per-instance only. |
+
+## Privacy
+
+- Drafts stay in `localStorage` until the user explicitly triggers an AI action.
+- For AI actions, the title + body (and the local analysis summary above) are sent to the same-origin `/api/*` endpoint, which forwards to OpenAI.
+- No user identifier is sent. Per-IP keys are used only for rate-limit/spend accounting and stored only in KV with TTLs aligned to the limit window (day/month).
+- See [SECURITY.md](../SECURITY.md) for full privacy posture.

@@ -95,35 +95,35 @@ export function WorkshopTopbarHeader(props: Props) {
                 aria-hidden
                 focusable="false"
               >
-                {/* Feather body — vivid accent fill, white stroke for any-bg visibility */}
+                {/* Open book — amber accent fill, white stroke for any-bg visibility */}
                 <path
-                  d="M19 3C19 3 20 8 16 13L13 18L12 21L11 18C9.5 14.5 10 9 16 4C17 3.3 18.2 3 19 3Z"
-                  fill="#68aa6e"
+                  d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z"
+                  fill="#d98c3e"
                   stroke="white"
                   strokeWidth="0.7"
                   strokeLinejoin="round"
                 />
-                {/* Quill vein */}
+                {/* Spine */}
                 <path
-                  d="M19 3L12 21"
-                  stroke="rgba(0,0,0,0.18)"
+                  d="M12 7L12 19"
+                  stroke="rgba(0,0,0,0.22)"
                   strokeWidth="0.55"
                   strokeLinecap="round"
                   fill="none"
                 />
-                {/* Nib highlight */}
+                {/* Page-line highlights (suggest text) */}
                 <path
-                  d="M11 18L12 21"
-                  stroke="#c5e0c8"
-                  strokeWidth="1.5"
+                  d="M5.5 9.5L10 10M5.5 11.5L10 12M14 10L18.5 9.5M14 12L18.5 11.5"
+                  stroke="#fbe2c2"
+                  strokeWidth="0.7"
                   strokeLinecap="round"
                   fill="none"
                 />
                 {/* Dark outline for light-background visibility */}
                 <path
-                  d="M19 3C19 3 20 8 16 13L13 18L12 21L11 18C9.5 14.5 10 9 16 4C17 3.3 18.2 3 19 3Z"
+                  d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z"
                   fill="none"
-                  stroke="rgba(30,60,35,0.22)"
+                  stroke="rgba(80,40,10,0.25)"
                   strokeWidth="0.8"
                   strokeLinejoin="round"
                 />
