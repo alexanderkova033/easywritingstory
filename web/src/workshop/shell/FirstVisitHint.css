@@ -1,0 +1,72 @@
+/* ── Welcome banner (first-visit) ───────────────────────────────────────── */
+@keyframes welcome-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.welcome-banner {
+  animation: welcome-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  flex-shrink: 0;
+}
+
+/* Minimal inline strip version */
+.welcome-banner-minimal {
+  border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 85%, var(--accent) 5%);
+  padding: 0.65rem 1rem;
+}
+
+.welcome-minimal-body {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.welcome-leaf {
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.welcome-minimal-text {
+  flex: 1;
+  font-size: 0.86rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.welcome-minimal-text strong {
+  color: var(--text);
+}
+
+.welcome-guide-inline {
+  font-size: inherit;
+  color: var(--accent);
+}
+
+.welcome-minimal-dismiss {
+  flex-shrink: 0;
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.2rem 0.35rem;
+  border-radius: 4px;
+  line-height: 1;
+  opacity: 0.6;
+}
+.welcome-minimal-dismiss:hover {
+  opacity: 1;
+  color: var(--text);
+  background: color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+@media (max-width: 540px) {
+  .welcome-minimal-text {
+    font-size: 0.82rem;
+  }
+}

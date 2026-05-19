@@ -1,0 +1,132 @@
+.share-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: color-mix(in srgb, #000 45%, transparent);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.share-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  box-shadow: 0 12px 40px color-mix(in srgb, #000 28%, transparent);
+}
+
+.share-modal-view {
+  max-width: 36rem;
+}
+
+.share-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.share-modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.share-modal-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  padding: 0.2em 0.55em;
+  border-radius: 5px;
+}
+
+.share-close-btn {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 6px;
+  line-height: 1;
+  transition: color 0.13s, background 0.13s;
+}
+.share-close-btn:hover { color: var(--text); background: var(--bg); }
+
+.share-desc {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.share-poem-title {
+  margin: 0;
+  font-weight: 650;
+  font-size: 0.95rem;
+}
+
+.share-url-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.share-url-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.75rem;
+  font-family: ui-monospace, monospace;
+  outline: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.share-copy-btn.is-copied {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+}
+
+.share-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.share-view-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.share-view-body {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 55vh;
+  overflow: auto;
+  font-family: inherit;
+}

@@ -1,0 +1,86 @@
+﻿/* ---- Spring: fresh green, scattered blossoms ---- */
+html[data-workshop-bg="spring"] {
+  color-scheme: light;
+  --bg: #f0f6e8;
+  --surface: #f8fcf2;
+  --surface-2: #f2f8eb;
+  --surface-elevated: color-mix(in srgb, var(--surface) 92%, #fff);
+  --border: #c4d8b4;
+  --text: #142210;
+  --muted: #5a7050;
+  --accent: #4a8c38;
+  --accent-soft: color-mix(in srgb, var(--accent) 18%, transparent);
+  --selection-bg: color-mix(in srgb, var(--accent) 16%, #d0e8c0);
+  --selection-fg: var(--text);
+  --danger: #c0321e;
+  --net-line: rgba(60, 120, 40, 0.045);
+  --ambient-a: rgba(80, 160, 60, 0.060);
+  --ambient-b: rgba(55, 115, 42, 0.048);
+  --ambient-c: rgba(100, 185, 75, 0.052);
+  --ambient-d: rgba(45, 95, 35, 0.038);
+  --shine-top: rgba(255, 255, 255, 0.40);
+  --shine-mid: rgba(140, 200, 110, 0.038);
+  --after-blend: multiply;
+  --after-opacity: 0.28;
+  --after-animation: studio-light-soft 179.2s ease-in-out infinite alternate;
+  --shadow-1: 0 3px 14px color-mix(in srgb, #000 3%, transparent);
+  --shadow-2: 0 3px 14px color-mix(in srgb, #000 5%, transparent);
+  --shadow-3: 0 14px 46px color-mix(in srgb, #000 22%, transparent);
+}
+
+html[data-workshop-bg="spring"] body::before {
+  animation: ambient-drift 272s ease-in-out infinite alternate;
+  background-image:
+    radial-gradient(ellipse 200% 130% at 5% 10%, var(--ambient-a), transparent 72%),
+    radial-gradient(ellipse 200% 130% at 95% 75%, var(--ambient-b), transparent 70%),
+    /* Pink blossom haze across sky */
+    radial-gradient(ellipse 80% 50% at 18% 4%, color-mix(in srgb, #f0a0b8 22%, transparent), transparent 62%),
+    radial-gradient(ellipse 65% 45% at 82% 6%, color-mix(in srgb, #ffb8d0 18%, transparent), transparent 60%),
+    /* Soft lavender mid */
+    radial-gradient(ellipse 50% 35% at 50% 28%, color-mix(in srgb, #c8a0e0 12%, transparent), transparent 60%),
+    /* Morning golden lower */
+    radial-gradient(ellipse 70% 50% at 92% 92%, color-mix(in srgb, #f8e060 18%, transparent), transparent 58%),
+    /* Green canopy */
+    radial-gradient(ellipse 120% 45% at 50% 100%, color-mix(in srgb, #78cc48 18%, transparent), transparent 58%),
+    /* Even grass band â€” full width along bottom edge */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='60' viewBox='0 0 240 60'%3E%3Cpath fill='%2358a830' fill-opacity='0.55' d='M0 60 L0 38 Q12 30 24 36 Q36 26 48 34 Q60 24 72 32 Q84 26 96 34 Q108 22 120 32 Q132 28 144 34 Q156 24 168 32 Q180 28 192 34 Q204 26 216 34 Q228 30 240 36 L240 60 Z'/%3E%3Cg stroke='%23386818' stroke-opacity='0.55' stroke-width='1' fill='none' stroke-linecap='round'%3E%3Cpath d='M8 60 Q10 48 8 38'/%3E%3Cpath d='M22 60 Q24 46 22 36'/%3E%3Cpath d='M40 60 Q42 50 40 40'/%3E%3Cpath d='M58 60 Q60 46 58 36'/%3E%3Cpath d='M76 60 Q78 48 76 38'/%3E%3Cpath d='M94 60 Q96 46 94 36'/%3E%3Cpath d='M112 60 Q114 48 112 38'/%3E%3Cpath d='M130 60 Q132 46 130 36'/%3E%3Cpath d='M148 60 Q150 48 148 38'/%3E%3Cpath d='M166 60 Q168 46 166 36'/%3E%3Cpath d='M184 60 Q186 48 184 38'/%3E%3Cpath d='M202 60 Q204 46 202 36'/%3E%3Cpath d='M220 60 Q222 48 220 38'/%3E%3C/g%3E%3C/svg%3E"),
+    /* Transparent tree silhouettes â€” full height edges */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='800' viewBox='0 0 480 800'%3E%3Cg fill='%23386820' fill-opacity='0.16'%3E%3C!-- Left tree --%3E%3Crect x='40' y='400' width='14' height='340' fill='%23402810' fill-opacity='0.22'/%3E%3Cellipse cx='47' cy='400' rx='80' ry='160' fill='%23488828' fill-opacity='0.20'/%3E%3Cellipse cx='30' cy='340' rx='42' ry='80' fill='%23589828' fill-opacity='0.18'/%3E%3Cellipse cx='80' cy='360' rx='48' ry='90' fill='%23589828' fill-opacity='0.18'/%3E%3C!-- Right tree --%3E%3Crect x='430' y='420' width='12' height='320' fill='%23402810' fill-opacity='0.20'/%3E%3Cellipse cx='436' cy='420' rx='70' ry='150' fill='%23488828' fill-opacity='0.20'/%3E%3Cellipse cx='410' cy='380' rx='40' ry='75' fill='%23589828' fill-opacity='0.17'/%3E%3Cellipse cx='462' cy='400' rx='44' ry='82' fill='%23589828' fill-opacity='0.17'/%3E%3C/g%3E%3C/svg%3E"),
+    /* Overhanging blossom branches from top corners */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='220' viewBox='0 0 480 220'%3E%3Cg fill='none' stroke='%23604030' stroke-opacity='0.42' stroke-linecap='round'%3E%3Cpath stroke-width='4' d='M0 20 Q60 28 120 48 Q160 62 188 86'/%3E%3Cpath stroke-width='2.2' d='M60 32 Q72 44 78 64 M100 42 Q108 56 110 78 M140 56 Q150 70 152 92 M170 72 Q176 88 176 108'/%3E%3Cpath stroke-width='4' d='M480 30 Q420 38 360 58 Q320 72 292 96'/%3E%3Cpath stroke-width='2.2' d='M420 42 Q408 54 402 74 M380 52 Q372 66 370 88 M340 66 Q330 80 328 102 M310 82 Q304 98 304 118'/%3E%3C/g%3E%3Cg%3E%3C!-- Left side blossoms --%3E%3Ccircle cx='62' cy='34' r='4' fill='%23ffa0c0' fill-opacity='0.55'/%3E%3Ccircle cx='80' cy='52' r='5' fill='%23ffb0d0' fill-opacity='0.52'/%3E%3Ccircle cx='106' cy='46' r='4' fill='%23ff90b8' fill-opacity='0.55'/%3E%3Ccircle cx='126' cy='66' r='5' fill='%23ffa8c8' fill-opacity='0.50'/%3E%3Ccircle cx='148' cy='60' r='4' fill='%23ffb8d0' fill-opacity='0.55'/%3E%3Ccircle cx='168' cy='84' r='5' fill='%23ffa0c0' fill-opacity='0.50'/%3E%3Ccircle cx='80' cy='72' r='3.5' fill='%23ff98b8' fill-opacity='0.45'/%3E%3Ccircle cx='112' cy='82' r='4' fill='%23ffb0c8' fill-opacity='0.48'/%3E%3Ccircle cx='150' cy='98' r='3.5' fill='%23ffa8c8' fill-opacity='0.45'/%3E%3C!-- Right side blossoms --%3E%3Ccircle cx='418' cy='38' r='4' fill='%23ffa0c0' fill-opacity='0.55'/%3E%3Ccircle cx='400' cy='56' r='5' fill='%23ffb0d0' fill-opacity='0.52'/%3E%3Ccircle cx='374' cy='50' r='4' fill='%23ff90b8' fill-opacity='0.55'/%3E%3Ccircle cx='354' cy='70' r='5' fill='%23ffa8c8' fill-opacity='0.50'/%3E%3Ccircle cx='332' cy='64' r='4' fill='%23ffb8d0' fill-opacity='0.55'/%3E%3Ccircle cx='312' cy='88' r='5' fill='%23ffa0c0' fill-opacity='0.50'/%3E%3Ccircle cx='400' cy='76' r='3.5' fill='%23ff98b8' fill-opacity='0.45'/%3E%3Ccircle cx='368' cy='86' r='4' fill='%23ffb0c8' fill-opacity='0.48'/%3E%3Ccircle cx='330' cy='102' r='3.5' fill='%23ffa8c8' fill-opacity='0.45'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:
+    200% 200%, 200% 200%,
+    100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%,
+    240px 60px,
+    100% 100%,
+    100% 220px;
+  background-position:
+    0% 0%, 100% 100%,
+    0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%,
+    0% 100%,
+    50% 100%,
+    0% 0%;
+  background-repeat:
+    repeat, repeat,
+    repeat, repeat, repeat, repeat, repeat,
+    repeat-x,
+    no-repeat,
+    no-repeat;
+}
+
+/* Spring: drifting petals only */
+html[data-workshop-bg="spring"]::after {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320'%3E%3Cellipse cx='28' cy='32' rx='3.5' ry='6' fill='%23ffa0b8' fill-opacity='0.40' transform='rotate(22 28 32)'/%3E%3Cellipse cx='148' cy='22' rx='3.5' ry='6' fill='%23f291ac' fill-opacity='0.36' transform='rotate(48 148 22)'/%3E%3Cellipse cx='276' cy='42' rx='3.5' ry='6' fill='%23ffb0c4' fill-opacity='0.38' transform='rotate(35 276 42)'/%3E%3Cellipse cx='118' cy='102' rx='3.5' ry='6' fill='%23ffa0b8' fill-opacity='0.36' transform='rotate(-22 118 102)'/%3E%3Cellipse cx='248' cy='98' rx='3.5' ry='6' fill='%23ffb0c4' fill-opacity='0.34' transform='rotate(15 248 98)'/%3E%3Cellipse cx='32' cy='156' rx='3.5' ry='6' fill='%23ffa8c0' fill-opacity='0.32' transform='rotate(28 32 156)'/%3E%3Cellipse cx='162' cy='180' rx='3.5' ry='6' fill='%23ffa0b8' fill-opacity='0.32' transform='rotate(40 162 180)'/%3E%3Cellipse cx='288' cy='192' rx='3.5' ry='6' fill='%23f0a4b8' fill-opacity='0.30' transform='rotate(22 288 192)'/%3E%3Cellipse cx='132' cy='240' rx='3.5' ry='6' fill='%23eb9bb6' fill-opacity='0.28' transform='rotate(35 132 240)'/%3E%3Cellipse cx='258' cy='256' rx='3.5' ry='6' fill='%23ffb8cc' fill-opacity='0.28' transform='rotate(25 258 256)'/%3E%3Cellipse cx='106' cy='296' rx='3.5' ry='6' fill='%23ffb0c4' fill-opacity='0.26' transform='rotate(18 106 296)'/%3E%3Cellipse cx='234' cy='304' rx='3.5' ry='6' fill='%23f0a4b8' fill-opacity='0.26' transform='rotate(32 234 304)'/%3E%3C/svg%3E");
+  background-size: 320px 320px;
+  background-position: 0 0;
+  background-repeat: repeat;
+  mix-blend-mode: normal;
+  opacity: 1;
+  animation: spring-petal-drift 85s linear infinite;
+}
+
+@keyframes spring-petal-drift {
+  0%   { transform: translate3d(0, -2%, 0); }
+  100% { transform: translate3d(-6%, 8%, 0); }
+}

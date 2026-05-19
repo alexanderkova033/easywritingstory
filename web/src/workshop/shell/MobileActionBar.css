@@ -1,0 +1,130 @@
+.mob-tabbar {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .mob-tabbar {
+    display: flex;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 54;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    background: var(--surface);
+    border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  }
+}
+
+.mob-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.2rem 0.45rem;
+  min-height: 3.25rem;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.14s;
+}
+
+.mob-tab:active {
+  opacity: 0.65;
+}
+
+.mob-tab-active {
+  color: var(--accent);
+  position: relative;
+}
+
+/* Filled pill behind active tab */
+.mob-tab-active::before {
+  content: "";
+  position: absolute;
+  inset: 4px 6px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  z-index: -1;
+}
+
+/* Analyse — styled as a pill action button, not a nav tab */
+.mob-tab-analyse {
+  flex: none;
+  flex-direction: row;
+  gap: 0.35rem;
+  padding: 0 1rem;
+  min-height: 2.4rem;
+  height: 2.4rem;
+  margin: 0.4rem 0.3rem 0.4rem 0.1rem;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  color: var(--accent);
+  transition: background 0.14s, border-color 0.14s, transform 0.1s;
+}
+
+.mob-tab-analyse:active:not(:disabled) {
+  opacity: 1;
+  transform: scale(0.96);
+  background: color-mix(in srgb, var(--accent) 26%, var(--surface));
+}
+
+.mob-tab-analyse.is-analysing {
+  opacity: 0.75;
+  cursor: default;
+}
+
+@keyframes mob-spin {
+  to { transform: rotate(360deg); }
+}
+
+.mob-analyse-spinner {
+  display: inline-block;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: mob-spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+.mob-tab-analyse .mob-tab-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.mob-tab-analyse .mob-tab-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.mob-tab-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex-shrink: 0;
+}
+
+.mob-tab-label {
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.mob-tab-wordcount {
+  color: color-mix(in srgb, var(--accent) 75%, var(--muted));
+  font-weight: 500;
+}

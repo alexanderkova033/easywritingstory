@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# TODO: update Sitemap URL once you have a custom domain
+Sitemap: https://easywritingstory.vercel.app/sitemap.xml

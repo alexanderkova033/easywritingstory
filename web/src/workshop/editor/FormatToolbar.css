@@ -1,0 +1,1009 @@
+/* ---- Formatting toolbar ---- */
+.format-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 0.22rem;
+  column-gap: 0.26rem;
+  padding: 0.18rem 0.3rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+  max-width: 100%;
+}
+
+/* Keep buttons within a logical group together: they wrap as a unit rather
+   than breaking mid-group. */
+.fmt-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+  flex-wrap: nowrap;
+}
+
+.fmt-btn {
+  appearance: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  user-select: none;
+}
+
+.fmt-btn:hover {
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  color: var(--text);
+}
+
+.fmt-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.fmt-size-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: 0.1rem;
+}
+
+.fmt-size-label-text {
+  font-size: 0.68rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.fmt-size-select {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.28rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  height: 1.65rem;
+}
+
+.fmt-size-select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.fmt-syllable-toggle {
+  width: auto;
+  min-width: 2.35rem;
+  padding: 0 0.28rem;
+  margin-left: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: color-mix(in srgb, var(--muted) 70%, var(--text));
+}
+
+.fmt-syllable-toggle.is-on {
+  color: color-mix(in srgb, var(--accent) 82%, var(--text));
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+}
+
+/* Rhyme breadth toggle group */
+.fmt-breadth-group {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  gap: 0;
+  margin-left: 0.1rem;
+}
+
+.fmt-breadth-btn {
+  appearance: none;
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border);
+  padding: 0 0.45rem;
+  height: 1.75rem;
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background 0.13s, color 0.13s;
+  line-height: 1;
+}
+
+.fmt-breadth-btn:last-child {
+  border-right: none;
+}
+
+.fmt-breadth-btn:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg));
+  color: var(--text);
+}
+
+.fmt-breadth-btn.is-active {
+  background: color-mix(in srgb, var(--accent) 15%, var(--bg));
+  color: var(--accent);
+  font-weight: 700;
+}
+
+
+.body-row textarea {
+  resize: vertical;
+  min-height: 12rem;
+  line-height: 1.45;
+}
+
+.poem-editor-shell {
+  position: relative;
+  width: 100%;
+}
+
+/* Copy button: now sits in flow below the editor (right-aligned),
+   always visible, smooth crossfade icon → Copied */
+.poem-editor-copy-box {
+  --quick-copy-ease: cubic-bezier(0.33, 1, 0.32, 1);
+  --quick-copy-duration: 0.48s;
+  align-self: flex-end;
+  margin-top: 0.55rem;
+  height: 2.65rem;
+  width: 2.65rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, var(--accent));
+  background: color-mix(in srgb, var(--surface) 94%, var(--bg));
+  box-shadow:
+    0 2px 10px color-mix(in srgb, #000 12%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent);
+  transition:
+    width var(--quick-copy-duration) var(--quick-copy-ease),
+    box-shadow 0.4s ease;
+}
+
+.poem-editor-copy-box.is-copied {
+  width: 5.15rem;
+  box-shadow:
+    0 6px 22px color-mix(in srgb, #000 14%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.poem-editor-copy-slot-inner {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  min-height: 2.65rem;
+}
+
+.quick-copy-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform, opacity;
+  transition:
+    opacity calc(var(--quick-copy-duration) * 0.92) var(--quick-copy-ease),
+    transform var(--quick-copy-duration) var(--quick-copy-ease);
+}
+
+.quick-copy-face-icon {
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.quick-copy-face-icon:hover:not(:disabled) {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.quick-copy-face-icon:active:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.quick-copy-face-icon:disabled {
+  cursor: default;
+}
+
+/* → copied: icon out immediately, “Copied” eases in slightly after */
+.poem-editor-copy-box:not(.is-copied) .quick-copy-face-icon {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  transition-delay: 0s, 0s;
+}
+
+.poem-editor-copy-box.is-copied .quick-copy-face-icon {
+  opacity: 0;
+  transform: scale(0.86);
+  pointer-events: none;
+  transition-delay: 0s, 0s;
+}
+
+.quick-copy-face-done {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  user-select: none;
+  pointer-events: none;
+}
+
+.poem-editor-copy-box:not(.is-copied) .quick-copy-face-done {
+  opacity: 0;
+  transform: scale(0.9) translateY(0.12rem);
+  transition-delay: 0s, 0s;
+}
+
+.poem-editor-copy-box.is-copied .quick-copy-face-done {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition-delay: 0.12s, 0.12s;
+}
+
+.quick-copy-svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poem-editor-copy-box {
+    transition: none;
+  }
+
+  .quick-copy-face {
+    transition: opacity 0.18s ease;
+    will-change: auto;
+  }
+
+  .poem-editor-copy-box:not(.is-copied) .quick-copy-face-icon,
+  .poem-editor-copy-box.is-copied .quick-copy-face-icon,
+  .poem-editor-copy-box:not(.is-copied) .quick-copy-face-done,
+  .poem-editor-copy-box.is-copied .quick-copy-face-done {
+    transform: none;
+    transition-delay: 0s;
+  }
+}
+
+.poem-cm-wrap {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden; /* contain CM's horizontal expansion */
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--border) 100%, var(--text));
+  box-shadow: 0 1px 4px color-mix(in srgb, #000 6%, transparent);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.poem-cm-wrap:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 14%, transparent),
+    0 1px 6px color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.poem-cm-wrap .cm-editor {
+  border-radius: 10px;
+  background: transparent !important;
+  border: 1px solid transparent;
+  box-shadow: none;
+  padding: 4px;
+  max-width: 100%;
+}
+
+.poem-cm-wrap .cm-editor.cm-focused {
+  outline: none;
+}
+
+.poem-cm-wrap .cm-scroller {
+  overflow-x: hidden;
+  overflow-y: visible;
+  background: transparent !important;
+}
+
+.cm-spell-error {
+  text-decoration: underline wavy color-mix(in srgb, var(--danger) 32%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-skip-ink: none;
+}
+
+.poem-workshop[data-tool-tab="spell"] .cm-spell-error {
+  text-decoration-color: color-mix(in srgb, var(--danger) 78%, transparent);
+  text-decoration-thickness: 1.5px;
+}
+
+.cm-spell-error:hover {
+  text-decoration-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 7%, transparent);
+  border-radius: 2px;
+}
+
+.cm-line-flash {
+  background: color-mix(in srgb, var(--accent) 16%, transparent) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 26%, transparent);
+  border-radius: 4px;
+  position: relative;
+  animation: cm-line-flash-anim 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cm-line-flash::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent) 32%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: cm-line-flash-sweep 0.9s ease-out;
+}
+
+.cm-line-flash::after {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--accent, #5fba7d);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent);
+  pointer-events: none;
+  animation: cm-line-flash-bar 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes cm-line-flash-anim {
+  0%   { background: color-mix(in srgb, var(--accent) 36%, transparent) !important; transform: translateX(0); }
+  20%  { background: color-mix(in srgb, var(--accent) 30%, transparent) !important; }
+  100% { background: transparent !important; }
+}
+
+@keyframes cm-line-flash-sweep {
+  0%   { background-position: 100% 0; opacity: 0.9; }
+  100% { background-position: -100% 0; opacity: 0; }
+}
+
+@keyframes cm-line-flash-bar {
+  0%   { transform: scaleY(0.2); opacity: 0; }
+  20%  { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-line-flash::before,
+  .cm-line-flash::after { display: none; }
+  .cm-line-flash { animation: none; }
+}
+
+/* Line focus mode: very subtle dimming of non-active lines */
+.cm-line-dimmed {
+  opacity: 0.38;
+  transition: opacity 0.18s ease;
+}
+
+/* Reduce motion: instant change, no fade */
+@media (prefers-reduced-motion: reduce) {
+  .cm-line-dimmed { transition: none; }
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+  margin-top: 0.25rem;
+}
+
+button.primary {
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.1rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+}
+
+@media (prefers-color-scheme: light) {
+  button.primary {
+    color: #fff;
+  }
+}
+
+button.primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.save-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.save-hint.visible {
+  opacity: 1;
+}
+
+.last-run {
+  font-size: 0.85rem;
+}
+
+.last-run.muted {
+  color: var(--muted);
+}
+
+.error {
+  margin: 0.75rem 0 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.results h2,
+.results h3 {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+}
+
+.results h3 {
+  margin-top: 1.25rem;
+  font-size: 1rem;
+}
+
+.model-meta {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.model-meta code {
+  font-size: 0.85em;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: var(--bg);
+}
+
+.score-block {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 560px) {
+  .score-block {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+  }
+}
+
+.overall {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.overall .label {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.overall .score {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.overall .suffix {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.dimensions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.dimensions li {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr 2.25rem;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.dimensions meter {
+  width: 100%;
+  height: 0.55rem;
+}
+
+.dim-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.issues-details {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.issues-details details {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.35rem 0.55rem;
+  background: var(--bg);
+}
+
+.issue-summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.issue-summary-text {
+  display: inline;
+}
+
+.excerpt-inline {
+  font-weight: 400;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.issue-body {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.issue-jump {
+  margin-bottom: 0.45rem;
+}
+
+.rationale {
+  margin: 0.35rem 0 0.4rem;
+  font-size: 0.92rem;
+}
+
+.improvements {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.privacy-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* ---- Tidy toolbar additions ---- */
+.fmt-sep {
+  display: inline-block;
+  width: 1px;
+  height: 1.4em;
+  background: color-mix(in srgb, var(--border) 80%, transparent);
+  align-self: center;
+  margin: 0 0.1rem;
+}
+
+.fmt-tidy-btn {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 0.3rem 0.52rem;
+  /* Ensure comfortable touch target on mobile */
+  min-width: 2.4rem;
+  min-height: 2.4rem;
+}
+
+.fmt-tidy-btn.is-on {
+  color: color-mix(in srgb, var(--accent) 82%, var(--text));
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+}
+
+/* Labeled toggle buttons — icon + text stacked vertically */
+.fmt-labeled-btn {
+  flex-direction: column;
+  gap: 0.04rem;
+  height: auto;
+  min-height: 1.9rem;
+  padding: 0.12rem 0.35rem;
+  width: auto;
+}
+
+.fmt-btn-icon {
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.fmt-btn-label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  line-height: 1;
+}
+
+/* On mobile the mobile-specific ::after label is redundant — hide it */
+@media (max-width: 899px) {
+  .fmt-word-lookup-btn .fmt-btn-label,
+  .fmt-line-focus-btn .fmt-btn-label {
+    display: none;
+  }
+}
+
+/* On narrow screens: hide tidy buttons except word lookup, shrink remaining controls */
+@media (max-width: 899px) {
+  .fmt-tidy-btn:not(.fmt-word-lookup-btn) {
+    display: none;
+  }
+  .fmt-sep {
+    display: none;
+  }
+
+  .format-toolbar {
+    column-gap: 0.18rem;
+    row-gap: 0.2rem;
+    padding: 0.18rem 0.25rem;
+  }
+
+  .fmt-group {
+    gap: 0.12rem;
+  }
+
+  .fmt-btn {
+    width: 1.65rem;
+    height: 1.65rem;
+    font-size: 0.8rem;
+  }
+
+  .fmt-size-label-text {
+    display: none;
+  }
+
+  .fmt-size-select {
+    font-size: 0.68rem;
+    padding: 0.08rem 0.22rem;
+    height: 1.65rem;
+  }
+
+  .fmt-syllable-toggle {
+    min-width: 1.9rem;
+    font-size: 0.64rem;
+    padding: 0 0.22rem;
+  }
+
+  /* Shrink labeled toggle (focus mode icon + label) so toolbar stays on 1 line */
+  .fmt-labeled-btn {
+    min-height: 1.65rem;
+    padding: 0.12rem 0.3rem;
+  }
+
+  .fmt-btn-icon {
+    font-size: 0.7rem;
+  }
+
+  .fmt-tidy-btn {
+    min-width: 1.9rem;
+    min-height: 1.65rem;
+    font-size: 0.68rem;
+    padding: 0.15rem 0.35rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .fmt-btn {
+    width: 1.55rem;
+    height: 1.55rem;
+    font-size: 0.76rem;
+  }
+
+  .fmt-size-select {
+    height: 1.55rem;
+    font-size: 0.66rem;
+  }
+
+  .fmt-labeled-btn,
+  .fmt-tidy-btn {
+    min-height: 1.55rem;
+  }
+}
+
+/* ---- Rhyme scheme letter gutter ---- */
+.cm-scheme-gutter {
+  min-width: 1.4rem;
+  padding: 0 0.15rem 0 0.25rem;
+  background: transparent;
+  border-right: 1px dashed color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+.cm-rhyme-scheme {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: 0.18rem 0.32rem;
+  border-radius: 4px;
+  text-align: center;
+  min-width: 1.05rem;
+}
+
+.cm-rhyme-scheme-0 { color: #5fba7d; background: color-mix(in srgb, #5fba7d 15%, transparent); }
+.cm-rhyme-scheme-1 { color: #5b9be0; background: color-mix(in srgb, #5b9be0 15%, transparent); }
+.cm-rhyme-scheme-2 { color: #e0995b; background: color-mix(in srgb, #e0995b 15%, transparent); }
+.cm-rhyme-scheme-3 { color: #b07be0; background: color-mix(in srgb, #b07be0 15%, transparent); }
+.cm-rhyme-scheme-4 { color: #d95f8f; background: color-mix(in srgb, #d95f8f 15%, transparent); }
+.cm-rhyme-scheme-5 { color: #5fbab0; background: color-mix(in srgb, #5fbab0 15%, transparent); }
+
+/* ---- Rhyme end-word highlights (active only on rhyme tab) ---- */
+.cm-rhyme-end {
+  border-radius: 3px;
+  padding: 0 1px;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* Per-letter palette — keys match scheme labels (A=a, B=b…) so the editor
+   underline, the gutter letter, and the panel chip all share one colour
+   per rhyme group. */
+.cm-rhyme-end-a { text-decoration-color: #4c8eff; background-color: color-mix(in srgb, #4c8eff 12%, transparent); }
+.cm-rhyme-end-b { text-decoration-color: #27ae60; background-color: color-mix(in srgb, #27ae60 12%, transparent); }
+.cm-rhyme-end-c { text-decoration-color: #e67e22; background-color: color-mix(in srgb, #e67e22 12%, transparent); }
+.cm-rhyme-end-d { text-decoration-color: #9b59b6; background-color: color-mix(in srgb, #9b59b6 12%, transparent); }
+.cm-rhyme-end-e { text-decoration-color: #e74c3c; background-color: color-mix(in srgb, #e74c3c 12%, transparent); }
+.cm-rhyme-end-f { text-decoration-color: #1abc9c; background-color: color-mix(in srgb, #1abc9c 12%, transparent); }
+.cm-rhyme-end-g { text-decoration-color: #f39c12; background-color: color-mix(in srgb, #f39c12 12%, transparent); }
+.cm-rhyme-end-h { text-decoration-color: #5d8ecc; background-color: color-mix(in srgb, #5d8ecc 12%, transparent); }
+.cm-rhyme-end-i { text-decoration-color: #e056a0; background-color: color-mix(in srgb, #e056a0 12%, transparent); }
+.cm-rhyme-end-j { text-decoration-color: #00bcd4; background-color: color-mix(in srgb, #00bcd4 12%, transparent); }
+.cm-rhyme-end-k { text-decoration-color: #8bc34a; background-color: color-mix(in srgb, #8bc34a 12%, transparent); }
+.cm-rhyme-end-l { text-decoration-color: #ff7043; background-color: color-mix(in srgb, #ff7043 12%, transparent); }
+.cm-rhyme-end-m { text-decoration-color: #7c4dff; background-color: color-mix(in srgb, #7c4dff 12%, transparent); }
+.cm-rhyme-end-n { text-decoration-color: #26c6da; background-color: color-mix(in srgb, #26c6da 12%, transparent); }
+.cm-rhyme-end-o { text-decoration-color: #ec407a; background-color: color-mix(in srgb, #ec407a 12%, transparent); }
+.cm-rhyme-end-p { text-decoration-color: #66bb6a; background-color: color-mix(in srgb, #66bb6a 12%, transparent); }
+.cm-rhyme-end-q { text-decoration-color: #ab47bc; background-color: color-mix(in srgb, #ab47bc 12%, transparent); }
+.cm-rhyme-end-r { text-decoration-color: #ffa726; background-color: color-mix(in srgb, #ffa726 12%, transparent); }
+.cm-rhyme-end-s { text-decoration-color: #42a5f5; background-color: color-mix(in srgb, #42a5f5 12%, transparent); }
+.cm-rhyme-end-t { text-decoration-color: #d4a017; background-color: color-mix(in srgb, #d4a017 12%, transparent); }
+.cm-rhyme-end-u { text-decoration-color: #5c6bc0; background-color: color-mix(in srgb, #5c6bc0 12%, transparent); }
+.cm-rhyme-end-v { text-decoration-color: #26a69a; background-color: color-mix(in srgb, #26a69a 12%, transparent); }
+.cm-rhyme-end-w { text-decoration-color: #ef5350; background-color: color-mix(in srgb, #ef5350 12%, transparent); }
+.cm-rhyme-end-x { text-decoration-color: #78909c; background-color: color-mix(in srgb, #78909c 12%, transparent); }
+.cm-rhyme-end-y { text-decoration-color: #c0ca33; background-color: color-mix(in srgb, #c0ca33 12%, transparent); }
+.cm-rhyme-end-z { text-decoration-color: #8d6e63; background-color: color-mix(in srgb, #8d6e63 12%, transparent); }
+.cm-rhyme-end-hover { text-decoration-color: var(--accent); background-color: color-mix(in srgb, var(--accent) 14%, transparent); }
+
+/* ---- Internal rhyme: dotted underline on mid-line rhyming words.
+   Native text-decoration keeps the line snug against the text baseline,
+   so it stays visible regardless of editor line-height. */
+.cm-rhyme-internal {
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, var(--accent) 95%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+
+/* End-rhyme word that's also internal-rhyme: keep the solid end-rhyme
+   colour, but switch to a double underline so both signals are visible. */
+.cm-rhyme-end.cm-rhyme-internal {
+  text-decoration-line: underline;
+  text-decoration-style: double;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+/* ---- Persistent (always-on) dim highlights after AI analysis ---- */
+.cm-line-issue-persistent {
+  border-radius: 3px;
+}
+
+.cm-line-issue-persist-high {
+  background: color-mix(in srgb, var(--ai-score-low, #d95f5f) 9%, transparent) !important;
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ai-score-low, #d95f5f) 50%, transparent);
+}
+
+.cm-line-issue-persist-medium {
+  background: color-mix(in srgb, var(--ai-score-mid, #e6a817) 7%, transparent) !important;
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ai-score-mid, #e6a817) 40%, transparent);
+}
+
+.cm-line-issue-persist-low {
+  background: transparent !important;
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* ---- Issue highlight in editor ---- */
+.cm-line-issue-highlight {
+  border-radius: 3px;
+  transition: background 0.15s ease;
+}
+
+.cm-line-issue-high {
+  background: color-mix(in srgb, var(--ai-score-low, #d95f5f) 18%, transparent) !important;
+  box-shadow: inset 3px 0 0 var(--ai-score-low, #d95f5f);
+}
+
+.cm-line-issue-medium {
+  background: color-mix(in srgb, var(--ai-score-mid, #e6a817) 16%, transparent) !important;
+  box-shadow: inset 3px 0 0 var(--ai-score-mid, #e6a817);
+}
+
+.cm-line-issue-low {
+  background: color-mix(in srgb, var(--accent) 12%, transparent) !important;
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* ---- Issue gutter dots ---- */
+.cm-issue-gutter {
+  width: 14px;
+  padding: 0 2px;
+}
+
+/* Each gutter cell aligns its dot vertically with its line of text. */
+.cm-issue-gutter .cm-gutterElement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Inherit per-line height from the editor's line metrics so the dot tracks the line. */
+  line-height: inherit;
+  height: auto;
+  padding: 0;
+}
+
+.cm-issue-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  vertical-align: middle;
+  opacity: 0.6;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.cm-issue-gutter .cm-gutterElement:hover .cm-issue-dot {
+  transform: scale(1.3);
+  opacity: 1;
+}
+
+.cm-issue-dot-high {
+  background: color-mix(in srgb, var(--ai-score-low, #d95f5f) 65%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ai-score-low, #d95f5f) 40%, transparent);
+}
+
+.cm-issue-dot-medium {
+  background: color-mix(in srgb, var(--ai-score-mid, #e6a817) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ai-score-mid, #e6a817) 35%, transparent);
+}
+
+.cm-issue-dot-low {
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* ---- Left-gutter AI chip — minimal ✦ glyph on active cursor line ---- */
+.cm-ai-chip-gutter {
+  width: 1.25rem;
+  display: flex;
+  align-items: stretch;
+}
+
+.cm-ai-chip-gutter .cm-gutterElement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.cm-ai-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: color-mix(in srgb, var(--accent, #5fba7d) 60%, var(--muted));
+  font-size: 0.85rem;
+  cursor: pointer;
+  user-select: none;
+  opacity: 0.55;
+  transition: opacity 0.18s ease, color 0.15s ease, transform 0.15s ease;
+  pointer-events: auto;
+  line-height: 1;
+}
+
+.cm-ai-chip:hover {
+  opacity: 1;
+  color: var(--accent, #5fba7d);
+  transform: scale(1.15);
+}
+
+/* ---- Strongest line: subtle gold accent ---- */
+.cm-line-strongest {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ai-score-mid, #e6a817) 12%, transparent) 0%,
+    color-mix(in srgb, var(--ai-score-mid, #e6a817) 4%, transparent) 70%,
+    transparent 100%
+  ) !important;
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--ai-score-mid, #e6a817) 70%, transparent);
+  position: relative;
+}
+
+.cm-line-strongest::after {
+  content: "★";
+  position: absolute;
+  right: 0.5em;
+  top: 50%;
+  transform: translateY(-50%);
+  color: color-mix(in srgb, var(--ai-score-mid, #e6a817) 75%, transparent);
+  font-size: 0.78em;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+/* ---- Word-level problem highlights ---- */
+.cm-word-issue {
+  border-bottom: 1px solid;
+  border-radius: 1px;
+}
+
+.cm-word-issue-high {
+  border-bottom-color: color-mix(in srgb, var(--ai-score-low, #d95f5f) 60%, transparent);
+  background: color-mix(in srgb, var(--ai-score-low, #d95f5f) 4%, transparent);
+}
+
+.cm-word-issue-medium {
+  border-bottom-color: color-mix(in srgb, var(--ai-score-mid, #e6a817) 55%, transparent);
+  background: color-mix(in srgb, var(--ai-score-mid, #e6a817) 3%, transparent);
+}
+
+.cm-word-issue-low {
+  border-bottom-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 3%, transparent);
+}
+

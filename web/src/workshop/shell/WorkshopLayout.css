@@ -1,0 +1,770 @@
+.workshop-grid {
+  display: grid;
+  gap: 1.45rem;
+  align-items: start;
+  position: relative;
+}
+
+/* Desktop layout — rail + editor + optional rhyme column + tools, all resizable */
+@media (min-width: 900px) {
+  .workshop-grid {
+    /* 3 columns by default; 4 columns when rhyme scheme panel is active */
+    grid-template-columns: var(--rail-col, 56px) minmax(240px, 1.35fr) var(--tools-col, clamp(260px, 26vw, 380px));
+    gap: 1rem;
+  }
+
+  /* 4-column when the rhyme scheme panel is rendered */
+  .workshop-grid.has-rhyme-panel {
+    grid-template-columns: var(--rail-col, 56px) minmax(240px, 1.35fr) auto var(--tools-col, clamp(260px, 26vw, 380px));
+  }
+
+  /* Collapsed variants */
+  .workshop-grid.tools-collapsed {
+    grid-template-columns: var(--rail-col, 56px) minmax(240px, 1.35fr) 0px;
+  }
+  .workshop-grid.has-rhyme-panel.tools-collapsed {
+    grid-template-columns: var(--rail-col, 56px) minmax(240px, 1.35fr) auto 0px;
+  }
+  .workshop-grid.rail-collapsed {
+    grid-template-columns: 0px minmax(240px, 1.35fr) var(--tools-col, clamp(260px, 26vw, 380px));
+  }
+  /* Collapsed rail: pull the editor left to fill the 1rem gap left by the 0px column */
+  .workshop-grid.rail-collapsed .editor-panel {
+    margin-left: -1rem;
+  }
+  .workshop-grid.tools-collapsed.rail-collapsed {
+    grid-template-columns: 0px minmax(240px, 1fr) 0px;
+  }
+
+  /* Narrower rail: reduce button padding slightly */
+  .workshop-rail {
+    padding: 0.55rem 0.35rem;
+  }
+
+  /* ── Rail visual grouping: subtle divider between button groups ── */
+  .rail-group-divider {
+    display: block;
+    height: 1px;
+    background: color-mix(in srgb, var(--border) 65%, transparent);
+    margin: 0.2rem 0.15rem;
+    border-radius: 1px;
+  }
+}
+
+/* Narrow tablet (900–1049px): tools become a fixed right drawer */
+@media (min-width: 900px) and (max-width: 1049px) {
+  .workshop-grid {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .tools-panel {
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(420px, 88vw);
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    z-index: 60;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    overflow-y: hidden;
+    will-change: transform;
+  }
+
+  .workshop-grid[data-tools-open="true"] .tools-panel {
+    transform: translateX(0);
+  }
+
+  /* Tablet tools toggle button — visible in the rail */
+  .tablet-tools-toggle {
+    display: flex !important;
+  }
+}
+
+/* Wide tablet (1050–1199px): tools sit inline as a narrower column, no overlay */
+@media (min-width: 1050px) and (max-width: 1199px) {
+  .workshop-grid {
+    grid-template-columns: var(--rail-col, 64px) minmax(0, 1.35fr) var(--tools-col, min(300px, 28vw));
+    gap: 1rem;
+  }
+}
+
+/* ── Wide desktop (≥1600px): give tools more room so editor isn't the only thing scaling ── */
+@media (min-width: 1600px) {
+  .workshop-grid {
+    grid-template-columns:
+      var(--rail-col, 80px)
+      minmax(240px, 1.35fr)
+      var(--tools-col, clamp(380px, 22vw, 480px));
+  }
+}
+
+@media (min-width: 1900px) {
+  .workshop-grid {
+    grid-template-columns:
+      var(--rail-col, 88px)
+      minmax(240px, 1.35fr)
+      var(--tools-col, clamp(440px, 22vw, 560px));
+  }
+}
+
+/* ── Rhyme scheme panel — standalone column between editor and tools ── */
+.rhyme-panel {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .rhyme-panel {
+    display: flex;
+    flex-direction: column;
+    width: 2.6rem;
+    position: sticky;
+    top: 1.15rem;
+    align-self: start;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--border) 120%, transparent);
+    background: color-mix(in srgb, var(--surface) 55%, var(--bg));
+    box-shadow: 0 4px 16px color-mix(in srgb, #000 12%, transparent);
+    overflow: hidden;
+    padding: 4px 0.2rem 0;
+  }
+}
+
+/* Scrim: tablet-only — mobile panels are full-screen slides that don't need a scrim */
+.tablet-tools-scrim {
+  display: none;
+}
+
+@media (min-width: 900px) and (max-width: 1049px) {
+  .tablet-tools-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, #000 32%, transparent);
+    z-index: 59;
+    cursor: pointer;
+  }
+}
+
+.poem-workshop.is-focus-mode .workshop-grid {
+  grid-template-columns: 1fr;
+}
+
+.poem-workshop.is-focus-mode .privacy {
+  display: none;
+}
+
+.poem-workshop.is-focus-mode .tools-resize-gutter,
+.poem-workshop.is-focus-mode .rail-resize-gutter {
+  display: none !important;
+}
+
+/* ── Focus mode: centered "page" column instead of full-width editor ─────────
+ * Caps the editor at a comfortable reading measure and centers it, giving the
+ * Word-style page feel. Padding inside .editor-panel acts as page margins. */
+@media (min-width: 900px) {
+  .poem-workshop.is-focus-mode .editor-panel {
+    max-width: min(860px, 92vw);
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem 2.4rem 2.2rem;
+    box-shadow: 0 10px 38px color-mix(in srgb, #000 18%, transparent);
+    transition:
+      max-width 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+      padding 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.32s ease;
+  }
+}
+
+@media (min-width: 1400px) {
+  .poem-workshop.is-focus-mode .editor-panel {
+    max-width: 920px;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .poem-workshop.is-focus-mode .editor-panel {
+    box-shadow: 0 12px 40px color-mix(in srgb, #000 14%, transparent);
+  }
+}
+
+/* ── Focus mode: silence non-essential editor decorations ───────────────────
+ * Keeps the writing surface pure: no spell underlines, AI ribbons, severity
+ * dots, syllable counts, or rhyme markers competing with the words. */
+.poem-workshop.is-focus-mode .cm-spell-error,
+.poem-workshop.is-focus-mode .cm-line-issue-highlight,
+.poem-workshop.is-focus-mode .cm-line-strongest,
+.poem-workshop.is-focus-mode .cm-rhyme-end,
+.poem-workshop.is-focus-mode .cm-rhyme-internal {
+  background: none !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+.poem-workshop.is-focus-mode .cm-issue-gutter,
+.poem-workshop.is-focus-mode .cm-issue-dot,
+.poem-workshop.is-focus-mode .cm-syllable-wrap,
+.poem-workshop.is-focus-mode .cm-rhyme-scheme,
+.poem-workshop.is-focus-mode .ai-line-ribbons,
+.poem-workshop.is-focus-mode .editor-goal-strip {
+  display: none !important;
+}
+
+/* Soft bg simplification: drop heavy chrome on the page itself, but keep
+ * the panel readable. No color swap — just less competing surface. */
+.poem-workshop.is-focus-mode .editor-panel {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.poem-workshop.is-focus-mode .cm-scroller::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* ── Focus mode: reference panels stay present but dimmed.
+ * Rhyme scheme + AI analysis: 50% bright while user is active, drop to 25%
+ * when idle, brighten to ~85% on hover for quick glances. */
+.poem-workshop.is-focus-mode .rhyme-panel,
+.poem-workshop.is-focus-mode .editor-rhyme-scheme,
+.poem-workshop.is-focus-mode .ai-analysis-section {
+  opacity: 0.5;
+  transition: opacity 0.5s ease;
+}
+.poem-workshop.is-focus-mode .rhyme-panel:hover,
+.poem-workshop.is-focus-mode .editor-rhyme-scheme:hover,
+.poem-workshop.is-focus-mode .ai-analysis-section:hover {
+  opacity: 0.85;
+}
+:root[data-focus-idle] .poem-workshop.is-focus-mode .rhyme-panel,
+:root[data-focus-idle] .poem-workshop.is-focus-mode .editor-rhyme-scheme,
+:root[data-focus-idle] .poem-workshop.is-focus-mode .ai-analysis-section {
+  opacity: 0.25;
+  transition: opacity 1.1s ease;
+}
+
+/* ── Fade-on-idle: drift chrome, AI analysis, and the mouse cursor away
+ * after stillness. Driven by data-focus-idle on <html>, set by PoemWorkshop.
+ * Mouse activity reveals; idle reapplies. */
+.poem-workshop.is-focus-mode .topbar,
+.poem-workshop.is-focus-mode .mobile-toolbar-wrap,
+.poem-workshop.is-focus-mode .toolbar,
+.poem-workshop.is-focus-mode .ai-analysis-section,
+.poem-workshop.is-focus-mode .editor-meta-grid,
+.poem-workshop.is-focus-mode .editor-title-collapsed-line,
+.poem-workshop.is-focus-mode .ai-summary-titlebar {
+  transition: opacity 0.5s ease;
+}
+
+/* Floating back button — only visible while in focus mode. Mimics browser
+ * back arrow: click exits focus mode. Fades with chrome on idle. */
+.focus-back-btn {
+  position: fixed;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--text);
+  cursor: pointer;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  transition: opacity 0.5s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.focus-back-btn:hover {
+  border-color: var(--accent, #5fba7d);
+  background: var(--surface);
+  opacity: 1 !important;
+}
+:root[data-focus-idle] .focus-back-btn {
+  opacity: 0.18;
+  transition: opacity 1.1s ease;
+}
+.poem-workshop.is-focus-mode .ai-summary-titlebar:hover {
+  opacity: 1;
+}
+
+:root[data-focus-idle] .poem-workshop.is-focus-mode {
+  cursor: none;
+}
+:root[data-focus-idle] .poem-workshop.is-focus-mode .cm-content {
+  caret-color: color-mix(in srgb, var(--fg) 55%, transparent);
+}
+:root[data-focus-idle] .poem-workshop.is-focus-mode .topbar,
+:root[data-focus-idle] .poem-workshop.is-focus-mode .mobile-toolbar-wrap,
+:root[data-focus-idle] .poem-workshop.is-focus-mode .toolbar {
+  opacity: 0.06;
+  transition: opacity 1.1s ease;
+}
+:root[data-focus-idle] .poem-workshop.is-focus-mode .editor-meta-grid,
+:root[data-focus-idle] .poem-workshop.is-focus-mode .editor-title-collapsed-line {
+  opacity: 0.18;
+  transition: opacity 1.1s ease;
+}
+:root[data-focus-idle] .poem-workshop.is-focus-mode .ai-summary-titlebar {
+  opacity: 0.18;
+  transition: opacity 1.1s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poem-workshop.is-focus-mode .topbar,
+  .poem-workshop.is-focus-mode .mobile-toolbar-wrap,
+  .poem-workshop.is-focus-mode .toolbar,
+  .poem-workshop.is-focus-mode .ai-analysis-section,
+  .poem-workshop.is-focus-mode .editor-meta-grid,
+  .poem-workshop.is-focus-mode .editor-title-collapsed-line,
+  .poem-workshop.is-focus-mode .rhyme-panel,
+  .poem-workshop.is-focus-mode .editor-rhyme-scheme,
+  :root[data-focus-idle] .poem-workshop.is-focus-mode .topbar,
+  :root[data-focus-idle] .poem-workshop.is-focus-mode .mobile-toolbar-wrap,
+  :root[data-focus-idle] .poem-workshop.is-focus-mode .toolbar,
+  :root[data-focus-idle] .poem-workshop.is-focus-mode .ai-analysis-section,
+  :root[data-focus-idle] .poem-workshop.is-focus-mode .editor-meta-grid,
+  :root[data-focus-idle] .poem-workshop.is-focus-mode .editor-title-collapsed-line,
+  :root[data-focus-idle] .poem-workshop.is-focus-mode .rhyme-panel,
+  :root[data-focus-idle] .poem-workshop.is-focus-mode .editor-rhyme-scheme,
+  .poem-workshop.is-focus-mode .ai-summary-titlebar,
+  :root[data-focus-idle] .poem-workshop.is-focus-mode .ai-summary-titlebar,
+  .focus-back-btn,
+  :root[data-focus-idle] .focus-back-btn {
+    transition: none;
+  }
+}
+
+@media (max-width: 899px) {
+  /*
+   * Mobile layout: bottom-sheet for tools.
+   * Editor stays full-viewport. Tools panel is fixed at bottom and snaps
+   * between closed (off-screen), half (~50vh), and full (~92vh) heights.
+   */
+  .workshop-grid {
+    flex: 1 1 0;
+    min-height: 0;
+    display: block;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .workshop-grid .workshop-rail {
+    display: none;
+  }
+
+  .editor-panel {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    isolation: isolate;
+  }
+
+  /* Tools panel as bottom sheet — fixed, full width, height snaps via top offset. */
+  .tools-panel {
+    width: 100%;
+    box-sizing: border-box;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Default closed — slid below viewport */
+    top: 100vh;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    isolation: isolate;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -10px 38px color-mix(in srgb, #000 26%, transparent);
+    transition: top 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 62;
+    will-change: top;
+  }
+
+  /* Live drag — disable transition while finger is down. */
+  .tools-panel.is-dragging,
+  .tools-swipe-handle.is-dragging ~ .tools-scroll-body,
+  .tools-panel:has(.tools-swipe-handle.is-dragging) {
+    transition: none;
+  }
+
+  /* Snap states (top of sheet from viewport top). */
+  .workshop-grid[data-mobile-sheet="closed"] .tools-panel { top: 100vh; }
+  .workshop-grid[data-mobile-sheet="half"]   .tools-panel { top: 50vh; }
+  .workshop-grid[data-mobile-sheet="full"]   .tools-panel { top: 8vh; }
+
+  /* While dragging, JS sets --sheet-top inline; honor it over snap state. */
+  .tools-panel[style*="--sheet-top"] { top: var(--sheet-top) !important; transition: none; }
+
+  /* Drag handle — wide hit target, visible pill. */
+  .tools-swipe-handle {
+    display: block;
+    width: 100%;
+    height: 1.4rem;
+    margin: 0;
+    padding-top: 0.55rem;
+    cursor: grab;
+    touch-action: none;
+    background: none;
+    position: relative;
+  }
+  .tools-swipe-handle::before {
+    content: "";
+    position: absolute;
+    top: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2.6rem;
+    height: 0.32rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--border) 90%, var(--muted));
+    transition: background 0.18s ease, width 0.18s ease;
+  }
+  .tools-swipe-handle:hover::before { background: var(--muted); width: 3rem; }
+  .tools-swipe-handle.is-dragging { cursor: grabbing; }
+  .tools-swipe-handle.is-dragging::before { background: var(--accent); }
+
+  /* Mobile bottom-sheet scrim — only fades in at full snap. */
+  .mobile-sheet-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 61;
+    background: color-mix(in srgb, #000 0%, transparent);
+    pointer-events: none;
+    transition: background 0.28s ease;
+  }
+  .mobile-sheet-scrim-full {
+    background: color-mix(in srgb, #000 36%, transparent);
+    pointer-events: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tools-panel { transition: none; }
+    .mobile-sheet-scrim { transition: none; }
+  }
+
+  /* The toggle button becomes a tab switcher in the tools head */
+  .mobile-tools-panel-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    justify-content: center;
+    min-height: 2.75rem; /* ≥44px touch target */
+    padding: 0.45rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 650;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.14s ease, border-color 0.14s ease;
+  }
+
+  .mobile-tools-panel-toggle::before {
+    content: "←";
+    font-size: 0.85rem;
+    opacity: 0.72;
+  }
+
+  .mobile-tools-panel-toggle:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  }
+
+  .mobile-tools-panel-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Bottom-sheet keeps content rendered — visibility is controlled by off-screen `top`. */
+  .tools-panel.is-mobile-collapsed { max-height: none; }
+
+  /* Stagger-fade tool panel content as it slides into view */
+  @keyframes tools-panel-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .workshop-grid[data-mobile-view="tools"] .tool-tab-panel > * {
+    animation: tools-panel-fade-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .workshop-grid[data-mobile-view="tools"] .tool-tab-panel > *:nth-child(1) { animation-delay: 0.08s; }
+  .workshop-grid[data-mobile-view="tools"] .tool-tab-panel > *:nth-child(2) { animation-delay: 0.13s; }
+  .workshop-grid[data-mobile-view="tools"] .tool-tab-panel > *:nth-child(3) { animation-delay: 0.18s; }
+  .workshop-grid[data-mobile-view="tools"] .tool-tab-panel > *:nth-child(4) { animation-delay: 0.23s; }
+  .workshop-grid[data-mobile-view="tools"] .tool-tab-panel > *:nth-child(n+5) { animation-delay: 0.27s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .workshop-grid[data-mobile-view="tools"] .tool-tab-panel > * {
+      animation: none;
+    }
+  }
+
+  /* Sticky head within the tools panel scroll */
+  .tools-panel .tools-sticky-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface);
+  }
+
+  .tools-overview-pill {
+    min-height: 2.75rem;
+    padding: 0.4rem 0.65rem;
+    align-items: center;
+  }
+
+  .tools-overview-strip-minimal {
+    gap: 0.35rem 0.45rem;
+    padding-left: 0.05rem;
+    padding-right: 0.05rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .tool-tab {
+    min-height: 2.85rem;
+    padding: 0.55rem 0.35rem 0.5rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .mobile-tools-panel-toggle {
+    display: none !important;
+  }
+}
+
+.workshop-rail {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .workshop-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 0.65rem 0.5rem;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--border) 130%, transparent);
+    background: color-mix(in srgb, var(--surface) 82%, var(--bg));
+    box-shadow: 0 4px 18px color-mix(in srgb, #000 13%, transparent);
+    backdrop-filter: saturate(1.02) blur(8px);
+    -webkit-backdrop-filter: saturate(1.02) blur(8px);
+    position: sticky;
+    top: 1.15rem;
+    align-self: start;
+    overflow: hidden; /* clip label text gracefully as rail narrows */
+  }
+
+  .workshop-rail.is-hidden {
+    display: none;
+  }
+
+  /* When rail is wider than default 64px, show labels more prominently */
+  .rail-btn {
+    width: 100%;
+  }
+
+  .rail-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.rail-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 0.5rem 0.35rem;
+  min-height: 3.25rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0; /* gap managed by label margin-top so icon is truly centered when label hidden */
+  overflow: hidden;
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.2s ease,
+    color 0.15s ease;
+}
+
+.rail-btn:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+}
+
+.rail-btn:active {
+  transform: translateY(0);
+}
+
+.rail-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Guide — the one highlighted button on the rail */
+.rail-btn-guide {
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border));
+  background: color-mix(in srgb, var(--accent) 16%, var(--bg));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 3px 12px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.rail-btn-guide .workshop-rail-icon {
+  color: var(--accent);
+}
+
+.rail-btn-guide .rail-label {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.rail-btn-guide:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 26%, var(--bg));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent),
+    0 4px 16px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+/* When a rail modal is open, make the matching button look "selected". */
+.rail-btn[aria-expanded="true"] {
+  border-color: var(--accent);
+  background:
+    radial-gradient(
+      circle at 32% 22%,
+      color-mix(in srgb, var(--accent) 18%, transparent),
+      transparent 62%
+    ),
+    color-mix(in srgb, var(--accent) 12%, var(--bg));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent),
+    0 10px 26px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.workshop-rail-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rail-btn:hover .workshop-rail-icon,
+.rail-btn:focus-visible .workshop-rail-icon,
+.rail-btn[aria-expanded="true"] .workshop-rail-icon {
+  transform: translateY(-3px);
+}
+
+.workshop-rail-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.rail-label {
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1.1;
+  /* Collapsed: no height, no gap — icon sits perfectly centered */
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin-top: 0;
+  transition:
+    max-height 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.18s ease,
+    margin-top 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rail-btn:hover .rail-label,
+.rail-btn:focus-visible .rail-label,
+.rail-btn[aria-expanded="true"] .rail-label {
+  max-height: 1.5rem;
+  opacity: 1;
+  margin-top: 0.32rem;
+}
+
+/* Tablet tools toggle — hidden by default, shown only at 900-1199px */
+.tablet-tools-toggle {
+  display: none;
+}
+
+/* "More" expander tab for progressive disclosure */
+.tool-tab-more {
+  border-style: dashed !important;
+  opacity: 0.7;
+}
+
+.tool-tab-more:hover {
+  opacity: 1;
+}
+
+.tool-tab-more-dots {
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  line-height: 1;
+}
+
+/* ── Analyse button in tools panel header ── */
+.tools-analyse-btn {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.28rem 0.65rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.14s, border-color 0.14s;
+  white-space: nowrap;
+}
+
+.tools-analyse-btn:hover {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  border-color: var(--accent);
+}
+

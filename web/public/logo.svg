@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 88" width="300" height="88">
+  <!-- Icon background -->
+  <rect x="8" y="8" width="72" height="72" rx="15" fill="#0a0f0d"/>
+
+  <!-- Feather body -->
+  <path d="M60 22C64 25 65 33 59 42L52 51L50 57L48 51C45 44 46 34 60 22Z" fill="#7a9b7c"/>
+  <!-- Spine -->
+  <path d="M60 22L50 52" stroke="#0a0f0d" stroke-width="1.1" stroke-linecap="round" fill="none" opacity="0.45"/>
+  <!-- Nib -->
+  <path d="M48 51L50 57" stroke="#c5d4c8" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+
+  <!-- Wordmark — "Easy" -->
+  <text
+    x="96" y="38"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="24"
+    font-weight="700"
+    fill="#1a2e1d"
+    letter-spacing="-0.4"
+  >Easy</text>
+
+  <!-- Wordmark — "Poems" (lighter weight, slight offset for rhythm) -->
+  <text
+    x="96" y="65"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="24"
+    font-weight="400"
+    fill="#2d4a32"
+    letter-spacing="-0.3"
+  >Poems</text>
+
+  <!-- Decorative rule between the two words -->
+  <line x1="96" y1="42" x2="218" y2="42" stroke="#7a9b7c" stroke-width="0.9" opacity="0.35"/>
+</svg>

@@ -1,0 +1,733 @@
+/* Theme imports — load before base so specificity-tied rules cascade correctly */
+@import "./themes/studio.css";
+@import "./themes/paper.css";
+@import "./themes/night.css";
+@import "./themes/forest.css";
+@import "./themes/dawn.css";
+@import "./themes/slate.css";
+@import "./themes/stone.css";
+@import "./themes/crimson.css";
+@import "./themes/ocean.css";
+@import "./themes/aurora.css";
+@import "./themes/parchment.css";
+@import "./themes/dusk.css";
+@import "./themes/winter.css";
+@import "./themes/autumn.css";
+@import "./themes/spring.css";
+@import "./themes/summer.css";
+@import "./themes/rain.css";
+@import "./themes/park.css";
+@import "./themes/dark.css";
+
+:root {
+  color-scheme: light dark;
+  --font-ui: "DM Sans", "Segoe UI", system-ui, sans-serif;
+  --font-poem: "Literata", Georgia, "Times New Roman", serif;
+  --font-metric: "IBM Plex Mono", ui-monospace, monospace;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --shadow-1: 0 3px 14px color-mix(in srgb, #000 5%, transparent);
+  --shadow-2: 0 4px 18px color-mix(in srgb, #000 10%, transparent);
+  --shadow-3: 0 10px 38px color-mix(in srgb, #000 30%, transparent);
+  --focus-ring: 2px solid var(--accent);
+  --btn-height-sm: 2.35rem;
+  --btn-height-md: 2.55rem;
+  --btn-height-lg: 2.8rem;
+  --bg: #090f08;
+  --surface: #111a11;
+  --surface-2: #152016;
+  --surface-elevated: color-mix(in srgb, var(--surface) 86%, var(--bg));
+  --border: #283a28;
+  /* Visible hairline for panel frames — blends border with muted so it stands out. */
+  --hairline: color-mix(in srgb, var(--muted) 38%, var(--border));
+  /* Softer than near-white for easier reading */
+  --text: #dde5de;
+  --muted: #98ae9a;
+  --accent: #68aa6e;
+  --accent-soft: color-mix(in srgb, var(--accent) 22%, transparent);
+  --selection-bg: color-mix(in srgb, var(--accent) 32%, var(--surface));
+  --selection-fg: var(--text);
+  --danger: #f08088;
+  --ai-score-high: #5fba7d;
+  --ai-score-mid: #e6a817;
+  --ai-score-low: #d95f5f;
+  --net-line: rgba(200, 230, 215, 0.032);
+  /* Cohesive teal & sage washes (no clashing violet/blue) */
+  --ambient-a: rgba(55, 145, 125, 0.034);
+  --ambient-b: rgba(40, 95, 78, 0.028);
+  --ambient-c: rgba(75, 135, 120, 0.025);
+  --ambient-d: rgba(100, 165, 145, 0.021);
+  --shine-top: rgba(170, 220, 200, 0.028);
+  --shine-mid: rgba(90, 150, 130, 0.018);
+  /* Backdrop polish (low-distraction defaults) */
+  --grain-opacity: 0.032;
+  --after-blend: screen;
+  --after-opacity: 0.3;
+  --after-animation: studio-light 48s ease-in-out infinite alternate;
+  --after-corner: rgba(0, 0, 0, 0.09);
+  --after-zenith-top: var(--shine-top);
+  --after-zenith-mid: var(--shine-mid);
+  font-family: var(--font-ui);
+  line-height: 1.55;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Slightly warmer, less harsh than pure white — like quality writing paper */
+    --bg: #f2f4f0;
+    --surface: #fafcf9;
+    --surface-2: #edf0eb;
+    --surface-elevated: color-mix(in srgb, var(--surface) 92%, #fff);
+    --border: #d8ddd9;
+    --hairline: color-mix(in srgb, var(--muted) 30%, var(--border));
+    /* Softer text — not quite black, easier on the eyes for long sessions */
+    --text: #20291f;
+    --muted: #5a6b60;
+    --accent: #3e6b47;
+    --selection-bg: color-mix(in srgb, var(--accent) 16%, #dce6de);
+    --selection-fg: var(--text);
+    --danger: #b42318;
+    --ai-score-high: #2d8a4e;
+    --ai-score-mid: #b07800;
+    --ai-score-low: #c0392b;
+    --net-line: rgba(45, 75, 58, 0.038);
+    --ambient-a: rgba(70, 155, 125, 0.04);
+    --ambient-b: rgba(55, 110, 90, 0.032);
+    --ambient-c: rgba(95, 165, 135, 0.028);
+    --ambient-d: rgba(120, 190, 155, 0.024);
+    --shine-top: rgba(255, 255, 255, 0.28);
+    --shine-mid: rgba(100, 170, 135, 0.026);
+    --shadow-1: 0 2px 10px color-mix(in srgb, #000 3%, transparent);
+    --shadow-2: 0 3px 12px color-mix(in srgb, #000 4%, transparent);
+    --shadow-3: 0 12px 40px color-mix(in srgb, #000 24%, transparent);
+    --after-blend: multiply;
+    --after-opacity: 0.16;
+    --after-animation: studio-light-soft 48s ease-in-out infinite alternate;
+    --after-corner: rgba(0, 0, 0, 0.05);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.app-loading-shell {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+}
+
+html {
+  min-height: 100%;
+  font-size: 17.5px;
+}
+
+/* On mobile, pin the viewport so panels scroll independently instead of the page */
+@media (max-width: 899px) {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+}
+
+/* Static film-grain texture — depth without motion */
+html::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 220px 220px;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+}
+
+/* Per-theme micro-detail layer — compositor-safe opacity-only animations */
+html::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+html[data-backdrop-motion="off"]::after,
+html[data-backdrop-power="very-low"]::after { opacity: 0 !important; animation: none !important; }
+html[data-backdrop-power="low"]::after { opacity: 0.5 !important; }
+@media (prefers-reduced-motion: reduce) { html::after { animation: none !important; } }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  scrollbar-color: color-mix(in srgb, var(--border) 28%, var(--bg)) var(--bg);
+  scrollbar-width: thin;
+}
+
+body::-webkit-scrollbar { width: 6px; }
+body::-webkit-scrollbar-track { background: var(--bg); }
+body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 28%, var(--bg));
+  border: 1px solid var(--bg);
+  background-clip: padding-box;
+}
+body::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--border) 55%, var(--bg));
+  border: 1px solid var(--bg);
+  background-clip: padding-box;
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+::-moz-selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  /* Pin to LARGE viewport so URL-bar hide/show on mobile doesn't resize the
+     backdrop — `inset: 0` ties to the small viewport, which jitters as the
+     browser chrome retracts. lvh/lvw are the largest possible viewport
+     (chrome hidden); the backdrop stays the same size always.
+     Fallbacks: 100vh/100vw for browsers without lvh support. */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  width: 100lvw;
+  height: 100lvh;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Animated mesh layer — promoted to compositor via will-change: transform.
+   background-position is NOT compositable (causes per-frame CPU repaints);
+   we animate transform instead so the GPU handles every frame. */
+body::before {
+  will-change: transform;
+  /* 4 % scale gives ±2 % translate headroom without revealing empty edges. */
+  transform: scale(1.04);
+  transition: opacity 0.45s ease;
+  /* Globally calm all backgrounds: slight desaturation + reduced intensity */
+  filter: saturate(0.82) brightness(0.96);
+}
+
+/* Theme cross-fade: JS adds this class for one frame to trigger the fade.
+   animation: none resets the keyframe counter so the new theme's animation
+   starts from 0% instead of teleporting from wherever the old one was. */
+html.theme-switching body::before,
+html.theme-switching body::after {
+  opacity: 0 !important;
+  animation: none !important;
+  transition: opacity 0.2s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    transition: none;
+  }
+  html.theme-switching body::before,
+  html.theme-switching body::after {
+    transition: none !important;
+  }
+}
+
+/* Touch-device perf: kill always-on background animations and the fullscreen
+   saturate/brightness filter. Both force continuous GPU recomposite/repaint
+   on iPad and mid-range phones. Static backdrop, same theme colors. */
+@media (hover: none) and (pointer: coarse) {
+  body::before {
+    filter: none;
+    animation: none !important;
+  }
+  body::after {
+    animation: none !important;
+  }
+}
+
+/* Zenith glow — opacity-only animation is already compositable. */
+body::after {
+  will-change: opacity;
+  transform: translateZ(0);
+}
+
+/* Studio: writing desk — warm lamp glow upper-right, soft ink-wash brush, faint architect grid */
+body::before {
+  background-image:
+    /* Warm desk-lamp pool (upper-right) — replaces flat ambient with directional light */
+    radial-gradient(ellipse 55% 48% at 84% 12%, color-mix(in srgb, #d8b070 14%, transparent), transparent 60%),
+    radial-gradient(ellipse 30% 28% at 86% 10%, color-mix(in srgb, #f0c890 10%, transparent), transparent 50%),
+    /* Sage ambient washes */
+    radial-gradient(ellipse 120% 100% at 14% 28%, var(--ambient-a), transparent 72%),
+    radial-gradient(ellipse 100% 90% at 88% 22%, var(--ambient-b), transparent 70%),
+    radial-gradient(ellipse 130% 110% at 50% 92%, var(--ambient-c), transparent 76%),
+    radial-gradient(ellipse 95% 85% at 72% 62%, var(--ambient-d), transparent 68%),
+    /* Cool counter-light from lower-left (window) */
+    radial-gradient(ellipse 50% 40% at 8% 88%, color-mix(in srgb, var(--shine-mid) 60%, transparent), transparent 58%),
+    /* Soft directional beam from lamp */
+    linear-gradient(118deg, transparent 38%, color-mix(in srgb, var(--accent) 4%, transparent) 52%, transparent 64%),
+    /* Ink-wash brushstroke watermark */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='220' viewBox='0 0 360 220'%3E%3Cpath fill='none' stroke='%23304838' stroke-opacity='0.055' stroke-width='3' stroke-linecap='round' d='M20 165 Q90 130 175 145 Q250 158 340 122'/%3E%3Cpath fill='none' stroke='%23304838' stroke-opacity='0.030' stroke-width='1.6' stroke-linecap='round' d='M28 178 Q100 148 180 162 Q255 174 335 142'/%3E%3Cellipse cx='320' cy='128' rx='5' ry='2.5' fill='%23304838' fill-opacity='0.06' transform='rotate(-12 320 128)'/%3E%3C/svg%3E"),
+    /* Faint open-notebook silhouette lower-center */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='180' viewBox='0 0 320 180'%3E%3Cpath fill='%23304838' fill-opacity='0.035' d='M40 60 Q160 48 280 60 L280 160 Q160 152 40 160 Z'/%3E%3Cline x1='160' y1='54' x2='160' y2='156' stroke='%23304838' stroke-opacity='0.08' stroke-width='0.6'/%3E%3Cpath fill='none' stroke='%23304838' stroke-opacity='0.04' stroke-width='0.4' d='M58 78 L150 76M58 92 L150 90M58 106 L150 104M58 120 L150 118M170 78 L262 76M170 92 L262 90M170 106 L262 104'/%3E%3C/svg%3E"),
+    /* Architect grid */
+    linear-gradient(var(--net-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--net-line) 1px, transparent 1px);
+  background-size:
+    100% 100%, 100% 100%,
+    160% 160%, 155% 155%, 170% 170%, 150% 150%,
+    100% 100%,
+    180% 100%,
+    360px 220px,
+    320px 180px,
+    64px 64px, 64px 64px;
+  background-position:
+    0 0, 0 0,
+    0% 0%, 100% 0%, 50% 100%, 75% 55%,
+    0 0,
+    0 0,
+    24% 18%,
+    50% 92%,
+    center -1px, center -1px;
+  animation: ambient-drift 140s ease-in-out infinite alternate;
+}
+
+/* Theme-matched zenith glow + subtle corner vignette */
+body::after {
+  background:
+    radial-gradient(ellipse 60% 55% at 0% 0%, var(--after-corner), transparent 65%),
+    radial-gradient(ellipse 60% 55% at 100% 0%, var(--after-corner), transparent 65%),
+    radial-gradient(ellipse 60% 55% at 0% 100%, var(--after-corner), transparent 65%),
+    radial-gradient(ellipse 60% 55% at 100% 100%, var(--after-corner), transparent 65%),
+    radial-gradient(95% 55% at 50% -12%, var(--after-zenith-top), var(--after-zenith-mid) 38%, transparent 68%),
+    radial-gradient(80% 70% at 100% 100%, color-mix(in srgb, var(--ambient-b) 40%, transparent), transparent 55%);
+  animation: var(--after-animation);
+  mix-blend-mode: var(--after-blend);
+  opacity: var(--after-opacity);
+}
+
+/* All drift/pulse keyframes animate transform (compositor-thread) instead of
+   background-position (CPU repaint). scale(1.04) is the baseline set in body::before;
+   translate values stay within the ±2% headroom the scale provides. */
+@keyframes ambient-drift {
+  0%   { transform: scale(1.04) translate(-1.5%, -0.8%); }
+  50%  { transform: scale(1.04) translate(1.2%,   0.7%); }
+  100% { transform: scale(1.04) translate(0.3%,   0.2%); }
+}
+
+/* Themed backdrop animations (crimson / ocean / aurora) */
+@keyframes ember-drift {
+  0%, 100% { transform: scale(1.04) translate(-1.5%, -0.9%); }
+  50%       { transform: scale(1.04) translate( 1.5%,  0.9%); }
+}
+
+@keyframes ocean-drift {
+  0%, 100% { transform: scale(1.04) translate(-2%,  -1%); }
+  50%       { transform: scale(1.04) translate( 2%,   1%); }
+}
+
+@keyframes aurora-pulse {
+  0%   { transform: scale(1.04) translate(-1.8%, -0.8%); }
+  33%  { transform: scale(1.04) translate( 1.6%,  0.4%); }
+  66%  { transform: scale(1.04) translate(-0.4%,  1.0%); }
+  100% { transform: scale(1.04) translate( 1.2%, -0.5%); }
+}
+
+/* Aurora-specific glow shimmer — calmed range so curtain doesn't pulse visibly */
+@keyframes aurora-shimmer {
+  0%   { opacity: 0.28; }
+  20%  { opacity: 0.38; }
+  40%  { opacity: 0.30; }
+  60%  { opacity: 0.44; }
+  80%  { opacity: 0.29; }
+  100% { opacity: 0.35; }
+}
+
+/* Manual motion-off toggle (data-backdrop-motion="off" set by JS) */
+html[data-backdrop-motion="off"] body::before,
+html[data-backdrop-motion="off"] body::after {
+  animation: none !important;
+}
+
+/* Pause backdrop animations while a full-viewport scrim is mounted (modals,
+   drawer, tour). GPU stops compositing the animated layers; the moment the
+   overlay unmounts the rule lifts and animation resumes from its paused
+   frame, so soon-visible motion picks up seamlessly. */
+html:has(.overlay) body::before,
+html:has(.overlay) body::after,
+html:has(.spotlight-overlay) body::before,
+html:has(.spotlight-overlay) body::after {
+  animation-play-state: paused;
+}
+
+/* Manual power toggle (data-backdrop-power="low|very-low" set by JS) */
+html[data-backdrop-power="low"] {
+  --grain-opacity: 0.024;
+  --after-opacity: 0.22;
+}
+
+html[data-backdrop-power="very-low"] {
+  --grain-opacity: 0.018;
+  --after-opacity: 0.14;
+  --after-animation: none;
+}
+
+html[data-backdrop-power="low"] body::before {
+  filter: saturate(0.78) brightness(0.95);
+  opacity: 0.92;
+}
+
+html[data-backdrop-power="very-low"] body::before {
+  filter: saturate(0.72) brightness(0.95);
+  opacity: 0.75;
+  animation: none !important;
+}
+
+@keyframes studio-light {
+  0% {
+    opacity: 0.32;
+  }
+  100% {
+    opacity: 0.42;
+  }
+}
+
+@keyframes studio-light-soft {
+  0% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.26;
+  }
+}
+
+/* Firefly soft glow — long gaps between pulses so it's barely noticed */
+@keyframes firefly-glow {
+  0%, 30%, 70%, 100% { opacity: 0; }
+  48%, 52%            { opacity: 1; }
+}
+
+/* Snowfall — compositor-safe transform drift, scale(1.06) hides empty edges */
+@keyframes snow-settle {
+  0%   { transform: scale(1.06) translate(-2%, -2.5%); }
+  100% { transform: scale(1.06) translate(1.5%, 2.5%); }
+}
+
+/* Puddle ripple — opacity only, very slow */
+@keyframes ripple-breathe {
+  0%, 100% { opacity: 0.15; }
+  50%       { opacity: 0.38; }
+}
+
+/* Candle warmth — irregular breathing, nearly imperceptible */
+@keyframes candle-breathe {
+  0%   { opacity: 0.36; }
+  30%  { opacity: 0.44; }
+  60%  { opacity: 0.38; }
+  80%  { opacity: 0.42; }
+  100% { opacity: 0.36; }
+}
+
+html[data-writing-focus-v2] body::before {
+  opacity: 0.48;
+}
+
+html[data-writing-focus-v2] body::after {
+  opacity: 0.12 !important;
+  animation: none !important;
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-writing-focus-v2] body::after {
+    opacity: 0.06 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    animation: none !important;
+  }
+
+  /* No background-position reset needed — we no longer animate that property. */
+  body::before {
+    /* Keep the base scale so static themes look identical to animated ones. */
+    transform: scale(1.04);
+  }
+
+  body::after {
+    opacity: 0.42;
+  }
+}
+
+@media (prefers-color-scheme: light) and (prefers-reduced-motion: reduce) {
+  body::after {
+    opacity: 0.38;
+  }
+}
+
+#root {
+  max-width: 2200px;
+  margin: 0 auto;
+  padding: 1.1rem 1.05rem 2.5rem;
+  position: relative;
+}
+
+@media (min-width: 900px) {
+  #root {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 899px) {
+  #root {
+    height: 100%;
+    overflow: hidden;
+    padding: 0;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip-to-content link — visible only on keyboard focus */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 0.75rem;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 8px 8px;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid var(--bg);
+  outline-offset: 2px;
+}
+
+/* ---- User poem font (html data-poem-font) ---- */
+html[data-poem-font="literata"] {
+  --font-poem: "Literata", Georgia, "Times New Roman", serif;
+}
+
+html[data-poem-font="spectral"] {
+  --font-poem: "Spectral", Georgia, serif;
+}
+
+html[data-poem-font="lora"] {
+  --font-poem: "Lora", Georgia, serif;
+}
+
+html[data-poem-font="crimson-pro"] {
+  --font-poem: "Crimson Pro", Georgia, serif;
+}
+
+html[data-poem-font="source-serif"] {
+  --font-poem: "Source Serif 4", Georgia, serif;
+}
+
+html[data-poem-font="eb-garamond"] {
+  --font-poem: "EB Garamond", Georgia, serif;
+}
+
+html[data-poem-font="playfair"] {
+  --font-poem: "Playfair Display", Georgia, serif;
+}
+
+html[data-poem-font="cormorant"] {
+  --font-poem: "Cormorant Garamond", Georgia, serif;
+}
+
+html[data-poem-font="merriweather"] {
+  --font-poem: "Merriweather", Georgia, serif;
+}
+
+html[data-poem-font="alegreya"] {
+  --font-poem: "Alegreya", Georgia, serif;
+}
+
+html[data-poem-font="dm-serif"] {
+  --font-poem: "DM Serif Display", Georgia, serif;
+}
+
+html[data-poem-font="libre-baskerville"] {
+  --font-poem: "Libre Baskerville", Georgia, serif;
+}
+
+/* ---- User UI font ---- */
+html[data-ui-font="dm-sans"] {
+  --font-ui: "DM Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+html[data-ui-font="source-sans"] {
+  --font-ui: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+}
+
+html[data-ui-font="inter"] {
+  --font-ui: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+html[data-ui-font="nunito"] {
+  --font-ui: "Nunito", "Segoe UI", system-ui, sans-serif;
+}
+
+html[data-ui-font="system"] {
+  --font-ui: system-ui, "Segoe UI", sans-serif;
+}
+
+/* ---- Poem text size / weight / decoration (set via inline style vars) ---- */
+:root {
+  --poem-font-size: 1rem;
+  --poem-font-weight: 400;
+  --poem-text-decoration: none;
+}
+
+/* ---- Named backgrounds live in ./themes/*.css (imported at top) ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-workshop-bg] body::before {
+    animation: none !important;
+  }
+}
+
+/* Pause all CSS animations + transitions when the tab is hidden so the
+   browser stops compositing them in the background. Toggled from main.tsx
+   on visibilitychange. */
+body.tab-hidden,
+body.tab-hidden *,
+body.tab-hidden *::before,
+body.tab-hidden *::after {
+  animation-play-state: paused !important;
+}
+
+/* Idle slowdown is implemented in main.tsx via Web Animations API
+   (playbackRate = 0.5 on body::before / body::after when idle, back to 1
+   on activity). No CSS hook needed — keeping the data-user-idle attribute
+   purely as a debugging affordance. */
+
+/* Soft mobile perf: on touch + narrow viewports, slow always-on infinite
+   ambient backgrounds (themes, landing aurora) to ~half speed. Keeps the
+   visual character but halves the per-second compositor work. Discrete UI
+   animations (button hover, modal enter) are left untouched. */
+@media (hover: none) and (pointer: coarse) and (max-width: 899px) {
+  html[data-workshop-bg] body::before,
+  html[data-workshop-bg] body::after {
+    animation-duration: 96s !important;
+  }
+}
+
+/* Pause heavy ambient backdrops while the editor is focused. .is-editor-typing
+   is toggled by PoemBodyEditor on focusin/focusout. Frees GPU/compositor budget
+   for caret + text layout during keystrokes. Only fires on touch where the gain
+   matters; desktop machines have headroom and the animation cue is nicer. */
+@media (hover: none) and (pointer: coarse) {
+  html.is-editor-typing[data-workshop-bg] body::before,
+  html.is-editor-typing[data-workshop-bg] body::after {
+    animation-play-state: paused;
+  }
+}
+
+/* ======================================================
+   Light performance preset (data-backdrop-power="very-low")
+   ------------------------------------------------------
+   Strips the costliest GPU work while preserving theme colors,
+   surface contrast, and ambient depth. User opts in via the
+   Performance panel; Balanced and Full are untouched.
+
+   Saved per frame:
+     - Fullwidth backdrop-filter blur on topbar / drawer / modals
+     - 9 stacked gradients + SVG textures on body::before
+     - Fullscreen mix-blend grain overlay
+     - 60px blur radius on landing aurora blobs
+   ====================================================== */
+
+/* 1. Kill backdrop-filter on large chrome surfaces. Solid surface color
+      keeps glass feel via border + shadow; the blur was the expensive bit. */
+html[data-backdrop-power="very-low"] .topbar,
+html[data-backdrop-power="very-low"] .drawer,
+html[data-backdrop-power="very-low"] .modal,
+html[data-backdrop-power="very-low"] .tools-sticky-head {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: color-mix(in srgb, var(--surface) 96%, var(--bg)) !important;
+}
+
+/* 2. Keep theme painting intact — only kill the costly per-frame work:
+      drift animation, full-viewport saturate/brightness filter, transforms,
+      will-change hint. Painted SVG layers (silhouettes, foliage, etc.)
+      stay visible since their cost is one-time rasterisation, not per-frame. */
+html[data-backdrop-power="very-low"] body::before {
+  filter: none !important;
+  transform: none !important;
+  animation: none !important;
+  will-change: auto !important;
+}
+
+/* 3. Drop fullscreen grain overlay. mix-blend-mode: overlay forces a
+      compositor pass over the whole viewport every paint. */
+html[data-backdrop-power="very-low"]::before {
+  opacity: 0 !important;
+}
+
+/* 4. Calm landing aurora — reduce blur radius (60px → 24px) and freeze
+      drift. Blobs stay visible; per-frame compositor cost collapses. */
+html[data-backdrop-power="very-low"] .landing-aurora {
+  filter: blur(24px) !important;
+  opacity: 0.42 !important;
+}
+html[data-backdrop-power="very-low"] .landing-aurora-blob-1,
+html[data-backdrop-power="very-low"] .landing-aurora-blob-2,
+html[data-backdrop-power="very-low"] .landing-aurora-blob-3 {
+  animation: none !important;
+  will-change: auto !important;
+}
+
+/* 5. Belt-and-braces: when Light is on AND tab is hidden, also stop any
+      remaining transitions (already covered by body.tab-hidden, this just
+      removes a small jank window if the user switches back mid-fade). */
+html[data-backdrop-power="very-low"] body.tab-hidden *,
+html[data-backdrop-power="very-low"] body.tab-hidden *::before,
+html[data-backdrop-power="very-low"] body.tab-hidden *::after {
+  transition: none !important;
+}

@@ -1,0 +1,108 @@
+/* ── Font Select ─────────────────────────────────────────────────────────── */
+
+.font-select {
+  position: relative;
+  width: 100%;
+}
+
+.font-select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.88rem;
+  text-align: left;
+  transition: border-color 0.13s, box-shadow 0.13s;
+}
+
+.font-select-trigger:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+}
+
+.font-select-trigger:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.font-select.is-open .font-select-trigger {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 16%, transparent);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.font-select-preview {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+.font-select-chevron {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: var(--muted);
+  transition: transform 0.15s;
+  line-height: 1;
+}
+
+.font-select.is-open .font-select-chevron {
+  transform: rotate(180deg);
+}
+
+/* Dropdown list */
+.font-select-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-top: none;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  box-shadow: 0 6px 20px color-mix(in srgb, #000 14%, transparent);
+  max-height: 14rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.font-select-option {
+  padding: 0.42rem 0.7rem;
+  font-size: 1rem;
+  color: var(--text);
+  cursor: pointer;
+  line-height: 1.35;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.font-select-option:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+
+.font-select-option.is-selected {
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  color: var(--accent);
+}
+
+.font-select-option.is-selected::after {
+  content: " ✓";
+  font-size: 0.75rem;
+  opacity: 0.7;
+  font-family: system-ui, sans-serif;
+}

@@ -1,0 +1,569 @@
+.ssp-wrap {
+  z-index: 900;
+  width: 300px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px color-mix(in srgb, #000 22%, transparent);
+  /* overflow-x only — vertical scroll comes from inline overflowY:auto so the
+     popup can shrink to fit the viewport when content is tall. */
+  overflow-x: hidden;
+  animation: ssp-in 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes ssp-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.ssp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.ssp-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.03em;
+}
+
+.ssp-header-actions {
+  display: flex;
+  gap: 0.15rem;
+}
+
+.ssp-back,
+.ssp-close {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  line-height: 1;
+}
+.ssp-back:hover,
+.ssp-close:hover { color: var(--text); background: var(--bg); }
+
+.ssp-source {
+  display: flex;
+  gap: 0.35rem;
+  align-items: baseline;
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 60%, var(--surface));
+}
+
+.ssp-source-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.ssp-source-text {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Menu ── */
+.ssp-menu {
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ssp-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.83rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.ssp-menu-btn:hover {
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+}
+
+.ssp-menu-btn-primary {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.ssp-menu-btn-primary:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  border-color: var(--accent);
+}
+
+.ssp-menu-icon {
+  font-size: 1rem;
+  opacity: 0.75;
+}
+
+/* ── Syllable row ── */
+.ssp-syllable-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 40%, var(--surface));
+}
+
+.ssp-syllable-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+}
+
+.ssp-syllable-label-text {
+  font-size: 0.74rem;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ssp-syllable-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.ssp-syllable-step {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.95rem;
+  width: 1.55rem;
+  height: 1.6rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  transition: background 0.15s ease;
+}
+
+.ssp-syllable-step:hover {
+  background: color-mix(in srgb, var(--accent, #5fba7d) 14%, transparent);
+  color: var(--accent, #5fba7d);
+}
+
+.ssp-syllable-input {
+  width: 2.4rem;
+  padding: 0.2rem 0.2rem;
+  border: none;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.ssp-syllable-input::-webkit-outer-spin-button,
+.ssp-syllable-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.ssp-syllable-input:focus { outline: none; background: color-mix(in srgb, var(--accent, #5fba7d) 6%, transparent); }
+
+.ssp-tolerance-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ssp-tolerance-label {
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.ssp-tolerance-chips {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px;
+  background: var(--surface);
+  gap: 1px;
+}
+
+.ssp-tolerance-chip {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.72rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.ssp-tolerance-chip:hover { color: var(--text); }
+
+.ssp-tolerance-chip.is-active {
+  background: var(--accent, #5fba7d);
+  color: #fff;
+  font-weight: 600;
+}
+
+.ssp-syllable-hint {
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0.85;
+  font-style: italic;
+}
+
+/* ── Loading ── */
+.ssp-loading {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem;
+}
+
+.ssp-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: ssp-bounce 0.9s ease-in-out infinite;
+}
+.ssp-dot:nth-child(2) { animation-delay: 0.15s; }
+.ssp-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes ssp-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+  40%           { transform: scale(1);   opacity: 1; }
+}
+
+.ssp-loading-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-left: 0.25rem;
+}
+
+/* ── Rewrite results ── */
+.ssp-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.3rem 0;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+.ssp-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  transition: background 0.1s;
+}
+.ssp-item:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+
+.ssp-text {
+  flex: 1;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text);
+  font-style: italic;
+}
+
+.ssp-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.ssp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+}
+.ssp-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.ssp-btn.is-copied { color: var(--ai-score-high, #5fba7d); border-color: var(--ai-score-high, #5fba7d); }
+.ssp-apply { font-weight: 650; }
+
+.ssp-idle {
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  justify-content: center;
+}
+
+.ssp-generate-btn {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  width: 100%;
+}
+.ssp-generate-btn:hover {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  border-color: var(--accent);
+}
+
+.ssp-error-wrap {
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ssp-error {
+  margin: 0;
+  padding: 0.7rem 0.75rem;
+  font-size: 0.78rem;
+  color: var(--danger, #d95f5f);
+}
+
+.ssp-retry-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.65rem;
+  cursor: pointer;
+  align-self: flex-start;
+  margin: 0.3rem 0.75rem 0.5rem;
+  transition: color 0.1s, border-color 0.1s;
+}
+.ssp-retry-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ── Define mode ── */
+.ssp-define {
+  padding: 0.6rem 0.75rem 0.75rem;
+}
+
+.ssp-define-pos {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+}
+
+.ssp-define-defs {
+  margin: 0 0 0.65rem 1.15rem;
+  padding: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ssp-define-none {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+
+.ssp-define-syns {
+  border-top: 1px solid var(--border);
+  padding-top: 0.55rem;
+  margin-top: 0.1rem;
+}
+
+.ssp-define-syns-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.ssp-define-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.ssp-syn-chip {
+  padding: 0.18rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.ssp-syn-chip:hover {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.ssp-ant-chip {
+  border-style: dashed;
+  color: color-mix(in srgb, var(--text) 75%, transparent);
+}
+.ssp-ant-chip:hover {
+  background: color-mix(in srgb, var(--ai-score-mid, #e6a817) 10%, var(--surface));
+  border-color: var(--ai-score-mid, #e6a817);
+  color: var(--ai-score-mid, #e6a817);
+}
+
+/* ---- AI issue feedback (problem-word match) ---- */
+.ssp-issue {
+  margin: 0.45rem 0.75rem 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--ai-score-mid, #e6a817) 30%, var(--border));
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--ai-score-mid, #e6a817) 8%, var(--surface)) 0%,
+    var(--surface) 100%);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-left-width: 3px;
+}
+
+.ssp-issue-sev-high {
+  border-color: color-mix(in srgb, var(--ai-score-low, #d95f5f) 35%, var(--border));
+  border-left-color: var(--ai-score-low, #d95f5f);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--ai-score-low, #d95f5f) 8%, var(--surface)) 0%,
+    var(--surface) 100%);
+}
+
+.ssp-issue-sev-medium {
+  border-left-color: var(--ai-score-mid, #e6a817);
+}
+
+.ssp-issue-sev-low {
+  border-left-color: var(--accent, #5fba7d);
+  background: var(--surface);
+}
+
+.ssp-issue-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ssp-issue-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 0.72rem;
+  background: color-mix(in srgb, var(--ai-score-mid, #e6a817) 20%, transparent);
+  color: var(--ai-score-mid, #e6a817);
+}
+
+.ssp-issue-sev-high .ssp-issue-mark {
+  background: color-mix(in srgb, var(--ai-score-low, #d95f5f) 20%, transparent);
+  color: var(--ai-score-low, #d95f5f);
+}
+
+.ssp-issue-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.ssp-issue-headline {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ssp-issue-rationale {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text);
+  opacity: 0.9;
+}
+
+.ssp-issue-apply {
+  align-self: flex-start;
+  appearance: none;
+  border: 1px solid var(--accent, #5fba7d);
+  background: color-mix(in srgb, var(--accent, #5fba7d) 10%, transparent);
+  color: var(--accent, #5fba7d);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.1rem;
+  transition: background 0.15s ease;
+}
+
+.ssp-issue-apply:hover {
+  background: var(--accent, #5fba7d);
+  color: #fff;
+}

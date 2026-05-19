@@ -1,0 +1,308 @@
+/* ── Spotlight tour overlay ───────────────────────────────────────────────── */
+
+.spotlight-tour {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  pointer-events: none; /* children opt-in */
+}
+
+/* Full-screen SVG that renders the dim + spotlight hole */
+.spotlight-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: all; /* blocks clicks on everything behind */
+}
+
+/* ── Tooltip card ─────────────────────────────────────────────────────────── */
+
+@keyframes st-in-next {
+  from { opacity: 0; transform: translateX(12px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes st-in-prev {
+  from { opacity: 0; transform: translateX(-12px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.spotlight-tooltip {
+  position: fixed;
+  z-index: 801;
+  pointer-events: all;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1rem 1.1rem 0.85rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, var(--accent));
+  background: color-mix(in srgb, var(--surface-elevated, var(--surface)) 96%, var(--bg));
+  box-shadow:
+    0 8px 32px color-mix(in srgb, #000 28%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 14%, transparent) inset;
+  backdrop-filter: blur(14px) saturate(1.08);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
+  outline: none;
+}
+
+.spotlight-anim--next {
+  animation: st-in-next 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.spotlight-anim--prev {
+  animation: st-in-prev 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spotlight-tooltip {
+    animation: none !important;
+  }
+}
+
+/* ── Step row ─────────────────────────────────────────────────────────────── */
+
+.spotlight-step-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.spotlight-step-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.spotlight-step-row-end {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.spotlight-skip {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0.2rem 0.35rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+
+.spotlight-skip:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--muted) 10%, var(--surface));
+}
+
+.spotlight-skip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.spotlight-close {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.spotlight-close:hover {
+  background: color-mix(in srgb, var(--danger, #c0392b) 12%, var(--surface));
+  color: var(--danger, #c0392b);
+}
+
+.spotlight-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── Content ──────────────────────────────────────────────────────────────── */
+
+.spotlight-content-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.spotlight-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--text);
+  background: linear-gradient(
+    135deg,
+    var(--text) 30%,
+    color-mix(in srgb, var(--accent) 70%, var(--text)) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.spotlight-body {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--text) 80%, var(--muted));
+}
+
+/* ── Progress dots ────────────────────────────────────────────────────────── */
+
+.spotlight-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.spotlight-dot {
+  appearance: none;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  background: color-mix(in srgb, var(--muted) 50%, var(--border));
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    width 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.18s ease;
+}
+
+.spotlight-dot.is-active {
+  width: 1.4rem;
+  background: var(--accent);
+}
+
+.spotlight-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── Navigation buttons ───────────────────────────────────────────────────── */
+
+.spotlight-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.15rem;
+}
+
+.spotlight-btn {
+  appearance: none;
+  padding: 0.42rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease,
+    transform 0.14s cubic-bezier(0.22, 1, 0.36, 1);
+  min-height: 2.2rem;
+}
+
+.spotlight-btn:hover {
+  transform: translateY(-1px);
+}
+
+.spotlight-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  transform: none;
+}
+
+.spotlight-btn-prev:hover:not(:disabled) {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--muted) 12%, var(--surface));
+}
+
+.spotlight-btn-next {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  color: color-mix(in srgb, var(--accent) 85%, var(--text));
+}
+
+.spotlight-btn-next:hover {
+  background: color-mix(in srgb, var(--accent) 26%, var(--surface));
+  border-color: var(--accent);
+}
+
+.spotlight-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── Keyboard hint ────────────────────────────────────────────────────────── */
+
+.spotlight-kbd-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.15rem;
+  font-size: 0.7rem;
+  color: color-mix(in srgb, var(--muted) 80%, var(--text));
+  opacity: 0.7;
+}
+
+.spotlight-kbd-hint kbd {
+  display: inline-block;
+  min-width: 1.1rem;
+  padding: 0.05rem 0.32rem;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--surface) 75%, var(--bg));
+  font: inherit;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .spotlight-kbd-hint {
+    display: none;
+  }
+}
+
+/* ── Mobile adjustments ───────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .spotlight-tooltip {
+    /* On phones, anchor tooltip near the bottom of the screen */
+    top: auto !important;
+    bottom: max(1rem, env(safe-area-inset-bottom, 1rem)) !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    width: auto !important;
+  }
+}

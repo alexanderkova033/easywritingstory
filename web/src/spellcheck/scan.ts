@@ -1,0 +1,155 @@
+import type { SpellMode } from "@/workshop/library/local-draft-storage";
+import { normalizeWordToken, wordSpansInLine } from "@/workshop/text/tokenize";
+import { suggestCorrections } from "./suggest";
+
+export interface SpellHit {
+  lineNumber: number;
+  word: string;
+  normalized: string;
+  suggestions: string[];
+  /** Document offsets in the same string passed to {@link spellHitsFromText} (0-based, end-exclusive). */
+  docFrom: number;
+  docTo: number;
+}
+
+function lineNumberAtOffset(text: string, offset: number): number {
+  let line = 1;
+  const end = Math.min(offset, text.length);
+  for (let i = 0; i < end; i++) {
+    if (text.charCodeAt(i) === 10) line++;
+  }
+  return line;
+}
+
+/**
+ * Same misspellings as {@link spellErrorRangesFromText}, with line metadata and suggestions.
+ * Use this for the workshop list so it stays aligned with editor underlines.
+ */
+export function spellHitsFromText(
+  fullText: string,
+  dict: Set<string>,
+  personal: Set<string>,
+  sessionIgnores: Set<string>,
+  mode: SpellMode,
+): SpellHit[] {
+  const ranges = spellErrorRangesFromText(
+    fullText,
+    dict,
+    personal,
+    sessionIgnores,
+    mode,
+  );
+  const hits: SpellHit[] = [];
+  for (const r of ranges) {
+    const raw = fullText.slice(r.from, r.to);
+    const normalized = normalizeWordToken(raw);
+    hits.push({
+      lineNumber: lineNumberAtOffset(fullText, r.from),
+      word: raw,
+      normalized,
+      suggestions: suggestCorrections(normalized, dict, 5),
+      docFrom: r.from,
+      docTo: r.to,
+    });
+  }
+  return hits;
+}
+
+function shouldSkipPermissive(token: string, normalized: string): boolean {
+  if (normalized.length <= 1) return true;
+  if (normalized.length <= 2) return true;
+  if (/\d/.test(token)) return true;
+  if (/[^a-zA-Z']/.test(token.replace(/'/g, ""))) return true;
+  if (token === token.toUpperCase() && token.length >= 2 && /[A-Z]/.test(token))
+    return true;
+  if (/[a-z][A-Z]/.test(token)) return true;
+  if (/^[ivxlcdm]+$/i.test(normalized) && normalized.length >= 2) return true;
+  return false;
+}
+
+function shouldSkipStrict(_token: string, normalized: string): boolean {
+  if (normalized.length <= 1) return true;
+  if (/^\d+$/.test(normalized)) return true;
+  return false;
+}
+
+function inDictionary(dict: Set<string>, normalized: string): boolean {
+  if (dict.has(normalized)) return true;
+  const flat = normalized.replace(/'/g, "");
+  if (flat !== normalized && dict.has(flat)) return true;
+  return false;
+}
+
+function inWordSet(set: Set<string>, normalized: string): boolean {
+  if (set.has(normalized)) return true;
+  const flat = normalized.replace(/'/g, "");
+  if (flat !== normalized && set.has(flat)) return true;
+  return false;
+}
+
+function isMisspelled(
+  raw: string,
+  normalized: string,
+  dict: Set<string>,
+  personal: Set<string>,
+  sessionIgnores: Set<string>,
+  mode: SpellMode,
+): boolean {
+  if (!normalized) return false;
+  if (mode === "permissive" && shouldSkipPermissive(raw, normalized))
+    return false;
+  if (mode === "strict" && shouldSkipStrict(raw, normalized)) return false;
+  if (inWordSet(personal, normalized) || inWordSet(sessionIgnores, normalized))
+    return false;
+  if (inDictionary(dict, normalized)) return false;
+  return true;
+}
+
+/** Character offsets in `fullText` for unknown tokens (for editor decorations). */
+export function spellErrorRangesFromText(
+  fullText: string,
+  dict: Set<string>,
+  personal: Set<string>,
+  sessionIgnores: Set<string>,
+  mode: SpellMode,
+): { from: number; to: number }[] {
+  const lines = fullText.split("\n");
+  const ranges: { from: number; to: number }[] = [];
+  let base = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+    for (const span of wordSpansInLine(line)) {
+      const normalized = normalizeWordToken(span.raw);
+      if (
+        !isMisspelled(
+          span.raw,
+          normalized,
+          dict,
+          personal,
+          sessionIgnores,
+          mode,
+        )
+      )
+        continue;
+      ranges.push({ from: base + span.start, to: base + span.end });
+    }
+    base += line.length + 1;
+  }
+  return ranges;
+}
+
+export function scanLinesForSpelling(
+  lines: string[],
+  dict: Set<string>,
+  personal: Set<string>,
+  sessionIgnores: Set<string>,
+  mode: SpellMode,
+): SpellHit[] {
+  return spellHitsFromText(
+    lines.join("\n"),
+    dict,
+    personal,
+    sessionIgnores,
+    mode,
+  );
+}

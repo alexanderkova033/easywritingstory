@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Builds
+server/dist/
+web/dist/
+
+# E2E / test artifacts
+web/playwright-report/
+web/test-results/
+
+# Vite caches
+web/node_modules/.vite/
+
+# Editor / misc
+.claude/settings.local.json
+
+# Secrets
+.env
+.env.local
+*.pem
+
+# Logs / OS
+npm-debug.log*
+.DS_Store
+Thumbs.db

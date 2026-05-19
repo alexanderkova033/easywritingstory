@@ -1,0 +1,421 @@
+/* ---- Word Lookup Popup ---- */
+.word-lookup-popup {
+  position: fixed;
+  z-index: 900;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  padding: 0.55rem 0.65rem 0.62rem;
+  min-width: 200px;
+  max-width: min(300px, calc(100vw - 1.25rem));
+  /* Cap height so a long synonym/antonym list scrolls inside the popup
+     instead of overflowing the viewport. */
+  max-height: calc(100vh - 1.25rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: all;
+}
+
+.word-lookup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.word-lookup-word {
+  font-family: var(--font-poem);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.word-lookup-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.word-lookup-disable-btn {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: 0.18rem 0.42rem;
+  border-radius: 5px;
+  transition: color 0.1s, background 0.1s, border-color 0.1s;
+  white-space: nowrap;
+}
+
+.word-lookup-disable-btn:hover {
+  color: var(--text);
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--border) 40%, transparent);
+}
+
+.word-lookup-close {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.1rem 0.25rem;
+  border-radius: 6px;
+  transition: color 0.1s, background 0.1s;
+}
+
+.word-lookup-close:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--border) 55%, transparent);
+}
+
+.word-lookup-none {
+  margin: 0;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.word-lookup-loading,
+.word-lookup-notfound,
+.word-lookup-error {
+  margin: 0;
+}
+
+.word-lookup-error {
+  padding: 0.35rem 0;
+  border-left: 3px solid color-mix(in srgb, var(--danger) 55%, var(--border));
+  padding-left: 0.55rem;
+}
+
+.word-lookup-dict-fallback {
+  margin: 0 0 0.4rem;
+  font-size: 0.78rem;
+}
+
+.word-lookup-defs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.45rem;
+}
+
+.word-lookup-def-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.word-lookup-pos {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.word-lookup-def-list {
+  margin: 0.12rem 0 0;
+  padding: 0 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+/* Hide list marker when only one definition in the group */
+.word-lookup-def-list:has(> li:only-child) {
+  padding-left: 0;
+  list-style: none;
+}
+
+.word-lookup-def-item {
+  font-size: 0.81rem;
+  line-height: 1.42;
+  color: var(--text);
+}
+
+.word-lookup-more-defs {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.72rem;
+  color: var(--accent);
+  cursor: pointer;
+  margin-top: 0.1rem;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+  opacity: 0.8;
+}
+
+.word-lookup-more-defs:hover {
+  opacity: 1;
+}
+
+.word-lookup-group {
+  margin-top: 0.5rem;
+}
+
+.word-lookup-group-tight {
+  margin-top: 0.32rem;
+}
+
+.word-lookup-group-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.word-lookup-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+}
+
+.word-lookup-chip {
+  display: inline-block;
+  padding: 0.16rem 0.42rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--border) 85%, var(--accent));
+  background: color-mix(in srgb, var(--accent) 9%, var(--bg));
+  font-size: 0.78rem;
+  color: var(--text);
+  user-select: text;
+}
+
+.word-lookup-chip-btn {
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  transition: background 0.12s, border-color 0.12s, color 0.12s, transform 0.1s;
+}
+
+.word-lookup-chip-btn:hover {
+  background: color-mix(in srgb, var(--accent) 20%, var(--bg));
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.word-lookup-chip-btn:active {
+  transform: scale(0.95);
+}
+
+.word-lookup-chip-btn.is-inserted {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.word-lookup-chip-ant {
+  border-color: color-mix(in srgb, var(--border) 85%, var(--danger));
+  background: color-mix(in srgb, var(--danger) 8%, var(--bg));
+}
+
+.word-lookup-chip-ant.word-lookup-chip-btn:hover {
+  background: color-mix(in srgb, var(--danger) 20%, var(--bg));
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.word-lookup-chip-ant.word-lookup-chip-btn.is-inserted {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.word-lookup-insert-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.7rem;
+}
+
+/* ── Syllable count + rhythm bar inline widget ────────────────── */
+.cm-syllable-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  margin-left: 0.55em;
+  user-select: none;
+  pointer-events: none;
+}
+
+.cm-rhythm-bar {
+  display: inline-block;
+  width: calc(var(--bar-pct, 50%) * 0.28);  /* max ~28px at 100% */
+  min-width: 3px;
+  height: 5px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--accent) 45%, var(--muted));
+  opacity: 0.45;
+  vertical-align: middle;
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cm-syllable-count {
+  display: inline-block;
+  font-size: 0.72em;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--muted) 70%, var(--accent));
+  opacity: 0.75;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── Rhyme scheme labels ──────────────────────────────────────── */
+.rhyme-scheme-list {
+  list-style: none;
+  margin: 0.5rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.rhyme-scheme-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.83rem;
+}
+
+.rhyme-scheme-label {
+  display: inline-block;
+  min-width: 1.3em;
+  font-weight: 700;
+  font-size: 0.8em;
+  padding: 0.05em 0.35em;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 26%, var(--bg));
+  color: var(--accent);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.rhyme-scheme-text {
+  color: var(--muted);
+  font-size: 0.82em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 14rem;
+}
+
+/* ── Editor + right-side rhyme scheme wrapper ─────────────────── */
+.poem-editor-with-scheme {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden; /* prevent any x-scroll leaking out */
+}
+
+.poem-editor-with-scheme .poem-editor-shell {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── Right-column rhyme scheme — regular flex item, not absolute ── */
+.editor-rhyme-scheme {
+  /* Width scales with poem font so labels stay legible at any zoom */
+  --rhyme-col-width: max(2.4rem, calc(var(--poem-font-size, 1rem) * 2.2));
+  flex: 0 0 var(--rhyme-col-width);
+  width: var(--rhyme-col-width);
+  /* Clip rows beyond the poem text without scrollbars */
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 4px 0.2rem 0;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  background: color-mix(in srgb, var(--surface) 55%, var(--bg));
+  /* Align with the top of the editor */
+  align-self: flex-start;
+}
+
+/* Mobile: line-wrapping in the editor desyncs the per-logical-line column,
+   and the column eats horizontal space. Hide it — Sound tab still shows
+   the same scheme inline. */
+@media (max-width: 720px) {
+  .editor-rhyme-scheme { display: none; }
+}
+
+/* Every row — labeled or blank — gets the same height as one editor line.
+   Must use --poem-font-size (not 1rem) because the CodeMirror theme sizes lines as
+   font-size × line-height. If the user changes the poem font size, both match. */
+.editor-rhyme-row,
+.editor-rhyme-spacer {
+  height: calc(var(--poem-font-size, 1rem) * var(--poem-line-height, 1.65));
+  flex-shrink: 0;
+}
+
+.editor-rhyme-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Line numbers removed from the bar — the editor gutter already shows them */
+.editor-rhyme-linenum {
+  display: none;
+}
+
+.editor-rhyme-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--poem-font-size, 1rem) * 1.55);
+  height: calc(var(--poem-font-size, 1rem) * 1.35);
+  font-weight: 700;
+  font-size: calc(var(--poem-font-size, 1rem) * 0.66);
+  border-radius: 4px;
+}
+
+.editor-rhyme-spacer {
+  display: block;
+}
+
+/* ── Cliché list ─────────────────────────────────────────────── */
+.cliche-list {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cliche-hit {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-size: 0.83rem;
+}
+
+.cliche-phrase {
+  font-style: italic;
+  color: color-mix(in srgb, var(--warning, #b07b00) 100%, transparent);
+}
+
+.cliche-hit-meta {
+  color: var(--muted);
+  font-size: 0.78em;
+  flex-shrink: 0;
+}
+

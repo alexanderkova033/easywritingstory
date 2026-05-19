@@ -1,0 +1,37 @@
+{
+  "env": {
+    "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node -e ':*)",
+      "Bash(node -e \"const fs = require\\('fs'\\); const c = fs.readFileSync\\('src/poem-workshop/BackgroundPicker.tsx'\\); console.log\\('bytes:', [...c.slice\\(0,20\\)].map\\(b => b.toString\\(16\\)\\).join\\(' '\\)\\)\")",
+      "Bash(node -e \"const fs = require\\('fs'\\); const c = fs.readFileSync\\('src/poem-workshop/BackgroundPicker.tsx'\\); const s = c.toString\\('utf8'\\); const lines = s.split\\('\\\\n'\\); lines.slice\\(0,10\\).forEach\\(\\(l,i\\) => { console.log\\(i+1, JSON.stringify\\(l\\)\\); }\\);\")",
+      "Bash(cmd /c \"cd /d C:\\\\Users\\\\lorta\\\\Documents\\\\repos\\\\Easy-poems\\\\web && npx tsc --noEmit\")",
+      "Bash(cmd /c \"cd /d C:\\\\Users\\\\lorta\\\\Documents\\\\repos\\\\Easy-poems\\\\web && npx tsc --noEmit && echo OK\")",
+      "Bash(cmd /c \"cd /d C:\\\\Users\\\\lorta\\\\Documents\\\\repos\\\\Easy-poems\\\\web && npx tsc --noEmit && echo TYPECHECK_OK\")",
+      "Bash(cmd /c \"cd /d C:\\\\Users\\\\lorta\\\\Documents\\\\repos\\\\Easy-poems\\\\web && npx tsc --noEmit 2>&1 && echo DONE\")",
+      "Bash(cmd /c \"cd /d C:\\\\Users\\\\lorta\\\\Documents\\\\repos\\\\Easy-poems\\\\web && npx tsc --noEmit 2>&1 & echo EXIT:%ERRORLEVEL%\")",
+      "Bash(cmd /c \"cd /d C:\\\\Users\\\\lorta\\\\Documents\\\\repos\\\\Easy-poems\\\\web && node node_modules/.bin/tsc --noEmit 2>&1 & echo ERROR:%ERRORLEVEL%\")",
+      "Bash(grep -rn \"--backdrop-intensity\" /c/Users/lorta/Documents/repos/Easy-poems/web/src --include=\"*.css\" --include=\"*.tsx\" --include=\"*.ts\")",
+      "Bash(find /c/Users/lorta/Documents/repos/Easy-poems/web/src -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" -o -name \"*.css\" \\\\\\) -exec grep -l \"backdrop-intensity\" {} \\\\;)",
+      "Bash(ls -1 /c/Users/lorta/Documents/repos/Easy-poems/web/src/poem-workshop/*.tsx)",
+      "Bash(node -e \"const fs=require\\('fs'\\); const buf=fs.readFileSync\\('web/src/poem-workshop/appearance.ts'\\); for\\(let i=0;i<buf.length;i++\\){if\\(buf[i]>127\\)console.log\\('offset',i,'char code',buf[i],'context',buf.slice\\(Math.max\\(0,i-20\\),i+20\\).toString\\('utf8'\\)\\);}\")",
+      "Bash(node -e \"const fs=require\\('fs'\\); const buf=fs.readFileSync\\('web/src/poem-workshop/appearance.ts'\\); let bad=0; for\\(let i=0;i<buf.length;i++\\){if\\(buf[i]===0xe2&&buf[i+1]===0x80&&\\(buf[i+2]===0x9c||buf[i+2]===0x9d\\)\\){bad++;}} console.log\\('curly quote sequences remaining:', bad\\);\")",
+      "Bash(grep -E '\\\\.\\(ts|js|json\\)$')",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(grep \"className.*\\\\${\" /c/Users/lorta/Documents/repos/Easy-poems/web/src/poem-workshop/PoemWorkshop.tsx)",
+      "Bash(find /c/Users/lorta/Documents/repos/Easy-poems/web/src -name \"*.tsx\" -exec wc -l {} +)",
+      "Bash(cmd /c \"cd c:\\\\Users\\\\lorta\\\\Documents\\\\repos\\\\Easy-poems\\\\web && npx tsc --noEmit 2>&1\")",
+      "Bash(cmd /c \"cd /d c:\\\\Users\\\\lorta\\\\Documents\\\\repos\\\\Easy-poems\\\\web && npx tsc --noEmit\")",
+      "Bash(cmd /c \"cd /d c:\\\\Users\\\\lorta\\\\Documents\\\\repos\\\\Easy-poems\\\\web && npx tsc --noEmit 2>&1 && echo BUILD_OK || echo BUILD_FAILED\")",
+      "Bash(python3 -)",
+      "Bash(python -)",
+      "Read(//c/Users/lorta/Documents/repos/Easy-poems\" 2>/dev/null || ls -la /c/Users/lorta/Documents/repos/Easy-poems/ 2>/dev/**)",
+      "Read(//c/Users/lorta/.claude/projects/c--Users-lorta-Documents-repos-Easy-poems/memory/**)",
+      "Read(//c/Users/lorta/.claude/projects/c--Users-lorta-Documents-repos-Easy-poems/memory\" 2>/dev/**)"
+    ]
+  }
+}
