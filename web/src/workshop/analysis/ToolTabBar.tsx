@@ -41,7 +41,7 @@ function IconTabRepeat() {
   );
 }
 
-function IconTabCraft() {
+function IconTabDialogue() {
   return (
     <svg className="tool-tab-svg" viewBox="0 0 24 24" aria-hidden>
       <path
@@ -50,7 +50,93 @@ function IconTabCraft() {
         strokeWidth="1.65"
         strokeLinecap="round"
         strokeLinejoin="round"
-        d="M5 19l4-1 9-9-3-3-9 9-1 4zm10-13l3 3M12 19h7"
+        d="M4 6.5h11a2 2 0 012 2v4.5a2 2 0 01-2 2H9l-3 2.5v-2.5H6a2 2 0 01-2-2v-4.5z"
+      />
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.65"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 11.5h.01M12 11.5h.01"
+      />
+    </svg>
+  );
+}
+
+function IconTabPov() {
+  return (
+    <svg className="tool-tab-svg" viewBox="0 0 24 24" aria-hidden>
+      <ellipse cx="12" cy="12" rx="8" ry="5" fill="none" stroke="currentColor" strokeWidth="1.65" />
+      <circle cx="12" cy="12" r="2" fill="currentColor" />
+    </svg>
+  );
+}
+
+function IconTabTense() {
+  return (
+    <svg className="tool-tab-svg" viewBox="0 0 24 24" aria-hidden>
+      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1.65" />
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.65"
+        strokeLinecap="round"
+        d="M12 7.5V12l3 2"
+      />
+    </svg>
+  );
+}
+
+function IconTabShowTell() {
+  return (
+    <svg className="tool-tab-svg" viewBox="0 0 24 24" aria-hidden>
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.65"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 12s3.5-5.5 9-5.5S21 12 21 12s-3.5 5.5-9 5.5S3 12 3 12z"
+      />
+      <circle cx="12" cy="12" r="2.25" fill="none" stroke="currentColor" strokeWidth="1.65" />
+    </svg>
+  );
+}
+
+function IconTabAdverbs() {
+  return (
+    <svg className="tool-tab-svg" viewBox="0 0 24 24" aria-hidden>
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.65"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 18l4-12 4 12M6.5 14h5M14 18l3-9 3 9M15 15.5h4"
+      />
+    </svg>
+  );
+}
+
+function IconTabCharacters() {
+  return (
+    <svg className="tool-tab-svg" viewBox="0 0 24 24" aria-hidden>
+      <circle cx="9" cy="9" r="3" fill="none" stroke="currentColor" strokeWidth="1.65" />
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.65"
+        strokeLinecap="round"
+        d="M3.5 19c.5-3 3-4.5 5.5-4.5s5 1.5 5.5 4.5"
+      />
+      <circle cx="16.5" cy="10.5" r="2.25" fill="none" stroke="currentColor" strokeWidth="1.65" />
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.65"
+        strokeLinecap="round"
+        d="M14 16.5c.6-1.4 2-2.5 3.5-2.5s2.9 1.1 3.5 2.5"
       />
     </svg>
   );
@@ -109,13 +195,18 @@ export const TOOL_TABS: {
   desc: string;
   Icon: () => JSX.Element;
 }[] = [
-  { id: "issues",    label: "Queue",     desc: "Spelling flags, checklist gaps & goal warnings in one list",   Icon: IconTabIssues },
-  { id: "spell",     label: "Spell",     desc: "Find and fix misspelled words",                                Icon: IconTabSpell },
-  { id: "repeat",    label: "Repeats",   desc: "Words that appear more than once",                             Icon: IconTabRepeat },
-  { id: "craft",     label: "Craft",     desc: "Dialogue tags, POV, tense, show-vs-tell, adverbs, characters", Icon: IconTabCraft },
-  { id: "goals",     label: "Goals",     desc: "Set targets for word counts",                                  Icon: IconTabGoals },
-  { id: "snapshots", label: "Snapshots", desc: "Save and compare draft snapshots",                             Icon: IconTabSnapshots },
-  { id: "suggest",   label: "Ideas",     desc: "AI suggestions when you\u2019re stuck",                        Icon: IconTabSuggest },
+  { id: "issues",     label: "Queue",      desc: "Spelling flags, checklist gaps & goal warnings in one list",   Icon: IconTabIssues },
+  { id: "spell",      label: "Spell",      desc: "Find and fix misspelled words",                                Icon: IconTabSpell },
+  { id: "repeat",     label: "Repeats",    desc: "Words that appear more than once",                             Icon: IconTabRepeat },
+  { id: "dialogue",   label: "Dialogue",   desc: "Speech tags, attribution verbs, and unattributed lines",       Icon: IconTabDialogue },
+  { id: "pov",        label: "POV",        desc: "First/second/third-person consistency and off-POV lines",      Icon: IconTabPov },
+  { id: "tense",      label: "Tense",      desc: "Past vs. present consistency and off-tense lines",             Icon: IconTabTense },
+  { id: "showtell",   label: "Show/Tell",  desc: "Filter words that signal telling instead of showing",          Icon: IconTabShowTell },
+  { id: "adverbs",    label: "Adverbs",    desc: "-ly adverbs and weasel words (very, really, just)",            Icon: IconTabAdverbs },
+  { id: "characters", label: "Cast",       desc: "Named characters, mention counts, and entrance/exit",          Icon: IconTabCharacters },
+  { id: "goals",      label: "Goals",      desc: "Set targets for word counts",                                  Icon: IconTabGoals },
+  { id: "snapshots",  label: "Snapshots",  desc: "Save and compare draft snapshots",                             Icon: IconTabSnapshots },
+  { id: "suggest",    label: "Ideas",      desc: "AI suggestions when you\u2019re stuck",                        Icon: IconTabSuggest },
 ];
 
 export function LiveSectionTitle({ children }: { children: ReactNode }) {

@@ -1,0 +1,70 @@
+html[data-workshop-bg="linen"] {
+  color-scheme: light;
+  --bg: #f4ecdc;
+  --surface: #fbf5e7;
+  --surface-2: #f0e6d0;
+  --surface-elevated: #fffaee;
+  --border: #d4c4a2;
+  --text: #3a2e1c;
+  --muted: #7a6a52;
+  --accent: #a47832;
+  --accent-soft: color-mix(in srgb, var(--accent) 22%, transparent);
+  --selection-bg: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  --selection-fg: var(--text);
+  --danger: #b03830;
+  --net-line: rgba(120, 90, 50, 0.06);
+  --ambient-a: rgba(200, 170, 110, 0.16);
+  --ambient-b: rgba(220, 200, 160, 0.14);
+  --ambient-c: rgba(180, 150, 90, 0.10);
+  --ambient-d: rgba(120, 90, 50, 0.12);
+  --shine-top: rgba(255, 245, 220, 0.36);
+  --shine-mid: rgba(230, 210, 170, 0.18);
+  --after-opacity: 0.55;
+  --shadow-1: 0 3px 12px color-mix(in srgb, #6a4a20 12%, transparent);
+  --shadow-2: 0 5px 18px color-mix(in srgb, #6a4a20 16%, transparent);
+  --shadow-3: 0 12px 32px color-mix(in srgb, #6a4a20 22%, transparent);
+}
+
+html[data-workshop-bg="linen"] body::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath fill='none' stroke='%23a48a52' stroke-opacity='0.22' stroke-width='0.7' d='M0 4 H40 M0 12 H40 M0 20 H40 M0 28 H40 M0 36 H40'/%3E%3Cpath fill='none' stroke='%23906c30' stroke-opacity='0.16' stroke-width='0.6' d='M4 0 V40 M12 0 V40 M20 0 V40 M28 0 V40 M36 0 V40'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 90% 80% at 0% 0%, var(--shine-top), transparent 65%),
+    radial-gradient(ellipse 80% 60% at 100% 100%, var(--ambient-d), transparent 70%);
+  background-size: 40px 40px, 100% 100%, 100% 100%;
+  background-repeat: repeat, no-repeat, no-repeat;
+  animation: linen-breathe 188s ease-in-out infinite;
+}
+
+html[data-workshop-bg="linen"]::after {
+  background-image:
+    radial-gradient(ellipse 70% 55% at 22% 28%, color-mix(in srgb, #c8a868 32%, transparent), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 32%, color-mix(in srgb, #a48450 24%, transparent), transparent 72%),
+    radial-gradient(ellipse 75% 55% at 30% 80%, color-mix(in srgb, #b89058 22%, transparent), transparent 72%),
+    radial-gradient(ellipse 65% 50% at 80% 78%, color-mix(in srgb, #d4b878 24%, transparent), transparent 70%);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  mix-blend-mode: multiply;
+  opacity: var(--after-opacity);
+  animation: linen-drift 220s ease-in-out infinite;
+}
+
+@keyframes linen-breathe {
+  0%   { opacity: 0.96; }
+  50%  { opacity: 1.00; }
+  100% { opacity: 0.96; }
+}
+
+@keyframes linen-drift {
+  0%   { opacity: 0.55; transform: translate(0%, 0%); }
+  50%  { opacity: 0.62; transform: translate(1%, 0.5%); }
+  100% { opacity: 0.55; transform: translate(0%, 0%); }
+}
+
+html[data-backdrop-motion="off"][data-workshop-bg="linen"] body::before,
+html[data-backdrop-motion="off"][data-workshop-bg="linen"]::after {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-workshop-bg="linen"] body::before,
+  html[data-workshop-bg="linen"]::after { animation: none; }
+}

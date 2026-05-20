@@ -1,0 +1,71 @@
+html[data-workshop-bg="apricotfog"] {
+  color-scheme: light;
+  --bg: #f5e8df;
+  --surface: #fbf2eb;
+  --surface-2: #f0e2d4;
+  --surface-elevated: #fff8f0;
+  --border: #d6c0aa;
+  --text: #2a2218;
+  --muted: #6a5a4a;
+  --accent: #5a9090;
+  --accent-soft: color-mix(in srgb, var(--accent) 22%, transparent);
+  --selection-bg: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  --selection-fg: var(--text);
+  --danger: #b8403c;
+  --net-line: rgba(140, 100, 70, 0.05);
+  --ambient-a: rgba(255, 180, 140, 0.20);
+  --ambient-b: rgba(120, 180, 180, 0.16);
+  --ambient-c: rgba(220, 160, 120, 0.14);
+  --ambient-d: rgba(80, 130, 140, 0.16);
+  --shine-top: rgba(255, 240, 220, 0.40);
+  --shine-mid: rgba(240, 200, 170, 0.20);
+  --after-opacity: 0.60;
+  --shadow-1: 0 3px 12px color-mix(in srgb, #6a5040 12%, transparent);
+  --shadow-2: 0 5px 18px color-mix(in srgb, #6a5040 16%, transparent);
+  --shadow-3: 0 12px 32px color-mix(in srgb, #6a5040 22%, transparent);
+}
+
+html[data-workshop-bg="apricotfog"] body::before {
+  background-image:
+    radial-gradient(ellipse 120% 45% at 50% 6%, rgba(255, 190, 150, 0.45), transparent 60%),
+    radial-gradient(ellipse 110% 35% at 50% 38%, rgba(255, 210, 180, 0.32), transparent 65%),
+    radial-gradient(ellipse 130% 40% at 50% 100%, rgba(90, 140, 150, 0.28), transparent 60%),
+    radial-gradient(ellipse 100% 30% at 50% 70%, rgba(150, 190, 195, 0.20), transparent 65%);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  animation: apricotfog-drift 220s ease-in-out infinite;
+}
+
+html[data-workshop-bg="apricotfog"]::after {
+  background-image:
+    radial-gradient(ellipse 70% 55% at 22% 28%, color-mix(in srgb, #f4a070 32%, transparent), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 78% 26%, color-mix(in srgb, #f8b890 28%, transparent), transparent 72%),
+    radial-gradient(ellipse 75% 55% at 32% 78%, color-mix(in srgb, #6a9a9a 22%, transparent), transparent 72%),
+    radial-gradient(ellipse 65% 50% at 82% 80%, color-mix(in srgb, #88b0b0 22%, transparent), transparent 70%);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  mix-blend-mode: multiply;
+  opacity: var(--after-opacity);
+  animation: apricotfog-bands 168s ease-in-out infinite;
+}
+
+@keyframes apricotfog-drift {
+  0%   { transform: translateY(0%); }
+  50%  { transform: translateY(-1%); }
+  100% { transform: translateY(0%); }
+}
+
+@keyframes apricotfog-bands {
+  0%   { opacity: 0.60; transform: translateX(0%); }
+  50%  { opacity: 0.66; transform: translateX(1.5%); }
+  100% { opacity: 0.60; transform: translateX(0%); }
+}
+
+html[data-backdrop-motion="off"][data-workshop-bg="apricotfog"] body::before,
+html[data-backdrop-motion="off"][data-workshop-bg="apricotfog"]::after {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-workshop-bg="apricotfog"] body::before,
+  html[data-workshop-bg="apricotfog"]::after { animation: none; }
+}

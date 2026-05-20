@@ -63,7 +63,7 @@ export interface AppearanceSettings {
 const DEFAULTS: AppearanceSettings = {
   storyFont: "literata",
   uiFont: "dm-sans",
-  background: "default",
+  background: "dark",
   storySize: "md",
   storyWeight: "normal",
   storyDecoration: "none",
@@ -239,23 +239,20 @@ export function applyAppearance(s: AppearanceSettings): void {
     clearCustomVars(el);
   }
 
-  const nextBg = s.background === "default" ? "" : s.background;
+  const nextBg = s.background;
   if (_lastBg !== undefined && _lastBg !== nextBg) {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!reduced) {
       el.classList.add("theme-switching");
       requestAnimationFrame(() => {
-        if (s.background === "default") delete el.dataset.workshopBg;
-        else el.dataset.workshopBg = s.background;
+        el.dataset.workshopBg = s.background;
         requestAnimationFrame(() => el.classList.remove("theme-switching"));
       });
     } else {
-      if (s.background === "default") delete el.dataset.workshopBg;
-      else el.dataset.workshopBg = s.background;
+      el.dataset.workshopBg = s.background;
     }
   } else {
-    if (s.background === "default") delete el.dataset.workshopBg;
-    else el.dataset.workshopBg = s.background;
+    el.dataset.workshopBg = s.background;
   }
   _lastBg = nextBg;
   if (s.backdropMotion === "system") delete el.dataset.backdropMotion;

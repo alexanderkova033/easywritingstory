@@ -6,24 +6,47 @@ export type ToolTab =
   | "issues"
   | "goals"
   | "repeat"
-  | "craft"
+  | "dialogue"
+  | "pov"
+  | "tense"
+  | "showtell"
+  | "adverbs"
+  | "characters"
   | "spell"
   | "snapshots"
   | "suggest";
 
-/** High-level tool groups (right panel); each maps to a subset of {@link ToolTab}. */
-export type ToolBucket = "overview" | "language" | "ideas";
+/** Tabs that belong to the Craft bucket (dialogue/POV/tense/show-tell/adverbs/characters). */
+export const CRAFT_TABS = [
+  "dialogue",
+  "pov",
+  "tense",
+  "showtell",
+  "adverbs",
+  "characters",
+] as const satisfies readonly ToolTab[];
 
-export const TOOL_BUCKET_ORDER: ToolBucket[] = ["overview", "language", "ideas"];
+export type CraftToolTab = (typeof CRAFT_TABS)[number];
+
+export function isCraftToolTab(tab: ToolTab): tab is CraftToolTab {
+  return (CRAFT_TABS as readonly ToolTab[]).includes(tab);
+}
+
+/** High-level tool groups (right panel); each maps to a subset of {@link ToolTab}. */
+export type ToolBucket = "overview" | "language" | "craft" | "ideas";
+
+export const TOOL_BUCKET_ORDER: ToolBucket[] = ["overview", "language", "craft", "ideas"];
 
 export const TOOL_BUCKET_LABEL: Record<ToolBucket, string> = {
   overview: "Overview",
   language: "Language",
+  craft: "Craft",
   ideas: "Suggest",
 };
 
 export function toolTabBucket(tab: ToolTab): ToolBucket {
-  if (tab === "repeat" || tab === "craft") return "language";
+  if (tab === "repeat") return "language";
+  if (isCraftToolTab(tab)) return "craft";
   if (tab === "suggest") return "ideas";
   return "overview";
 }
@@ -38,7 +61,9 @@ export function tabsForBucket(bucket: ToolBucket): ToolTab[] {
         "snapshots",
       ];
     case "language":
-      return ["repeat", "craft"];
+      return ["repeat"];
+    case "craft":
+      return [...CRAFT_TABS];
     case "ideas":
       return ["suggest"];
   }

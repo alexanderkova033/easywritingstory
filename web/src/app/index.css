@@ -1,23 +1,14 @@
 /* Theme imports — load before base so specificity-tied rules cascade correctly */
-@import "./themes/studio.css";
-@import "./themes/paper.css";
-@import "./themes/night.css";
-@import "./themes/forest.css";
-@import "./themes/dawn.css";
-@import "./themes/slate.css";
-@import "./themes/stone.css";
-@import "./themes/crimson.css";
-@import "./themes/ocean.css";
-@import "./themes/aurora.css";
-@import "./themes/parchment.css";
-@import "./themes/dusk.css";
-@import "./themes/winter.css";
-@import "./themes/autumn.css";
-@import "./themes/spring.css";
-@import "./themes/summer.css";
-@import "./themes/rain.css";
-@import "./themes/park.css";
 @import "./themes/dark.css";
+@import "./themes/nebula.css";
+@import "./themes/tidepool.css";
+@import "./themes/kiln.css";
+@import "./themes/glasshouse.css";
+@import "./themes/velvet.css";
+@import "./themes/riverstone.css";
+@import "./themes/linen.css";
+@import "./themes/apricotfog.css";
+@import "./themes/inkwell.css";
 
 :root {
   color-scheme: light dark;

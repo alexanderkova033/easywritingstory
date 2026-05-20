@@ -127,286 +127,156 @@
   mix-blend-mode: overlay;
 }
 
-.bg-picker-swatch--default {
+.bg-picker-swatch--dark {
   background:
-    /* Green mesh glow top-left */
-    radial-gradient(ellipse 110% 90% at 18% 22%, rgba(55, 175, 85, 0.44), transparent 58%),
-    /* Green accent bottom-right */
-    radial-gradient(circle at 76% 80%, rgba(35, 150, 65, 0.32), transparent 50%),
-    /* Green centre shimmer */
-    radial-gradient(ellipse 80% 60% at 55% 50%, rgba(80, 190, 100, 0.20), transparent 55%),
-    /* Grid lines */
-    linear-gradient(rgba(130, 220, 150, 0.075) 1px, transparent 1px),
-    /* Dark green base */
-    linear-gradient(148deg, #0e2010 0%, #091809 50%, #060e06 100%);
-  background-size: auto, auto, auto, 14px 14px, auto;
+    /* Subtle ambient colour pools (matches html::after) */
+    radial-gradient(ellipse 60% 50% at 22% 26%, rgba(58, 169, 112, 0.18), transparent 65%),
+    radial-gradient(ellipse 55% 45% at 80% 32%, rgba(212, 165, 116, 0.16), transparent 65%),
+    radial-gradient(ellipse 65% 55% at 32% 80%, rgba(160, 112, 232, 0.15), transparent 68%),
+    radial-gradient(ellipse 55% 45% at 78% 78%, rgba(200, 120, 120, 0.16), transparent 65%),
+    /* Flat charcoal base */
+    linear-gradient(148deg, #1c1c1c 0%, #161616 60%, #121212 100%);
 }
 
-.bg-picker-swatch--paper {
+.bg-picker-swatch--nebula {
   background:
-    radial-gradient(circle at 85% 12%, rgba(96, 72, 48, 0.12), transparent 55%),
-    repeating-linear-gradient(
-      transparent 0 8px,
-      rgba(88, 72, 52, 0.18) 8px,
-      rgba(88, 72, 52, 0.18) 9px
-    ),
-    linear-gradient(98deg, #f5efe4 0%, #ebe0d2 100%);
+    /* Star pinpricks */
+    radial-gradient(circle 1px at 18% 22%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(circle 1.2px at 62% 14%, rgba(220, 230, 255, 0.90), transparent),
+    radial-gradient(circle 0.9px at 84% 36%, rgba(255, 240, 255, 0.85), transparent),
+    radial-gradient(circle 1px at 30% 60%, rgba(220, 220, 255, 0.80), transparent),
+    radial-gradient(circle 1.1px at 72% 78%, rgba(255, 230, 255, 0.85), transparent),
+    /* Colour clouds */
+    radial-gradient(ellipse 60% 50% at 28% 30%, rgba(140, 90, 230, 0.50), transparent 65%),
+    radial-gradient(ellipse 50% 45% at 78% 40%, rgba(60, 180, 200, 0.40), transparent 65%),
+    radial-gradient(ellipse 70% 55% at 32% 80%, rgba(220, 90, 180, 0.42), transparent 65%),
+    /* Deep space base */
+    linear-gradient(160deg, #08081a 0%, #050518 55%, #02020c 100%);
 }
 
-.bg-picker-swatch--night {
+.bg-picker-swatch--tidepool {
   background:
-    /* Moon: solid disc + halo */
-    radial-gradient(ellipse 38% 38% at 72% 22%, #ecf8ff 0%, #b8e0ff 40%, transparent 62%),
-    /* Bioluminescence glow from bottom */
-    radial-gradient(ellipse 140% 65% at 50% 100%, rgba(55, 195, 140, 0.52), transparent 48%),
-    radial-gradient(ellipse 90% 45% at 50% 95%, rgba(30, 150, 105, 0.36), transparent 55%),
-    /* Star dots */
-    radial-gradient(ellipse 4px 4px at 22% 20%, rgba(255, 255, 255, 0.95), transparent),
-    radial-gradient(ellipse 3px 3px at 48% 14%, rgba(200, 255, 230, 0.90), transparent),
-    linear-gradient(180deg, #010403 0%, #030a07 55%, #020705 100%);
-}
-
-.bg-picker-swatch--forest {
-  background:
-    /* Fireflies — visible blobs */
-    radial-gradient(ellipse 14% 14% at 30% 52%, rgba(195, 255, 55, 0.55), transparent 28%),
-    radial-gradient(ellipse 11% 11% at 68% 44%, rgba(210, 255, 70, 0.50), transparent 26%),
-    radial-gradient(ellipse 9% 9% at 18% 70%, rgba(185, 248, 50, 0.46), transparent 24%),
-    /* Emerald canopy glow from bottom */
-    radial-gradient(ellipse 150% 70% at 50% 100%, rgba(40, 210, 115, 0.52), transparent 48%),
-    radial-gradient(ellipse 90% 45% at 50% 95%, rgba(25, 160, 88, 0.36), transparent 55%),
-    linear-gradient(168deg, #010803 0%, #060f07 50%, #020b04 100%);
-}
-
-.bg-picker-swatch--dawn {
-  background:
-    /* Sun: solid disc + warm halo */
-    radial-gradient(ellipse 32% 32% at 18% 20%, #ffe564 0%, #ffb450 40%, transparent 62%),
-    /* Pink-rose bloom upper right */
-    radial-gradient(ellipse 80% 75% at 100% 0%, rgba(255, 140, 185, 0.48), transparent 55%),
-    /* Warm gold horizon band */
-    radial-gradient(ellipse 140% 55% at 50% 100%, rgba(255, 185, 120, 0.42), transparent 50%),
-    /* Soft lavender-peach sky base */
-    linear-gradient(190deg, #fdf0f6 0%, #f6e0ec 45%, #ede5f5 100%);
-}
-
-.bg-picker-swatch--slate {
-  background:
-    /* Moon: solid disc + blue halo */
-    radial-gradient(ellipse 36% 36% at 22% 22%, #e1f2ff 0%, #a5d2ff 40%, transparent 62%),
-    /* City-lights glow from bottom */
-    radial-gradient(ellipse 150% 65% at 50% 100%, rgba(100, 170, 255, 0.52), transparent 48%),
-    radial-gradient(ellipse 90% 45% at 50% 95%, rgba(60, 130, 240, 0.36), transparent 55%),
-    /* Cool blue mid-sky wash */
-    radial-gradient(ellipse 100% 70% at 80% 50%, rgba(40, 80, 170, 0.22), transparent 60%),
-    linear-gradient(165deg, #030508 0%, #060c18 55%, #040a14 100%);
-}
-
-.bg-picker-swatch--stone {
-  background:
-    /* Capillary marble veins (SVG hairlines) */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-opacity='0.55' stroke-width='0.9' stroke-linecap='round' d='M-4 20 Q12 14 24 22 Q36 30 48 22 Q58 16 68 20'/%3E%3Cpath fill='none' stroke='%23ffffff' stroke-opacity='0.30' stroke-width='0.5' d='M-4 26 Q12 20 24 28 Q36 36 48 28'/%3E%3Cpath fill='none' stroke='%237a8090' stroke-opacity='0.18' stroke-width='0.5' d='M40 -4 Q44 16 38 32 Q34 46 42 64'/%3E%3Cpath fill='none' stroke='%23ffffff' stroke-opacity='0.40' stroke-width='0.6' d='M14 -4 Q18 14 12 28 Q8 42 16 64'/%3E%3C/svg%3E"),
-    /* Polished sheen, upper-right */
-    radial-gradient(ellipse 70% 50% at 80% 12%, rgba(255, 255, 255, 0.42), transparent 62%),
-    /* Cool reflection, lower-left */
-    radial-gradient(ellipse 60% 45% at 12% 88%, rgba(200, 212, 224, 0.30), transparent 60%),
-    /* Soft mid-tone wash */
-    radial-gradient(ellipse 80% 70% at 50% 50%, rgba(220, 222, 226, 0.18), transparent 65%),
-    linear-gradient(158deg, #e8e8e6 0%, #d6d8db 55%, #c4c8ce 100%);
-  background-size: 64px 64px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-}
-
-.bg-picker-swatch--crimson {
-  background:
-    /* Ember particles */
-    radial-gradient(circle 2px at 34% 64%, rgba(255, 130, 60, 0.95), transparent),
-    radial-gradient(circle 1.5px at 62% 52%, rgba(255, 190, 110, 0.9), transparent),
-    radial-gradient(circle 2.5px at 22% 80%, rgba(255, 90, 40, 0.9), transparent),
-    radial-gradient(circle 1.5px at 75% 72%, rgba(255, 160, 80, 0.85), transparent),
-    radial-gradient(circle 2px at 50% 90%, rgba(255, 110, 50, 0.9), transparent),
-    radial-gradient(circle 1px at 88% 58%, rgba(255, 200, 120, 0.75), transparent),
-    radial-gradient(circle 1px at 40% 40%, rgba(255, 120, 70, 0.65), transparent),
-    /* Horizon glow */
-    radial-gradient(ellipse 90% 40% at 50% 100%, rgba(160, 30, 45, 0.55), transparent 50%),
-    radial-gradient(circle at 28% 26%, rgba(255, 110, 95, 0.26), transparent 56%),
-    radial-gradient(circle at 72% 72%, rgba(180, 55, 70, 0.2), transparent 54%),
-    linear-gradient(156deg, #190b0d 40%, #0d0507 100%);
-}
-
-.bg-picker-swatch--ocean {
-  background:
-    /* Wave lines */
+    /* Caustic ripple lines */
     repeating-linear-gradient(
       0deg,
-      transparent,
-      transparent 5px,
-      rgba(74, 184, 216, 0.14) 5px,
-      rgba(74, 184, 216, 0.14) 5.5px
+      transparent 0 6px,
+      rgba(140, 230, 220, 0.10) 6px,
+      rgba(140, 230, 220, 0.10) 6.5px
     ),
-    /* Bubble rings */
-    radial-gradient(circle 2px at 30% 78%, rgba(120, 220, 255, 0), rgba(120, 220, 255, 0) 30%, rgba(120, 220, 255, 0.55) 40%, transparent 55%),
-    radial-gradient(circle 1.5px at 60% 68%, rgba(100, 200, 240, 0), rgba(100, 200, 240, 0) 25%, rgba(100, 200, 240, 0.5) 35%, transparent 50%),
-    radial-gradient(circle 2.5px at 80% 84%, rgba(130, 230, 255, 0), rgba(130, 230, 255, 0) 28%, rgba(130, 230, 255, 0.5) 38%, transparent 55%),
-    /* Light shaft from surface */
-    radial-gradient(ellipse 40% 60% at 50% 0%, rgba(100, 210, 245, 0.22), transparent 55%),
-    radial-gradient(circle at 22% 22%, rgba(110, 235, 255, 0.26), transparent 56%),
-    radial-gradient(circle at 78% 68%, rgba(30, 130, 185, 0.22), transparent 56%),
-    radial-gradient(ellipse 100% 50% at 50% 100%, rgba(0, 15, 25, 0.65), transparent 48%),
-    linear-gradient(155deg, #06141e 0%, #010b12 100%);
+    /* Bubble pebbles */
+    radial-gradient(circle 1.6px at 30% 70%, rgba(180, 240, 230, 0.65), transparent),
+    radial-gradient(circle 1.2px at 64% 56%, rgba(140, 220, 220, 0.55), transparent),
+    radial-gradient(circle 1.4px at 80% 78%, rgba(200, 250, 240, 0.60), transparent),
+    /* Light shaft + depth haze */
+    radial-gradient(ellipse 70% 45% at 50% 0%, rgba(120, 220, 220, 0.32), transparent 55%),
+    radial-gradient(ellipse 100% 55% at 50% 100%, rgba(0, 20, 25, 0.65), transparent 55%),
+    linear-gradient(160deg, #0a2630 0%, #061a22 100%);
 }
 
-.bg-picker-swatch--aurora {
-  background:
-    /* Stars — 3 only */
-    radial-gradient(circle 1px at 24% 12%, rgba(255, 255, 255, 0.88), transparent),
-    radial-gradient(circle 1px at 65% 9%, rgba(210, 230, 255, 0.78), transparent),
-    radial-gradient(circle 1px at 14% 30%, rgba(200, 255, 240, 0.68), transparent),
-    /* Vertical curtain bands */
-    radial-gradient(ellipse 16% 85% at 16% 50%, rgba(128, 48, 230, 0.48), transparent 62%),
-    radial-gradient(ellipse 14% 85% at 40% 46%, rgba(0, 230, 200, 0.44), transparent 62%),
-    radial-gradient(ellipse 15% 85% at 62% 50%, rgba(175, 64, 240, 0.46), transparent 62%),
-    radial-gradient(ellipse 12% 85% at 82% 46%, rgba(32, 220, 176, 0.40), transparent 62%),
-    /* Magenta accent */
-    radial-gradient(ellipse 10% 70% at 95% 48%, rgba(220, 60, 180, 0.32), transparent 60%),
-    /* Horizon dark earth */
-    radial-gradient(ellipse 140% 35% at 50% 100%, rgba(4, 10, 26, 0.88), transparent 55%),
-    linear-gradient(165deg, #030612 0%, #060824 55%, #030412 100%);
-}
-
-.bg-picker-swatch--parchment {
-  background:
-    radial-gradient(circle at 24% 32%, rgba(150, 105, 55, 0.22), transparent 58%),
-    radial-gradient(circle at 76% 68%, rgba(210, 170, 95, 0.20), transparent 60%),
-    repeating-linear-gradient(
-      0deg,
-      rgba(85, 58, 28, 0.14),
-      rgba(85, 58, 28, 0.14) 1px,
-      transparent 1px,
-      transparent 7px
-    ),
-    linear-gradient(180deg, #f2e8d4 0%, #e4d4b4 100%);
-}
-
-.bg-picker-swatch--dusk {
+.bg-picker-swatch--kiln {
   background:
     /* Ember sparks */
-    radial-gradient(circle 1.5px at 34% 72%, rgba(255, 140, 30, 0.95), transparent),
-    radial-gradient(circle 1px at 58% 62%, rgba(255, 190, 80, 0.88), transparent),
-    radial-gradient(circle 2px at 22% 82%, rgba(255, 100, 20, 0.9), transparent),
-    radial-gradient(circle 1px at 76% 68%, rgba(255, 160, 60, 0.82), transparent),
-    radial-gradient(circle 1.5px at 48% 88%, rgba(255, 120, 30, 0.88), transparent),
-    /* Sun disc just below horizon */
-    radial-gradient(ellipse 55% 22% at 50% 102%, rgba(255, 185, 40, 0.52), transparent 48%),
-    /* Horizon amber glow */
-    radial-gradient(ellipse 120% 45% at 50% 100%, rgba(220, 110, 20, 0.48), transparent 52%),
-    /* Upper sky amber-to-dark */
-    radial-gradient(circle at 25% 24%, rgba(255, 130, 60, 0.18), transparent 56%),
-    /* Silhouette band */
-    linear-gradient(180deg, transparent 50%, rgba(8, 4, 2, 0.55) 100%),
-    linear-gradient(175deg, #180c04 0%, #0e0602 100%);
+    radial-gradient(circle 2px at 34% 64%, rgba(255, 160, 60, 0.95), transparent),
+    radial-gradient(circle 1.4px at 60% 50%, rgba(255, 200, 100, 0.88), transparent),
+    radial-gradient(circle 2.4px at 22% 82%, rgba(255, 120, 40, 0.90), transparent),
+    radial-gradient(circle 1.6px at 76% 72%, rgba(255, 180, 80, 0.85), transparent),
+    /* Hot floor glow */
+    radial-gradient(ellipse 100% 45% at 50% 100%, rgba(220, 90, 30, 0.55), transparent 55%),
+    radial-gradient(ellipse 70% 35% at 50% 88%, rgba(255, 160, 60, 0.38), transparent 55%),
+    /* Upper umber wash */
+    radial-gradient(circle at 24% 24%, rgba(232, 150, 60, 0.20), transparent 56%),
+    linear-gradient(160deg, #2a1408 0%, #180a04 100%);
 }
 
-.bg-picker-swatch--winter {
-  background-image:
-    /* Snowflake SVG centered */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42'%3E%3Cg stroke='%2364a0dc' stroke-opacity='0.55' stroke-width='1.4' stroke-linecap='round' fill='none'%3E%3Cline x1='21' y1='3' x2='21' y2='39'/%3E%3Cline x1='3' y1='21' x2='39' y2='21'/%3E%3Cline x1='8' y1='8' x2='34' y2='34'/%3E%3Cline x1='34' y1='8' x2='8' y2='34'/%3E%3Cline x1='21' y1='3' x2='16' y2='10'/%3E%3Cline x1='21' y1='3' x2='26' y2='10'/%3E%3Cline x1='21' y1='39' x2='16' y2='32'/%3E%3Cline x1='21' y1='39' x2='26' y2='32'/%3E%3Cline x1='3' y1='21' x2='10' y2='16'/%3E%3Cline x1='3' y1='21' x2='10' y2='26'/%3E%3Cline x1='39' y1='21' x2='32' y2='16'/%3E%3Cline x1='39' y1='21' x2='32' y2='26'/%3E%3C/g%3E%3C/svg%3E"),
-    /* Snow on ground */
-    radial-gradient(ellipse 130% 30% at 50% 108%, rgba(255, 255, 255, 0.98), transparent 58%),
-    /* Falling flakes */
-    radial-gradient(circle 1.5px at 18% 22%, rgba(255, 255, 255, 0.95), transparent),
-    radial-gradient(circle 1px at 72% 16%, rgba(220, 235, 255, 0.90), transparent),
-    radial-gradient(circle 1.5px at 44% 48%, rgba(255, 255, 255, 0.85), transparent),
-    /* Pale zenith */
-    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(180, 215, 245, 0.50), transparent 58%),
-    /* Cold light shaft */
-    radial-gradient(ellipse 55% 42% at 8% 12%, rgba(150, 195, 235, 0.32), transparent 55%),
-    /* Ice-blue base */
-    linear-gradient(172deg, #d8edf8 0%, #e2f0fb 45%, #ecf5fd 100%);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.bg-picker-swatch--autumn {
-  background-image:
-    /* Falling leaf ellipses */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42'%3E%3Cellipse cx='8' cy='10' rx='3' ry='5' fill='%23be500f' fill-opacity='0.72' transform='rotate(35 8 10)'/%3E%3Cellipse cx='21' cy='6' rx='2' ry='4' fill='%239e340a' fill-opacity='0.62' transform='rotate(-22 21 6)'/%3E%3Cellipse cx='34' cy='12' rx='3' ry='5' fill='%23d46414' fill-opacity='0.68' transform='rotate(48 34 12)'/%3E%3Cellipse cx='6' cy='24' rx='3' ry='6' fill='%23b2440c' fill-opacity='0.58' transform='rotate(-16 6 24)'/%3E%3Cellipse cx='28' cy='20' rx='2' ry='4' fill='%23e47218' fill-opacity='0.64' transform='rotate(62 28 20)'/%3E%3Cellipse cx='38' cy='30' rx='2' ry='5' fill='%23983008' fill-opacity='0.52' transform='rotate(-32 38 30)'/%3E%3Cellipse cx='14' cy='34' rx='2' ry='4' fill='%23c65812' fill-opacity='0.55' transform='rotate(26 14 34)'/%3E%3Cellipse cx='32' cy='38' rx='3' ry='5' fill='%23ac410c' fill-opacity='0.50' transform='rotate(-42 32 38)'/%3E%3C/svg%3E"),
-    /* Late sun shaft from upper right */
-    radial-gradient(ellipse 55% 55% at 92% 5%, rgba(224, 136, 32, 0.52), transparent 52%),
-    /* Warm ground glow */
-    radial-gradient(ellipse 120% 45% at 50% 108%, rgba(168, 80, 18, 0.48), transparent 55%),
-    /* Amber mid-wash */
-    radial-gradient(circle at 26% 30%, rgba(192, 108, 24, 0.22), transparent 52%),
-    /* Dark sky + silhouette band */
-    linear-gradient(180deg, transparent 50%, rgba(8, 3, 1, 0.60) 100%),
-    linear-gradient(162deg, #160a02 0%, #0e0601 100%);
-}
-
-.bg-picker-swatch--spring {
-  background-image:
-    /* Cherry blossom petal ellipses */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42'%3E%3Cellipse cx='9' cy='8' rx='3' ry='7' fill='%23ffa0b4' fill-opacity='0.82' transform='rotate(20 9 8)'/%3E%3Cellipse cx='22' cy='5' rx='2' ry='5' fill='%23ffb9c8' fill-opacity='0.70' transform='rotate(-18 22 5)'/%3E%3Cellipse cx='35' cy='10' rx='3' ry='6' fill='%23f291ac' fill-opacity='0.76' transform='rotate(38 35 10)'/%3E%3Cellipse cx='5' cy='21' rx='3' ry='7' fill='%23ffa8be' fill-opacity='0.65' transform='rotate(-28 5 21)'/%3E%3Cellipse cx='30' cy='17' rx='2' ry='5' fill='%23deb4e8' fill-opacity='0.72' transform='rotate(52 30 17)'/%3E%3Cellipse cx='40' cy='27' rx='2' ry='6' fill='%23ff98b2' fill-opacity='0.60' transform='rotate(-12 40 27)'/%3E%3Cellipse cx='16' cy='33' rx='2' ry='5' fill='%23f8afc3' fill-opacity='0.58' transform='rotate(42 16 33)'/%3E%3Cellipse cx='34' cy='37' rx='3' ry='6' fill='%23eb9bb6' fill-opacity='0.55' transform='rotate(-35 34 37)'/%3E%3C/svg%3E"),
-    /* Golden morning sun — lower right */
-    radial-gradient(ellipse 45% 45% at 92% 92%, rgba(255, 220, 100, 0.45), transparent 52%),
-    /* Pink blossom cloud — upper left */
-    radial-gradient(ellipse 65% 55% at 10% 8%, rgba(255, 165, 185, 0.38), transparent 55%),
-    /* Soft lavender — upper right */
-    radial-gradient(ellipse 52% 42% at 90% 5%, rgba(200, 165, 230, 0.30), transparent 55%),
-    /* Fresh green canopy — bottom */
-    radial-gradient(ellipse 110% 45% at 50% 108%, rgba(110, 200, 80, 0.38), transparent 55%),
-    linear-gradient(172deg, #f4f9f0 0%, #eef5e8 55%, #f0f5e8 100%);
-}
-
-.bg-picker-swatch--summer {
-  background-image:
-    /* Sun disc upper right */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42'%3E%3Ccircle cx='34' cy='8' r='6' fill='%23ffe040' fill-opacity='0.95'/%3E%3Ccircle cx='34' cy='8' r='10' fill='%23ffd020' fill-opacity='0.32'/%3E%3Ccircle cx='34' cy='8' r='15' fill='%23ffcc00' fill-opacity='0.15'/%3E%3C/svg%3E"),
-    /* Sun warmth upper right */
-    radial-gradient(ellipse 55% 55% at 90% 5%, rgba(255, 215, 45, 0.46), transparent 55%),
-    /* Sky blue upper */
-    radial-gradient(ellipse 130% 72% at 18% 5%, rgba(65, 168, 228, 0.50), transparent 55%),
-    /* Warm green ground */
-    radial-gradient(ellipse 120% 45% at 50% 108%, rgba(75, 178, 72, 0.40), transparent 55%),
-    /* Sky gradient */
-    linear-gradient(175deg, #6ab8e0 0%, #a2d5f0 35%, #d0ecfc 65%, #ecf8ff 100%);
-}
-
-.bg-picker-swatch--rain {
+.bg-picker-swatch--linen {
   background:
-    /* Overcast sky */
-    radial-gradient(ellipse 140% 70% at 50% 0%, rgba(80, 115, 155, 0.30), transparent 58%),
-    /* Puddle reflection at bottom */
-    radial-gradient(ellipse 100% 35% at 50% 100%, rgba(70, 110, 150, 0.22), transparent 55%),
-    /* Rain streaks */
+    /* Woven texture */
     repeating-linear-gradient(
-      173deg,
-      transparent,
-      transparent 3px,
-      rgba(100, 150, 195, 0.18) 3px,
-      rgba(100, 150, 195, 0.18) 3.5px,
-      transparent 3.5px,
-      transparent 10px
+      0deg,
+      rgba(120, 90, 50, 0.18) 0 0.8px,
+      transparent 0.8px 4px
     ),
-    linear-gradient(170deg, #0d1520 0%, #0a1018 100%);
+    repeating-linear-gradient(
+      90deg,
+      rgba(120, 90, 50, 0.14) 0 0.8px,
+      transparent 0.8px 4px
+    ),
+    /* Soft sheen + warm corner */
+    radial-gradient(ellipse 75% 60% at 0% 0%, rgba(255, 248, 220, 0.55), transparent 65%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(180, 140, 80, 0.22), transparent 65%),
+    linear-gradient(155deg, #f4ecdc 0%, #ead8be 100%);
 }
 
-.bg-picker-swatch--park {
+.bg-picker-swatch--glasshouse {
   background:
-    /* Afternoon sun — upper right */
-    radial-gradient(ellipse 50% 50% at 88% 5%, rgba(255, 220, 80, 0.38), transparent 55%),
-    /* Green canopy from top */
-    radial-gradient(ellipse 110% 45% at 50% 0%, rgba(70, 160, 40, 0.28), transparent 55%),
-    /* Grass ground */
-    radial-gradient(ellipse 120% 45% at 50% 105%, rgba(80, 170, 45, 0.32), transparent 55%),
-    /* Dappled light bands */
-    repeating-linear-gradient(
-      115deg,
-      transparent,
-      transparent 14px,
-      rgba(255, 245, 180, 0.10) 14px,
-      rgba(255, 245, 180, 0.10) 18px
+    /* Prismatic band */
+    linear-gradient(
+      78deg,
+      transparent 0%,
+      rgba(255, 140, 200, 0.18) 18%,
+      rgba(255, 190, 130, 0.22) 32%,
+      rgba(180, 230, 130, 0.20) 48%,
+      rgba(130, 200, 240, 0.24) 62%,
+      rgba(170, 140, 240, 0.20) 76%,
+      transparent 92%
     ),
-    linear-gradient(170deg, #edf4e6 0%, #e4f0da 100%);
+    /* Cool grey base wash */
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(160, 200, 230, 0.25), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(40, 50, 70, 0.45), transparent 65%),
+    linear-gradient(160deg, #1a1f28 0%, #14181f 60%, #101319 100%);
+}
+
+.bg-picker-swatch--velvet {
+  background:
+    /* Bokeh discs */
+    radial-gradient(circle 14px at 22% 28%, rgba(220, 170, 240, 0.45), transparent 60%),
+    radial-gradient(circle 10px at 72% 22%, rgba(200, 140, 230, 0.40), transparent 62%),
+    radial-gradient(circle 16px at 30% 78%, rgba(220, 170, 80, 0.32), transparent 65%),
+    radial-gradient(circle 11px at 82% 68%, rgba(220, 140, 200, 0.38), transparent 62%),
+    /* Plum wash */
+    radial-gradient(ellipse 90% 60% at 50% 30%, rgba(140, 70, 200, 0.32), transparent 60%),
+    radial-gradient(ellipse 110% 55% at 50% 100%, rgba(20, 8, 30, 0.65), transparent 60%),
+    linear-gradient(160deg, #1a0c22 0%, #100618 100%);
+}
+
+.bg-picker-swatch--riverstone {
+  background:
+    /* Vein lines (SVG hairlines) */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cpath fill='none' stroke='%23c8d8e8' stroke-opacity='0.45' stroke-width='0.6' d='M-4 20 Q14 14 26 22 Q40 32 50 22 Q60 14 68 22'/%3E%3Cpath fill='none' stroke='%23a0b0c0' stroke-opacity='0.30' stroke-width='0.5' d='M-4 40 Q16 32 32 42 Q48 52 68 42'/%3E%3Cpath fill='none' stroke='%237a8a9a' stroke-opacity='0.22' stroke-width='0.4' d='M30 -4 Q34 18 28 32 Q24 46 32 64'/%3E%3C/svg%3E"),
+    /* Specular sweep */
+    linear-gradient(
+      105deg,
+      transparent 38%,
+      rgba(220, 230, 250, 0.25) 50%,
+      transparent 62%
+    ),
+    /* Wet slate wash */
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(120, 160, 200, 0.20), transparent 60%),
+    linear-gradient(160deg, #1a2128 0%, #0e141a 100%);
+  background-size: 64px 64px, 100% 100%, 100% 100%, 100% 100%;
+}
+
+.bg-picker-swatch--apricotfog {
+  background:
+    /* Peach fog bands */
+    radial-gradient(ellipse 130% 38% at 50% 8%, rgba(255, 200, 160, 0.65), transparent 60%),
+    radial-gradient(ellipse 110% 30% at 50% 40%, rgba(255, 220, 190, 0.45), transparent 65%),
+    /* Teal water bands */
+    radial-gradient(ellipse 130% 36% at 50% 100%, rgba(90, 140, 150, 0.55), transparent 60%),
+    radial-gradient(ellipse 100% 28% at 50% 72%, rgba(150, 190, 195, 0.32), transparent 65%),
+    /* Warm base */
+    linear-gradient(178deg, #fad6b6 0%, #f0c8a4 45%, #c8d8d4 100%);
+}
+
+.bg-picker-swatch--inkwell {
+  background-image:
+    /* Sumi-e ink blots */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath fill='%231a1410' fill-opacity='0.40' d='M14 18 Q22 12 30 18 Q38 24 32 32 Q26 40 18 36 Q10 32 14 18 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.30' d='M52 14 Q62 16 64 26 Q66 36 56 38 Q46 40 46 28 Q46 18 52 14 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.34' d='M28 52 Q38 48 46 56 Q54 64 44 70 Q34 76 26 68 Q18 60 28 52 Z'/%3E%3Ccircle cx='64' cy='62' r='5' fill='%23a83824' fill-opacity='0.62'/%3E%3C/svg%3E"),
+    /* Cream paper sheen */
+    radial-gradient(ellipse 90% 80% at 0% 0%, rgba(255, 248, 232, 0.55), transparent 65%),
+    radial-gradient(ellipse 70% 55% at 100% 100%, rgba(80, 60, 40, 0.18), transparent 70%),
+    linear-gradient(158deg, #f5efe2 0%, #ebe2cc 100%);
+  background-size: 80px 80px, 100% 100%, 100% 100%, 100% 100%;
 }
 
 .bg-picker-swatch--custom {

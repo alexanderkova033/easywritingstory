@@ -821,6 +821,7 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
         value={localValue}
         height="auto"
         theme="none"
+        basicSetup={false}
         extensions={extensions}
         onChange={(v) => {
           // Don't setLocalValue here: localValue is only used to feed

@@ -29,7 +29,12 @@ import { IssuesPanel } from "./panels/IssuesPanel";
 import { GoalsPanel } from "./panels/GoalsPanel";
 import { RepeatPanel } from "./panels/RepeatPanel";
 import { SpellPanel } from "./panels/SpellPanel";
-import { CraftPanel } from "./panels/CraftPanel";
+import { DialoguePanel } from "./panels/DialoguePanel";
+import { PovPanel } from "./panels/PovPanel";
+import { TensePanel } from "./panels/TensePanel";
+import { ShowTellPanel } from "./panels/ShowTellPanel";
+import { AdverbsPanel } from "./panels/AdverbsPanel";
+import { CharactersPanel } from "./panels/CharactersPanel";
 
 
 export interface WorkshopToolPanelsProps {
@@ -172,10 +177,58 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
         />
       ) : null}
 
-      {toolTab === "craft" ? (
-        <CraftPanel
+      {toolTab === "dialogue" ? (
+        <DialoguePanel
           docStats={props.docStats}
           craft={props.craft}
+          heavyToolsStale={props.heavyToolsStale}
+          goToLine={props.goToLine}
+        />
+      ) : null}
+
+      {toolTab === "pov" ? (
+        <PovPanel
+          docStats={props.docStats}
+          craft={props.craft}
+          storyLines={props.storyLines}
+          heavyToolsStale={props.heavyToolsStale}
+          goToLine={props.goToLine}
+        />
+      ) : null}
+
+      {toolTab === "tense" ? (
+        <TensePanel
+          docStats={props.docStats}
+          craft={props.craft}
+          storyLines={props.storyLines}
+          heavyToolsStale={props.heavyToolsStale}
+          goToLine={props.goToLine}
+        />
+      ) : null}
+
+      {toolTab === "showtell" ? (
+        <ShowTellPanel
+          docStats={props.docStats}
+          craft={props.craft}
+          heavyToolsStale={props.heavyToolsStale}
+          goToLine={props.goToLine}
+        />
+      ) : null}
+
+      {toolTab === "adverbs" ? (
+        <AdverbsPanel
+          docStats={props.docStats}
+          craft={props.craft}
+          heavyToolsStale={props.heavyToolsStale}
+          goToLine={props.goToLine}
+        />
+      ) : null}
+
+      {toolTab === "characters" ? (
+        <CharactersPanel
+          docStats={props.docStats}
+          craft={props.craft}
+          storyLines={props.storyLines}
           heavyToolsStale={props.heavyToolsStale}
           goToLine={props.goToLine}
         />

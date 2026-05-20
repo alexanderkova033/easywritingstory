@@ -156,7 +156,7 @@ export function BackgroundPicker(props: {
   }, []);
 
   const handleRemoveCustom = useCallback(() => {
-    onChange({ ...appearance, background: "default", customBackground: null });
+    onChange({ ...appearance, background: "dark", customBackground: null });
   }, [appearance, onChange]);
 
   const handleActiveColorChange = useCallback((next: CustomBackgroundTheme) => {
