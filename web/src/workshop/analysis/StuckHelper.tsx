@@ -43,7 +43,7 @@ const TYPE_CONFIG: TypeMeta[] = [
     icon: "→",
     label: "Continue",
     desc: "What could come next.",
-    emptyQuote: "Where does this poem want to go?",
+    emptyQuote: "Where does this story want to go?",
     emptyHint: "Next lines that match your tone. Place your cursor or select a passage to anchor the continuation.",
   },
   {
@@ -137,7 +137,7 @@ async function fetchSuggestions(payload: {
 export interface StuckHelperProps {
   title: string;
   lines: string[];
-  /** Append to the end of the poem. */
+  /** Append to the end of the story. */
   onInsert?: (text: string) => void;
   /** Insert at the editor cursor (replaces selection if any). Used by Continue. */
   onInsertAtCursor?: (text: string) => void;
@@ -283,7 +283,7 @@ export function StuckHelper({ title, lines, onInsert, onInsertAtCursor, cursorLi
     ? (selectedText?.trim() ? "Replace selection" : "Insert at cursor")
     : activeType === "words"
       ? "Insert at cursor"
-      : "Append to poem";
+      : "Append to story";
 
   return (
     <div className="sh-root" data-mode={activeType}>

@@ -349,7 +349,7 @@
 
 .landing-floater {
   position: absolute;
-  font-family: var(--font-poem, serif);
+  font-family: var(--font-story, serif);
   font-style: italic;
   font-size: 1.1rem;
   color: color-mix(in srgb, var(--accent) 55%, var(--muted));
@@ -625,7 +625,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  font-family: var(--font-poem);
+  font-family: var(--font-story);
   font-size: clamp(0.95rem, 1.1vw, 1.4rem);
   text-align: left;
   /* Layered shadow: tight contact + soft long-cast = grounded */
@@ -1400,7 +1400,7 @@
 }
 
 .lp-title-field {
-  font-family: var(--font-poem, serif);
+  font-family: var(--font-story, serif);
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text);
@@ -1444,7 +1444,7 @@
 
 .lp-story-text {
   flex: 1;
-  font-family: var(--font-poem, serif);
+  font-family: var(--font-story, serif);
   font-size: 0.8rem;
   color: var(--text);
   line-height: 1.45;
@@ -1453,7 +1453,7 @@
   text-overflow: ellipsis;
 }
 
-/* Right syllable widget — bar + count, mirrors PoemBodyEditor */
+/* Right syllable widget — bar + count, mirrors StoryBodyEditor */
 .lp-syl-wrap {
   display: inline-flex;
   align-items: center;
@@ -2043,7 +2043,7 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   App preview v2 — matches real PoemWorkshop layout
+   App preview v2 — matches real StoryWorkshop layout
    ───────────────────────────────────────────────────────────────────────── */
 
 .landing-preview {
@@ -2249,7 +2249,7 @@
 .landing-preview[data-revealed="true"] .lp-tools  { opacity: 1; transform: none; transition-delay: 0.75s; }
 .landing-preview[data-revealed="true"] .lp-ai     { opacity: 1; transform: none; transition-delay: 0.9s; }
 
-/* Poem rows type in one by one once editor visible */
+/* Story rows type in one by one once editor visible */
 .landing-preview .lp-story-body .lp-story-row {
   opacity: 0;
   transform: translateX(-6px);
@@ -2538,7 +2538,7 @@
 
 .lp-field-input-placeholder { color: var(--muted); opacity: 0.7; }
 
-/* Poem header + format toolbar */
+/* Story header + format toolbar */
 .lp-story-header {
   display: flex;
   align-items: center;
@@ -2604,7 +2604,7 @@
   margin: 0 0.15rem;
 }
 
-/* Poem body — line numbers + gutter + text + syllable widget */
+/* Story body — line numbers + gutter + text + syllable widget */
 .lp-story-body {
   border: 1px solid var(--border);
   border-radius: 8px;

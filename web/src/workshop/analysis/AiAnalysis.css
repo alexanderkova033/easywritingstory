@@ -1255,8 +1255,8 @@
  * fade-on-idle styles in WorkshopLayout.css can transition it (50% bright in
  * common, dropping to 0 when the user is idle). */
 
-/* Overall poem summary */
-.ai-poem-summary {
+/* Overall story summary */
+.ai-story-summary {
   margin: 0;
   padding: 0.7rem 0.85rem;
   border-radius: 8px;
@@ -1267,7 +1267,7 @@
   color: var(--text);
 }
 
-/* Whole-poem improvement direction block */
+/* Whole-story improvement direction block */
 .ai-overall-direction {
   margin: 0.55rem 0 0;
   padding: 0.75rem 0.85rem;
@@ -1407,8 +1407,8 @@
     gap: 0.65rem;
   }
 
-  /* Poem summary slightly smaller */
-  .ai-poem-summary {
+  /* Story summary slightly smaller */
+  .ai-story-summary {
     font-size: 0.84rem;
     padding: 0.6rem 0.75rem;
   }
@@ -3558,4 +3558,193 @@
 }
 
 .ai-cmp-toast-close:hover { color: var(--text); }
+
+/* ======================================================
+   Exam-mode picker (controls row)
+   ====================================================== */
+.ai-exam-mode-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.45rem 0.18rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  color: var(--muted);
+  font-size: 0.78rem;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.ai-exam-mode-label:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.ai-exam-mode-label.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ai-exam-mode-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.ai-exam-mode-select {
+  appearance: none;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.78rem;
+  color: inherit;
+  padding: 0.15rem 1rem 0.15rem 0.15rem;
+  cursor: pointer;
+  max-width: 14rem;
+  text-overflow: ellipsis;
+}
+
+.ai-exam-mode-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ======================================================
+   Exam grade card (overview tab)
+   ====================================================== */
+.ai-exam-grade {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--ai-score-mid, #e6a817);
+  border-radius: var(--radius-md, 10px);
+  background: color-mix(in srgb, var(--surface) 92%, var(--bg));
+}
+
+.ai-exam-grade-high { border-left-color: var(--ai-score-high, #5fba7d); }
+.ai-exam-grade-mid  { border-left-color: var(--ai-score-mid,  #e6a817); }
+.ai-exam-grade-low  { border-left-color: var(--ai-score-low,  #d95f5f); }
+
+.ai-exam-grade-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.ai-exam-grade-mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ai-exam-grade-mark-number {
+  font-size: 1.85rem;
+  color: var(--text);
+}
+
+.ai-exam-grade-high .ai-exam-grade-mark-number { color: var(--ai-score-high, #5fba7d); }
+.ai-exam-grade-mid  .ai-exam-grade-mark-number { color: var(--ai-score-mid,  #e6a817); }
+.ai-exam-grade-low  .ai-exam-grade-mark-number { color: var(--ai-score-low,  #d95f5f); }
+
+.ai-exam-grade-mark-outof {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.ai-exam-grade-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.ai-exam-grade-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ai-exam-grade-band {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ai-exam-grade-comment {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.ai-exam-grade-breakdown {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.ai-exam-grade-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ai-exam-grade-row-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+}
+
+.ai-exam-grade-row-name {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ai-exam-grade-row-mark {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-exam-grade-row-bar {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 60%, transparent);
+  overflow: hidden;
+}
+
+.ai-exam-grade-row-bar-fill {
+  height: 100%;
+  background: var(--accent, #5fba7d);
+  border-radius: 999px;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ai-exam-grade-high .ai-exam-grade-row-bar-fill { background: var(--ai-score-high, #5fba7d); }
+.ai-exam-grade-mid  .ai-exam-grade-row-bar-fill { background: var(--ai-score-mid,  #e6a817); }
+.ai-exam-grade-low  .ai-exam-grade-row-bar-fill { background: var(--ai-score-low,  #d95f5f); }
+
+.ai-exam-grade-row-comment {
+  margin: 0.1rem 0 0;
+  line-height: 1.4;
+}
+
+.ai-exam-grade-disclaimer {
+  margin: 0;
+  font-style: italic;
+}
 

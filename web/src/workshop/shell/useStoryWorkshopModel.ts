@@ -9,7 +9,7 @@ import {
   useTransition,
 } from "react";
 import { isLocalStorageNearlyFull } from "@/shared/platform/browser-storage";
-import { diffPoemLines } from "@/workshop/library/diff-lines";
+import { diffStoryLines } from "@/workshop/library/diff-lines";
 import {
   duplicateActiveStory,
   duplicateStoryById as duplicateStoryByIdInLib,
@@ -168,7 +168,7 @@ export function useStoryWorkshopModel(
   const [formNote, setFormNote] = useState("");
   const [body, setBody] = useState("");
   const [bodySyncNonce, setBodySyncNonce] = useState(0);
-  const [sampleStoryActive, setSamplePoemActive] = useState(false);
+  const [sampleStoryActive, setSampleStoryActive] = useState(false);
   const bodyLiveRef = useRef("");
   const bodyToReactTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [heavyBody, setHeavyBody] = useState("");
@@ -402,6 +402,7 @@ export function useStoryWorkshopModel(
   const repetition = heavy.repetition;
   const repeated = repetition.words;
   const clicheHits = heavy.clicheHits;
+  const craft = heavy.craft;
   const internalRhymes = heavy.internalRhymes;
   const rhymeScheme: string[] = [];
   void lines;
@@ -462,7 +463,7 @@ export function useStoryWorkshopModel(
 
   const compareDiffRows = useMemo(() => {
     if (compareLeftId === compareRightId) return [];
-    return diffPoemLines(compareLeftBody, compareRightBody);
+    return diffStoryLines(compareLeftBody, compareRightBody);
   }, [
     compareLeftBody,
     compareRightBody,
@@ -615,7 +616,7 @@ export function useStoryWorkshopModel(
     setBodySyncNonce((n) => n + 1);
 
     if (!readFirstVisitHintDismissed() && !isSampleDismissed() && !p.body.trim()) {
-      setSamplePoemActive(true);
+      setSampleStoryActive(true);
       setTitle(SAMPLE_STORY_TITLE);
       setBody(SAMPLE_STORY_BODY);
       bodyLiveRef.current = SAMPLE_STORY_BODY;
@@ -726,7 +727,7 @@ export function useStoryWorkshopModel(
     }
     if (
       !window.confirm(
-        "Delete this draft from this browser? Its snapshots for this poem will be removed too.",
+        "Delete this draft from this browser? Its snapshots for this story will be removed too.",
       )
     ) {
       return;
@@ -795,8 +796,8 @@ export function useStoryWorkshopModel(
     onImportBackupFile,
     folderPickerSupported,
     folderSaveFlash,
-    saveCurrentPoemToFolder,
-    saveAllPoemsToFolder,
+    saveCurrentStoryToFolder,
+    saveAllStoriesToFolder,
   } = useExportActions({
     title,
     formNote,
@@ -1064,9 +1065,9 @@ export function useStoryWorkshopModel(
     setPersistenceError(message);
   }, []);
 
-  const clearSamplePoem = useCallback(() => {
+  const clearSampleStory = useCallback(() => {
     try { localStorage.setItem(STORAGE_KEY_SAMPLE_DISMISSED, "1"); } catch { /* ignore */ }
-    setSamplePoemActive(false);
+    setSampleStoryActive(false);
     setTitle("");
     setBody("");
     bodyLiveRef.current = "";
@@ -1074,9 +1075,9 @@ export function useStoryWorkshopModel(
     setBodySyncNonce((n) => n + 1);
   }, []);
 
-  const keepSamplePoem = useCallback(() => {
+  const keepSampleStory = useCallback(() => {
     try { localStorage.setItem(STORAGE_KEY_SAMPLE_DISMISSED, "1"); } catch { /* ignore */ }
-    setSamplePoemActive(false);
+    setSampleStoryActive(false);
   }, []);
 
   return {
@@ -1089,8 +1090,8 @@ export function useStoryWorkshopModel(
     onEditorBody,
     setBody,
     sampleStoryActive,
-    clearSamplePoem,
-    keepSamplePoem,
+    clearSampleStory,
+    keepSampleStory,
     spellMode,
     setSpellMode,
     savedFlash,
@@ -1155,6 +1156,7 @@ export function useStoryWorkshopModel(
     repeated,
     repetition,
     clicheHits,
+    craft,
     rhymeScheme,
     internalRhymes,
     spellHits,
@@ -1202,8 +1204,8 @@ export function useStoryWorkshopModel(
     importInputRef,
     folderPickerSupported,
     folderSaveFlash,
-    saveCurrentPoemToFolder,
-    saveAllPoemsToFolder,
+    saveCurrentStoryToFolder,
+    saveAllStoriesToFolder,
     applyTemplate,
     applyLineRewrite,
     insertTextAtCursor,

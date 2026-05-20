@@ -4,7 +4,7 @@ import type { GoalEvaluation } from "@/workshop/goals/metrics";
 import type { ChecklistItem } from "@/workshop/analysis/publication-checklist";
 import type { ClicheHit } from "@/workshop/analysis/cliche-scan";
 import type { ToolTab } from "@/workshop/shell/workshop-helpers";
-import { EmptyState, JumpLineList } from "@/workshop/analysis/tools/shared";
+import { EmptyState } from "@/workshop/analysis/tools/shared";
 import { checklistJumpLabel } from "@/workshop/analysis/tools/helpers";
 import { LiveSectionTitle } from "../ToolTabBar";
 
@@ -254,15 +254,6 @@ export function IssuesPanel({
               </section>
             );
           })}
-          {goalEvaluation.syllableOverLines.length > 0 ? (
-            <p className="muted small goal-syllable-jumps">
-              Lines over syllable cap:{" "}
-              <JumpLineList
-                lineNumbers={goalEvaluation.syllableOverLines}
-                goToLine={goToLine}
-              />
-            </p>
-          ) : null}
         </div>
       )}
     </div>

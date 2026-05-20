@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 export function NoLinesYetHint() {
   return (
     <p className="tool-no-lines-hint muted small" role="status">
-      Add a line with text in the poem body to see live stats and pattern tools
+      Add a line with text in the story body to see live stats and pattern tools
       here. Blank-only lines don&apos;t count.
     </p>
   );

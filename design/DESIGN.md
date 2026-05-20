@@ -68,7 +68,7 @@ Defined in `web/src/app/index.css` as CSS custom properties:
 
 - **Color:** `--bg`, `--surface`, `--surface-2`, `--text`, `--muted`, `--accent`, `--accent-soft`, `--border`
 - **Ambient layers:** `--ambient-a/b/c`, `--after-corner`, `--after-zenith-*`
-- **Font:** `--font-ui` (system sans), `--font-poem` (serif — used for story body; will be renamed `--font-story` in the deferred identifier sweep), `--font-mono`
+- **Font:** `--font-ui` (system sans), `--font-story` (serif — used for story body; will be renamed `--font-story` in the deferred identifier sweep), `--font-mono`
 - **Radius:** `--radius-sm`, `--radius-md`, `--radius-lg`, `--radius-xl`
 - **Themes:** 22+ named themes (light, dusk, ember, ocean, aurora, snow, candle, ripple, firefly, studio, zenith…)
 

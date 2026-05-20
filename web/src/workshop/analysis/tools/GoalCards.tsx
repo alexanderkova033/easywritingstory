@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { canonicaliseRhymeScheme } from "@/workshop/goals/types";
-import { JumpLineList, NumberInput, SoftPill } from "./shared";
+import { NumberInput, SoftPill } from "./shared";
 
 export function MetricGoalCard({
   label,
@@ -186,88 +186,6 @@ export function MetricGoalCard({
   );
 }
 
-export function SyllableCapCard({
-  cap,
-  overLines,
-  goToLine,
-  isSoft,
-  onToggleSoft,
-  onSet,
-}: {
-  cap: number | undefined;
-  overLines: number[];
-  goToLine: (n: number) => void;
-  isSoft: boolean;
-  onToggleSoft: () => void;
-  onSet: (v: number | undefined) => void;
-}) {
-  const hasGoal = cap != null;
-  const overCount = overLines.length;
-  const met = hasGoal && overCount === 0;
-  const over = hasGoal && overCount > 0;
-  const statusClass = !hasGoal
-    ? "goal-card--unset"
-    : met
-      ? "goal-card--met"
-      : over
-        ? "goal-card--over"
-        : "";
-
-  return (
-    <div
-      className={`goal-card goal-card--cap ${statusClass}`}
-      title="Flag lines whose estimated syllable count exceeds this"
-    >
-      <div className="goal-card-header">
-        <span className="goal-card-label">Syllable cap</span>
-        {hasGoal ? (
-          <button
-            type="button"
-            className="goal-card-clear"
-            onClick={() => onSet(undefined)}
-            aria-label="Clear syllable cap goal"
-            title="Clear"
-          >
-            ×
-          </button>
-        ) : null}
-      </div>
-
-      <div className="goal-card-value-row">
-        <span className="goal-card-current">{cap ?? "—"}</span>
-        <span className="goal-card-of goal-card-of--cap">
-          max syllables/line
-        </span>
-      </div>
-
-      <NumberInput
-        value={cap}
-        onCommit={onSet}
-        ariaLabel="Syllable cap"
-        withSteppers
-      />
-
-      <div className="goal-card-footer">
-        <span className="goal-card-footer-spacer" />
-        {hasGoal ? (
-          <SoftPill soft={isSoft} onToggle={onToggleSoft} label="syllable cap" />
-        ) : null}
-      </div>
-
-      {hasGoal && overCount > 0 ? (
-        <p className="goal-card-extra">
-          {overCount} line{overCount === 1 ? "" : "s"} over cap:{" "}
-          <JumpLineList lineNumbers={overLines} goToLine={goToLine} />
-        </p>
-      ) : hasGoal ? (
-        <p className="goal-card-extra goal-card-extra--ok">
-          ✓ No lines over cap
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
 interface RhymeSchemePreset {
   label: string;
   value: string;
@@ -308,7 +226,7 @@ const RHYME_SCHEME_PRESETS: RhymeSchemePreset[] = [
     label: "AABBA",
     value: "AABBA",
     hint: "Limerick — two long, two short, one long",
-    example: ["a poet who lived in Peru (A)", "wrote poems that rarely were true (A)", "he scribbled all night (B)", "by candle and light (B)", "and laughed at his odd point of view (A)"],
+    example: ["a poet who lived in Peru (A)", "wrote stories that rarely were true (A)", "he scribbled all night (B)", "by candle and light (B)", "and laughed at his odd point of view (A)"],
   },
   {
     label: "Ballad",
@@ -655,9 +573,9 @@ export function RhymeSchemeCard({
             aria-checked={!perStanza}
             className={`goal-scheme-scope-btn${!perStanza ? " is-active" : ""}`}
             onClick={() => onSetPerStanza(false)}
-            title="Pattern spans the whole poem"
+            title="Pattern spans the whole story"
           >
-            Whole poem
+            Whole story
           </button>
           <button
             type="button"

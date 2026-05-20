@@ -1,8 +1,9 @@
 import "./AiAnalysis.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  analyzePoem,
-  comparePoem,
+  analyzeStory,
+  compareStory,
+  EXAM_MODES,
   type AnalysisIssue,
   type HarshnessLevel,
   type LocalAnalysisContext,
@@ -11,7 +12,7 @@ import {
 } from "@/workshop/analysis/ai-analyze";
 import type { WorkshopGoals } from "@/workshop/goals/types";
 import { tryLocalStorageSetItem } from "@/shared/platform/browser-storage";
-import { STORAGE_KEY_AI_SCORING_ENABLED } from "@/shared/storage-keys";
+import { STORAGE_KEY_AI_EXAM_MODE, STORAGE_KEY_AI_SCORING_ENABLED } from "@/shared/storage-keys";
 import {
   LS_LAST_ANALYSIS_PREFIX,
   LS_RESOLVED_PREFIX,
@@ -31,6 +32,7 @@ import {
   loadLastHash,
   loadScoreHistory,
   loadScoringEnabled,
+  loadStoredExamMode,
   loadStoredModel,
   pushSnapshot,
   saveLastHash,
@@ -69,6 +71,7 @@ export interface AiAnalysisProps {
 export function AiAnalysis({ title, lines, mainIdea, storyId, localAnalysis, goals, onJumpToLine, onPeekLine, onHighlightLines, onClearHighlight, onAnalysisDone, onVisibleIssuesChange, onApplyLine, onAnalyzeRef, onLoadingChange, onOpenIssueAtLineRef, onResultChange, onSwitchTabRef }: AiAnalysisProps) {
   const [model, setModel] = useState(loadStoredModel);
   const [harshness, setHarshness] = useState<HarshnessLevel>("editor");
+  const [examMode, setExamMode] = useState<string | null>(loadStoredExamMode);
   const [scoringEnabled, setScoringEnabled] = useState<boolean>(loadScoringEnabled);
   const [sessionNonce, setSessionNonce] = useState(0);
   const [openIssueLineSignal, setOpenIssueLineSignal] = useState<{ line: number; nonce: number; scroll?: boolean } | null>(null);
@@ -89,11 +92,11 @@ export function AiAnalysis({ title, lines, mainIdea, storyId, localAnalysis, goa
   const [isOpen, setIsOpen] = useState(true);
   const [scoreHistory, setScoreHistory] = useState<number[]>(() => loadScoreHistory(storyId));
   const abortRef = useRef<AbortController | null>(null);
-  const prevPoemId = useRef(storyId);
+  const prevStoryId = useRef(storyId);
 
   useEffect(() => {
-    if (storyId !== prevPoemId.current) {
-      prevPoemId.current = storyId;
+    if (storyId !== prevStoryId.current) {
+      prevStoryId.current = storyId;
       abortRef.current?.abort();
       const next = loadLastAnalysis(storyId);
       setResult(next);
@@ -121,6 +124,12 @@ export function AiAnalysis({ title, lines, mainIdea, storyId, localAnalysis, goa
     tryLocalStorageSetItem(LS_KEY_MODEL, val);
   }, []);
 
+  const saveExamMode = useCallback((val: string | null) => {
+    setExamMode(val);
+    if (val) tryLocalStorageSetItem(STORAGE_KEY_AI_EXAM_MODE, val);
+    else { try { localStorage.removeItem(STORAGE_KEY_AI_EXAM_MODE); } catch { /* ignore */ } }
+  }, []);
+
   const toggleScoring = useCallback(() => {
     setScoringEnabled((prev) => {
       const next = !prev;
@@ -139,13 +148,13 @@ export function AiAnalysis({ title, lines, mainIdea, storyId, localAnalysis, goa
   }, [retryAfterSec]);
 
   const canCompare = savedResult !== null && savedLines.length > 0;
-  const hasPoem = lines.some((l) => l.trim().length > 0);
+  const hasStory = lines.some((l) => l.trim().length > 0);
   // Auto-decide: first run = fresh analyze, every subsequent run = compare.
   // No user-facing toggle — surfaced as a single "Refine" action.
   const effectiveMode: "fresh" | "compare" = canCompare ? "compare" : "fresh";
 
   const handleAnalyze = useCallback(async () => {
-    if (!hasPoem) return;
+    if (!hasStory) return;
     abortRef.current?.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -166,6 +175,7 @@ export function AiAnalysis({ title, lines, mainIdea, storyId, localAnalysis, goa
       lines.join("\n"),
       title,
       harshness,
+      examMode ?? "",
       mainIdea ?? "",
       canCompare ? "compare" : "fresh",
     ].join("|"));
@@ -177,17 +187,18 @@ export function AiAnalysis({ title, lines, mainIdea, storyId, localAnalysis, goa
     try {
       let res: StoryAnalysis | StoryComparison;
       if (canCompare) {
-        res = await comparePoem(
+        res = await compareStory(
           {
             title, lines, previousLines: savedLines,
             previousScores: { overall_score: savedResult!.overall_score },
             localAnalysis, goals: goalsPlain, writingFocus,
             scoreHistory: scoreHistory.slice(-3),
+            examMode,
           },
           model, ctrl.signal,
         );
       } else {
-        res = await analyzePoem({ title, lines, localAnalysis, goals: goalsPlain, harshness, writingFocus }, model, ctrl.signal);
+        res = await analyzeStory({ title, lines, localAnalysis, goals: goalsPlain, harshness, writingFocus, examMode }, model, ctrl.signal);
       }
       setResult(res);
       setSavedResult(res);
@@ -213,12 +224,12 @@ export function AiAnalysis({ title, lines, mainIdea, storyId, localAnalysis, goa
         setStatus("error");
       }
     }
-  }, [canCompare, hasPoem, harshness, lines, mainIdea, model, savedLines, savedResult, title, scoreHistory, storyId, localAnalysis, goals, onAnalysisDone, result]);
+  }, [canCompare, hasStory, harshness, examMode, lines, mainIdea, model, savedLines, savedResult, title, scoreHistory, storyId, localAnalysis, goals, onAnalysisDone, result]);
 
 
   useEffect(() => {
-    onAnalyzeRef?.(() => { if (hasPoem) void handleAnalyze(); });
-  }, [handleAnalyze, hasPoem, onAnalyzeRef]);
+    onAnalyzeRef?.(() => { if (hasStory) void handleAnalyze(); });
+  }, [handleAnalyze, hasStory, onAnalyzeRef]);
 
   const handleNewSession = useCallback(() => {
     abortRef.current?.abort();
@@ -262,7 +273,7 @@ export function AiAnalysis({ title, lines, mainIdea, storyId, localAnalysis, goa
   }, [onSwitchTabRef, requestSwitchTab]);
 
   return (
-    <section className="ai-analysis-section" aria-label="AI poem analysis" data-tour-id="ai-analysis">
+    <section className="ai-analysis-section" aria-label="AI story analysis" data-tour-id="ai-analysis">
       {/* Collapsible header */}
       <button
         type="button"
@@ -332,26 +343,42 @@ export function AiAnalysis({ title, lines, mainIdea, storyId, localAnalysis, goa
                   </button>
                 ))}
               </div>
+
+              <label className={`ai-exam-mode-label${examMode ? " is-active" : ""}`}
+                title="Grade against an exam-board rubric (coursework / NEA only)">
+                <span className="ai-exam-mode-icon" aria-hidden>🎓</span>
+                <select
+                  className="ai-exam-mode-select"
+                  value={examMode ?? ""}
+                  onChange={(e) => saveExamMode(e.target.value || null)}
+                  aria-label="Exam grading mode"
+                >
+                  <option value="">No exam mode</option>
+                  {EXAM_MODES.map((m) => (
+                    <option key={m.id} value={m.id} title={m.description}>{m.label}</option>
+                  ))}
+                </select>
+              </label>
             </div>
 
             <div className="ai-analyze-actions">
               <button type="button"
                 className="small-btn small-btn-primary ai-analyze-btn"
                 onClick={() => void handleAnalyze()}
-                disabled={!hasPoem || status === "loading"}
-                title={!hasPoem ? "Write some lines first" : undefined}>
+                disabled={!hasStory || status === "loading"}
+                title={!hasStory ? "Write some lines first" : undefined}>
                 {status === "loading"
                   ? (effectiveMode === "compare" ? "Refining…" : "Reading…")
                   : effectiveMode === "compare"
                     ? "✦ Refine"
-                    : "✦ Read poem"}
+                    : "✦ Read story"}
               </button>
               {(result || scoreHistory.length > 0) && (
                 <button type="button"
                   className="small-btn ai-new-session-btn"
                   onClick={handleNewSession}
                   disabled={status === "loading"}
-                  title="Start a fresh session — clears chat, ignored issues, and score history for this poem">
+                  title="Start a fresh session — clears chat, ignored issues, and score history for this story">
                   New session
                 </button>
               )}
@@ -396,7 +423,7 @@ export function AiAnalysis({ title, lines, mainIdea, storyId, localAnalysis, goa
                 <span className="ai-loading-label">
                   {effectiveMode === "compare"
                     ? "Refining the read…"
-                    : "Reading the poem…"}
+                    : "Reading the story…"}
                 </span>
               </div>
               {result && (

@@ -24,7 +24,7 @@ function tokenize(s: string): string[] {
  * Coalesces consecutive same-kind operations so decorations render as ranges
  * rather than per-token spans.
  *
- * Cost: O(n*m) time and space. Acceptable for poems (<= a few thousand tokens).
+ * Cost: O(n*m) time and space. Acceptable for stories (<= a few thousand tokens).
  */
 export function diffWords(snapshot: string, current: string): WordDiffOp[] {
   const a = tokenize(snapshot);

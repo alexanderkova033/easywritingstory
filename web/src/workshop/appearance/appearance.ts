@@ -126,7 +126,7 @@ const APPEARANCE_SCHEMA_VERSION = 4;
 /**
  * Returns the first non-empty string from candidates that passes the guard, or
  * the supplied fallback. Used by the appearance loader to accept either the
- * new field name (`storyFont`) or the legacy field name (`poemFont`).
+ * new field name (`storyFont`) or the legacy field name (`storyFont`).
  */
 function pickString<T extends string>(
   guard: (s: string) => s is T,
@@ -147,12 +147,12 @@ export function loadAppearance(): AppearanceSettings {
     if (!v || typeof v !== "object") return { ...DEFAULTS };
     const o = v as Record<string, unknown>;
     return {
-      storyFont: pickString(isStoryFontId, DEFAULTS.storyFont, o.storyFont, o.poemFont),
+      storyFont: pickString(isStoryFontId, DEFAULTS.storyFont, o.storyFont, o.storyFont),
       uiFont: pickString(isUiFontId, DEFAULTS.uiFont, o.uiFont),
       background: pickString(isBackgroundId, DEFAULTS.background, o.background),
-      storySize: pickString(isStorySizeId, DEFAULTS.storySize, o.storySize, o.poemSize),
-      storyWeight: pickString(isStoryWeightId, DEFAULTS.storyWeight, o.storyWeight, o.poemWeight),
-      storyDecoration: pickString(isStoryDecorationId, DEFAULTS.storyDecoration, o.storyDecoration, o.poemDecoration),
+      storySize: pickString(isStorySizeId, DEFAULTS.storySize, o.storySize, o.storySize),
+      storyWeight: pickString(isStoryWeightId, DEFAULTS.storyWeight, o.storyWeight, o.storyWeight),
+      storyDecoration: pickString(isStoryDecorationId, DEFAULTS.storyDecoration, o.storyDecoration, o.storyDecoration),
       backdropMotion: pickString(isBackdropMotionSetting, DEFAULTS.backdropMotion, o.backdropMotion),
       backdropPower:
         typeof o.backdropPower === "string" && isBackdropPowerSetting(o.backdropPower)
@@ -223,13 +223,13 @@ function clearCustomVars(el: HTMLElement): void {
   _customVarsApplied = false;
 }
 
-// The CSS-side variables and dataset attributes (`--poem-font-size`,
-// `data-poem-font`, etc.) keep their `poem-*` names to avoid rewriting every
+// The CSS-side variables and dataset attributes (`--story-font-size`,
+// `data-story-font`, etc.) keep their `story-*` names to avoid rewriting every
 // CSS file that reads them. This is purely a name mismatch with the TS-side
 // `storyFont` / `storySize` settings; the values flow through unchanged.
 export function applyAppearance(s: AppearanceSettings): void {
   const el = document.documentElement;
-  el.dataset.poemFont = s.storyFont;
+  el.dataset.storyFont = s.storyFont;
   el.dataset.uiFont = s.uiFont;
 
   const isCustomActive = s.background === "custom" && s.customBackground != null;
@@ -267,10 +267,10 @@ export function applyAppearance(s: AppearanceSettings): void {
     el.setAttribute("data-backdrop-low-power", "");
     el.dataset.backdropPower = s.backdropPower;
   }
-  el.style.setProperty("--poem-font-size", STORY_SIZE_VAR[s.storySize]);
-  el.style.setProperty("--poem-font-weight", STORY_WEIGHT_VAR[s.storyWeight]);
+  el.style.setProperty("--story-font-size", STORY_SIZE_VAR[s.storySize]);
+  el.style.setProperty("--story-font-weight", STORY_WEIGHT_VAR[s.storyWeight]);
   el.style.setProperty(
-    "--poem-text-decoration",
+    "--story-text-decoration",
     s.storyDecoration === "underline" ? "underline" : "none",
   );
 }

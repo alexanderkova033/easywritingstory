@@ -4,7 +4,7 @@
  * content. Updates at most once per day. Used as a subtle landing-page badge.
  */
 
-const LS_KEY = "easy-poems:streak:v1";
+const LS_KEY = "easy-stories:streak:v1";
 
 interface StreakState {
   /** ISO yyyy-mm-dd of the last day a write was recorded. */

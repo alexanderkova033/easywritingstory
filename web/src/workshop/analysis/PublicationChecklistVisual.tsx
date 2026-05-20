@@ -133,12 +133,11 @@ export function PublicationChecklistVisual({
 
 function ChecklistIconGlyph({ icon }: { icon: ChecklistIcon }) {
   switch (icon) {
-    case "lines":
+    case "draft":
       return (
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="4" y1="7" x2="20" y2="7"/>
-          <line x1="4" y1="12" x2="16" y2="12"/>
-          <line x1="4" y1="17" x2="13" y2="17"/>
+          <path d="M6 4h9l4 4v12H6z"/>
+          <polyline points="14 4 14 9 19 9"/>
         </svg>
       );
     case "title":

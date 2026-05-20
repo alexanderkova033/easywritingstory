@@ -26,7 +26,7 @@
 }
 
 .word-lookup-word {
-  font-family: var(--font-poem);
+  font-family: var(--font-story);
   font-size: 1rem;
   font-weight: 700;
   color: var(--text);
@@ -332,11 +332,11 @@
 
 /* ── Right-column rhyme scheme — regular flex item, not absolute ── */
 .editor-rhyme-scheme {
-  /* Width scales with poem font so labels stay legible at any zoom */
-  --rhyme-col-width: max(2.4rem, calc(var(--poem-font-size, 1rem) * 2.2));
+  /* Width scales with story font so labels stay legible at any zoom */
+  --rhyme-col-width: max(2.4rem, calc(var(--story-font-size, 1rem) * 2.2));
   flex: 0 0 var(--rhyme-col-width);
   width: var(--rhyme-col-width);
-  /* Clip rows beyond the poem text without scrollbars */
+  /* Clip rows beyond the story text without scrollbars */
   overflow-y: hidden;
   display: flex;
   flex-direction: column;
@@ -357,11 +357,11 @@
 }
 
 /* Every row — labeled or blank — gets the same height as one editor line.
-   Must use --poem-font-size (not 1rem) because the CodeMirror theme sizes lines as
-   font-size × line-height. If the user changes the poem font size, both match. */
+   Must use --story-font-size (not 1rem) because the CodeMirror theme sizes lines as
+   font-size × line-height. If the user changes the story font size, both match. */
 .editor-rhyme-row,
 .editor-rhyme-spacer {
-  height: calc(var(--poem-font-size, 1rem) * var(--poem-line-height, 1.65));
+  height: calc(var(--story-font-size, 1rem) * var(--story-line-height, 1.65));
   flex-shrink: 0;
 }
 
@@ -380,10 +380,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: calc(var(--poem-font-size, 1rem) * 1.55);
-  height: calc(var(--poem-font-size, 1rem) * 1.35);
+  width: calc(var(--story-font-size, 1rem) * 1.55);
+  height: calc(var(--story-font-size, 1rem) * 1.35);
   font-weight: 700;
-  font-size: calc(var(--poem-font-size, 1rem) * 0.66);
+  font-size: calc(var(--story-font-size, 1rem) * 0.66);
   border-radius: 4px;
 }
 

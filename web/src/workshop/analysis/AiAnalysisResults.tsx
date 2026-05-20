@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   type AnalysisIssue,
   type ComparisonChanges,
+  type ExamGrade,
   type LocalAnalysisContext,
   type StoryAnalysis,
   type StoryComparison,
@@ -47,7 +48,7 @@ function CompareCelebration({
             </span>
           )}
           <span className="ai-cmp-toast-summary">
-            {isWin ? "Revision lifted the poem." : isLoss ? "Some craft moves regressed." : "Mixed revision."}
+            {isWin ? "Revision lifted the story." : isLoss ? "Some craft moves regressed." : "Mixed revision."}
           </span>
         </div>
         {cmp.improvements.length > 0 && (
@@ -62,6 +63,55 @@ function CompareCelebration({
         )}
       </div>
       <button type="button" className="ai-cmp-toast-close" onClick={onDismiss} aria-label="Dismiss">✕</button>
+    </div>
+  );
+}
+
+function examGradeTone(mark: number, outOf: number): "low" | "mid" | "high" {
+  if (outOf <= 0) return "mid";
+  const ratio = mark / outOf;
+  if (ratio >= 0.75) return "high";
+  if (ratio >= 0.5) return "mid";
+  return "low";
+}
+
+function ExamGradeCard({ grade }: { grade: ExamGrade }) {
+  const tone = examGradeTone(grade.mark, grade.outOf);
+  return (
+    <div className={`ai-exam-grade ai-exam-grade-${tone}`} role="group" aria-label="Exam grade">
+      <div className="ai-exam-grade-head">
+        <div className="ai-exam-grade-mark">
+          <span className="ai-exam-grade-mark-number">{grade.mark}</span>
+          <span className="ai-exam-grade-mark-outof">/ {grade.outOf}</span>
+        </div>
+        <div className="ai-exam-grade-meta">
+          <span className="ai-exam-grade-label">{grade.modeLabel}</span>
+          {grade.band && <span className="ai-exam-grade-band">{grade.band}</span>}
+        </div>
+      </div>
+      {grade.comment && <p className="ai-exam-grade-comment">{grade.comment}</p>}
+      {grade.breakdown.length > 0 && (
+        <ul className="ai-exam-grade-breakdown">
+          {grade.breakdown.map((b, i) => {
+            const pct = b.outOf > 0 ? Math.round((b.mark / b.outOf) * 100) : 0;
+            return (
+              <li key={i} className="ai-exam-grade-row">
+                <div className="ai-exam-grade-row-head">
+                  <span className="ai-exam-grade-row-name">{b.name}</span>
+                  <span className="ai-exam-grade-row-mark">{b.mark} / {b.outOf}</span>
+                </div>
+                <div className="ai-exam-grade-row-bar" aria-hidden>
+                  <div className="ai-exam-grade-row-bar-fill" style={{ width: `${pct}%` }} />
+                </div>
+                {b.comment && <p className="ai-exam-grade-row-comment muted small">{b.comment}</p>}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <p className="ai-exam-grade-disclaimer muted small">
+        Indicative only — generated against the published rubric, not an official mark.
+      </p>
     </div>
   );
 }
@@ -343,6 +393,9 @@ export function AnalysisResults({
             />
           )}
 
+          {/* 0. Exam grade (when run in exam-mode) — shown above the 1-100 score */}
+          {result.exam_grade && <ExamGradeCard grade={result.exam_grade} />}
+
           {/* 1. Hero — score + verdict + sparkline + warm reaction */}
           <div className="ai-hero">
             {scoringEnabled && (
@@ -370,7 +423,7 @@ export function AnalysisResults({
             {voiceFingerprint && (
               <p
                 className="ai-voice-fingerprint muted small"
-                title={`Pattern detected across ${voiceFingerprint.storyCount} of your poems`}
+                title={`Pattern detected across ${voiceFingerprint.storyCount} of your stories`}
               >
                 Your voice often: {voiceFingerprint.tags.join(" · ")}
               </p>
@@ -468,7 +521,7 @@ export function AnalysisResults({
           {result.issues.length === 0 ? (
             <div className="ai-no-issues-wrap">
               <span className="ai-no-issues-check" aria-hidden>✓</span>
-              <p className="ai-no-issues muted small">No specific line-level issues — the poem reads well.</p>
+              <p className="ai-no-issues muted small">No specific line-level issues — the story reads well.</p>
             </div>
           ) : (
             <>
@@ -525,7 +578,7 @@ export function AnalysisResults({
                   <span className="ai-all-done-icon" aria-hidden>✦</span>
                   <div>
                     <strong>All issues addressed!</strong>
-                    <p className="muted small">Run another analysis to check the revised poem.</p>
+                    <p className="muted small">Run another analysis to check the revised story.</p>
                   </div>
                   <button type="button" className="small-btn ai-all-done-undo"
                     onClick={() => setResolvedIds(new Set())}>

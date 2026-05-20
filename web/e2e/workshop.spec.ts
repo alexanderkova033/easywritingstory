@@ -5,13 +5,13 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => {
     localStorage.clear();
     // Avoid the first-visit banner covering controls in headless runs
-    localStorage.setItem("easy-poems:first-hint-dismissed", "1");
+    localStorage.setItem("easy-stories:first-hint-dismissed", "1");
   });
   await page.reload();
 });
 
 test("loads and shows the editor", async ({ page }) => {
-  await expect(page.locator(".poem-cm-wrap")).toBeVisible();
+  await expect(page.locator(".story-cm-wrap")).toBeVisible();
 });
 
 test("creates a new draft", async ({ page }) => {
@@ -29,9 +29,9 @@ test("types into the editor", async ({ page }) => {
 });
 
 test("title field updates", async ({ page }) => {
-  const titleInput = page.locator("#poem-title");
-  await titleInput.fill("My Test Poem");
-  await expect(titleInput).toHaveValue("My Test Poem");
+  const titleInput = page.locator("#story-title");
+  await titleInput.fill("My Test Story");
+  await expect(titleInput).toHaveValue("My Test Story");
 });
 
 test("saved flash appears after editing", async ({ page }) => {
@@ -60,7 +60,7 @@ test("export backup downloads a file", async ({ page }) => {
   // Type some content so there's something to export
   const editor = page.locator(".cm-content");
   await editor.click();
-  await page.keyboard.type("A poem to export");
+  await page.keyboard.type("A story to export");
 
   await page.locator('[aria-label="Open library"]').click();
   await page.getByText("Backup", { exact: true }).click();
@@ -69,18 +69,18 @@ test("export backup downloads a file", async ({ page }) => {
     page.waitForEvent("download"),
     page.getByRole("button", { name: /export backup.*json/i }).click(),
   ]);
-  expect(download.suggestedFilename()).toMatch(/easy-poems-backup.*\.json$/);
+  expect(download.suggestedFilename()).toMatch(/easy-stories-backup.*\.json$/);
 });
 
-test("import backup restores poems", async ({ page }) => {
+test("import backup restores stories", async ({ page }) => {
   // Build a minimal valid backup JSON
   const backup = JSON.stringify({
-    easyPoemsWorkshopExport: true,
+    easyStoriesWorkshopExport: true,
     version: 1,
     exportedAt: new Date().toISOString(),
-    poems: [
+    stories: [
       {
-        title: "Imported Poem",
+        title: "Imported Story",
         body: "Roses are red",
         updatedAt: new Date().toISOString(),
       },
@@ -101,15 +101,15 @@ test("import backup restores poems", async ({ page }) => {
 
   // Import notice should appear
   await expect(page.locator(".import-notice-banner")).toBeVisible({ timeout: 3000 });
-  await expect(page.locator(".import-notice-text")).toContainText("Imported 1 poem");
+  await expect(page.locator(".import-notice-text")).toContainText("Imported 1 story");
 });
 
 test("import rejects invalid version backup", async ({ page }) => {
   const badBackup = JSON.stringify({
-    easyPoemsWorkshopExport: true,
+    easyStoriesWorkshopExport: true,
     version: 99,
     exportedAt: new Date().toISOString(),
-    poems: [],
+    stories: [],
   });
 
   await page.locator('[aria-label="Open library"]').click();

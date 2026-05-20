@@ -5,7 +5,7 @@ const MIN_BODY_CHARS = 15;
 
 /**
  * Records today's writing streak entry once per mount, the first time the
- * poem body crosses a small substantive-content threshold. Idempotent within
+ * story body crosses a small substantive-content threshold. Idempotent within
  * the calendar day; cheap when already recorded.
  */
 export function useWritingStreakOnMount(body: string): void {

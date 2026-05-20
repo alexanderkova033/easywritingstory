@@ -2,7 +2,7 @@ import type { CustomBackgroundTheme } from "./presets";
 import { parseAiErrorAndNotify } from "../../ai-cost/aiBudgetBus";
 
 /**
- * Calls POST /api/generate-background with a description or poem text and
+ * Calls POST /api/generate-background with a description or story text and
  * returns a CustomBackgroundTheme with CSS variable values for the backdrop.
  */
 export async function generateBackground(

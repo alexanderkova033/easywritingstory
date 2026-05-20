@@ -5,8 +5,8 @@ export const COMPARE_CURRENT_ID = "__current__";
 export type ToolTab =
   | "issues"
   | "goals"
-  | "lines"
   | "repeat"
+  | "craft"
   | "spell"
   | "snapshots"
   | "suggest";
@@ -23,7 +23,7 @@ export const TOOL_BUCKET_LABEL: Record<ToolBucket, string> = {
 };
 
 export function toolTabBucket(tab: ToolTab): ToolBucket {
-  if (tab === "repeat") return "language";
+  if (tab === "repeat" || tab === "craft") return "language";
   if (tab === "suggest") return "ideas";
   return "overview";
 }
@@ -34,12 +34,11 @@ export function tabsForBucket(bucket: ToolBucket): ToolTab[] {
       return [
         "issues",
         "spell",
-        "lines",
         "goals",
         "snapshots",
       ];
     case "language":
-      return ["repeat"];
+      return ["repeat", "craft"];
     case "ideas":
       return ["suggest"];
   }

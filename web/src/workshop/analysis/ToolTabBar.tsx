@@ -26,20 +26,6 @@ function IconTabGoals() {
   );
 }
 
-function IconTabLines() {
-  return (
-    <svg className="tool-tab-svg" viewBox="0 0 24 24" aria-hidden>
-      <path
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.65"
-        strokeLinejoin="round"
-        d="M5 6.5h3v3H5zm6 0h9m-9 5.5h9m-9 5.5h9M5 15v3h3v-3z"
-      />
-    </svg>
-  );
-}
-
 function IconTabRepeat() {
   return (
     <svg className="tool-tab-svg" viewBox="0 0 24 24" aria-hidden>
@@ -50,6 +36,21 @@ function IconTabRepeat() {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M16 5.5h3v3M8 18.5H5v-3m0-5.5a7.5 7.5 0 0112.85-5.3M19 12a7.5 7.5 0 01-12.85 5.3"
+      />
+    </svg>
+  );
+}
+
+function IconTabCraft() {
+  return (
+    <svg className="tool-tab-svg" viewBox="0 0 24 24" aria-hidden>
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.65"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 19l4-1 9-9-3-3-9 9-1 4zm10-13l3 3M12 19h7"
       />
     </svg>
   );
@@ -101,7 +102,7 @@ function IconTabSuggest() {
   );
 }
 
-/** Order tuned for flow: triage → spelling → line work → polish → versions → external help */
+/** Order tuned for flow: triage → spelling → polish → versions → external help */
 export const TOOL_TABS: {
   id: ToolTab;
   label: string;
@@ -110,8 +111,8 @@ export const TOOL_TABS: {
 }[] = [
   { id: "issues",    label: "Queue",     desc: "Spelling flags, checklist gaps & goal warnings in one list",   Icon: IconTabIssues },
   { id: "spell",     label: "Spell",     desc: "Find and fix misspelled words",                                Icon: IconTabSpell },
-  { id: "lines",     label: "Lines",     desc: "Per-line word & character counts",                             Icon: IconTabLines },
   { id: "repeat",    label: "Repeats",   desc: "Words that appear more than once",                             Icon: IconTabRepeat },
+  { id: "craft",     label: "Craft",     desc: "Dialogue tags, POV, tense, show-vs-tell, adverbs, characters", Icon: IconTabCraft },
   { id: "goals",     label: "Goals",     desc: "Set targets for word counts",                                  Icon: IconTabGoals },
   { id: "snapshots", label: "Snapshots", desc: "Save and compare draft snapshots",                             Icon: IconTabSnapshots },
   { id: "suggest",   label: "Ideas",     desc: "AI suggestions when you\u2019re stuck",                        Icon: IconTabSuggest },

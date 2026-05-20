@@ -44,9 +44,6 @@ export function loadWorkshopGoals(): WorkshopGoals {
     if (typeof o.preset === "string") out.preset = o.preset;
     const soft = readOptionalStringArray(o.softGoals);
     if (soft) out.softGoals = soft;
-    // legacy
-    const tlps = readOptionalPositiveInt(o.targetLinesPerStanza);
-    if (tlps != null) out.targetLinesPerStanza = tlps;
     return out;
   } catch {
     return {};
@@ -65,7 +62,6 @@ export function saveWorkshopGoals(goals: WorkshopGoals): boolean {
   }
   if (goals.softGoals && goals.softGoals.length > 0) payload.softGoals = goals.softGoals;
   if (goals.preset != null) payload.preset = goals.preset;
-  if (goals.targetLinesPerStanza != null) payload.targetLinesPerStanza = goals.targetLinesPerStanza;
   if (Object.keys(payload).length === 0) {
     return tryLocalStorageRemoveItem(STORAGE_KEY_GOALS);
   }

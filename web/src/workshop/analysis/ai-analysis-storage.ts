@@ -1,8 +1,8 @@
 import type { StoryAnalysis } from "@/workshop/analysis/ai-analyze";
 
-export const LS_LAST_ANALYSIS_PREFIX = "easy-poems:ai-last:";
-export const LS_RESOLVED_PREFIX = "easy-poems:ai-resolved:";
-export const LS_IGNORED_PREFIX = "easy-poems:ai-ignored:";
+export const LS_LAST_ANALYSIS_PREFIX = "easy-stories:ai-last:";
+export const LS_RESOLVED_PREFIX = "easy-stories:ai-resolved:";
+export const LS_IGNORED_PREFIX = "easy-stories:ai-ignored:";
 
 export function loadLastAnalysis(storyId?: string): StoryAnalysis | null {
   if (!storyId) return null;

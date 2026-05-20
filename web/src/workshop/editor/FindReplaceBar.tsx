@@ -205,7 +205,7 @@ export function FindReplaceBar(props: FindReplaceBarProps) {
                 className="small-btn"
                 onClick={() => editorView && replaceAll(editorView)}
                 disabled={!editorView || !find.trim()}
-                {...hint("Replace all matches in the poem")}
+                {...hint("Replace all matches in the story")}
               >
                 All
               </button>

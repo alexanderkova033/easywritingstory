@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 // Change this to your preferred feedback destination:
 // - A mailto address: "mailto:you@example.com"
 // - A Google Form, Tally, or Typeform URL: "https://tally.so/r/yourform"
-const FEEDBACK_HREF = "mailto:easywritingpoem@gmail.com";
+const FEEDBACK_HREF = "mailto:easywritingstory@gmail.com";
 
 export function FeedbackWidget() {
   const [open, setOpen] = useState(false);
@@ -40,7 +40,7 @@ export function FeedbackWidget() {
   const submit = useCallback(() => {
     if (!text.trim()) return;
     if (FEEDBACK_HREF.startsWith("mailto:")) {
-      const subject = encodeURIComponent("easywriting-poem — feedback");
+      const subject = encodeURIComponent("easywriting-story — feedback");
       const body = encodeURIComponent(text.trim());
       window.open(`${FEEDBACK_HREF}?subject=${subject}&body=${body}`, "_blank");
     } else {
@@ -56,7 +56,7 @@ export function FeedbackWidget() {
         type="button"
         className="feedback-inline-btn"
         onClick={openModal}
-        aria-label="Share feedback about easywriting-poem"
+        aria-label="Share feedback about easywriting-story"
       >
         <span className="feedback-inline-btn-icon" aria-hidden="true">💬</span>
         Send feedback

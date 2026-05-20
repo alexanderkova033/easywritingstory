@@ -103,11 +103,11 @@ const spellPlugin = ViewPlugin.fromClass(
   },
 );
 
-export const poemSpellExtensions = [spellField, spellPlugin];
+export const storySpellExtensions = [spellField, spellPlugin];
 
-export const poemEditorTheme = EditorView.theme({
+export const storyEditorTheme = EditorView.theme({
   "&": {
-    fontSize: "var(--poem-font-size, 1rem)",
+    fontSize: "var(--story-font-size, 1rem)",
     minHeight: "13rem",
     backgroundColor: "transparent",
     color: "color-mix(in srgb, var(--text) 82%, transparent)",
@@ -117,11 +117,11 @@ export const poemEditorTheme = EditorView.theme({
   },
   ".cm-scroller": { fontFamily: "inherit", overflowX: "hidden", backgroundColor: "transparent" },
   ".cm-content": {
-    fontFamily: "var(--font-poem), Georgia, serif",
-    fontWeight: "var(--poem-font-weight, 400)",
-    textDecoration: "var(--poem-text-decoration, none)",
-    lineHeight: "var(--poem-line-height, 1.65)",
-    letterSpacing: "var(--poem-letter-spacing, 0em)",
+    fontFamily: "var(--font-story), Georgia, serif",
+    fontWeight: "var(--story-font-weight, 400)",
+    textDecoration: "var(--story-text-decoration, none)",
+    lineHeight: "var(--story-line-height, 1.65)",
+    letterSpacing: "var(--story-letter-spacing, 0em)",
     caretColor: "color-mix(in srgb, var(--accent) 70%, var(--text))",
     minHeight: "13rem",
     padding: "0.6rem 0.7rem",

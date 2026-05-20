@@ -691,7 +691,7 @@ export function RevisionCompareSection(props: RevisionCompareSectionProps) {
             </button>
           </div>
           {compareViewMode === "side" ? (
-            <div className="compare-panels" aria-label="Compared poem text">
+            <div className="compare-panels" aria-label="Compared story text">
               <div className="compare-panel">
                 <div className="compare-panel-head">From</div>
                 <pre className="compare-pre">{compareLeftBody}</pre>

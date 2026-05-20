@@ -7,7 +7,7 @@ import {
   removeRevision,
 } from "./revision-snapshots";
 
-describe("revision-snapshots (per poem)", () => {
+describe("revision-snapshots (per story)", () => {
   let detach: () => void;
 
   beforeEach(() => {
@@ -18,23 +18,23 @@ describe("revision-snapshots (per poem)", () => {
     detach();
   });
 
-  it("scopes snapshots by poem id", () => {
-    const a = addRevision("poem-a", [], {
+  it("scopes snapshots by story id", () => {
+    const a = addRevision("story-a", [], {
       title: "A",
       body: "x",
     });
     expect(a.ok).toBe(true);
-    const b = addRevision("poem-b", [], {
+    const b = addRevision("story-b", [], {
       title: "B",
       body: "y",
     });
     expect(b.ok).toBe(true);
-    expect(loadRevisions("poem-a")).toHaveLength(1);
-    expect(loadRevisions("poem-b")).toHaveLength(1);
-    expect(loadRevisions("poem-a")[0]!.title).toBe("A");
+    expect(loadRevisions("story-a")).toHaveLength(1);
+    expect(loadRevisions("story-b")).toHaveLength(1);
+    expect(loadRevisions("story-a")[0]!.title).toBe("A");
   });
 
-  it("migrates legacy v1 array into a poem bucket once", () => {
+  it("migrates legacy v1 array into a story bucket once", () => {
     const legacy = [
       {
         id: "s1",
@@ -44,9 +44,9 @@ describe("revision-snapshots (per poem)", () => {
       },
     ];
     globalThis.localStorage.setItem("easy-stories:revisions:v1", JSON.stringify(legacy));
-    migrateLegacyRevisionsV1ToStory("first-poem");
+    migrateLegacyRevisionsV1ToStory("first-story");
     expect(globalThis.localStorage.getItem("easy-stories:revisions:v1")).toBeNull();
-    const snaps = loadRevisions("first-poem");
+    const snaps = loadRevisions("first-story");
     expect(snaps).toHaveLength(1);
     expect(snaps[0]!.title).toBe("Old");
   });

@@ -13,8 +13,8 @@ import CodeMirror, { ExternalChange } from "@uiw/react-codemirror";
 import { basicSetup } from "@uiw/codemirror-extensions-basic-setup";
 import {
   bindSpellContext,
-  poemEditorTheme,
-  poemSpellExtensions,
+  storyEditorTheme,
+  storySpellExtensions,
   spellSyncFacet,
 } from "@/workshop/editor/spell-highlight";
 import {
@@ -66,7 +66,7 @@ const syllableCountPlugin = ViewPlugin.fromClass(
     // Per-line text cache — typing on one line reuses every other line's
     // memoised count instead of recomputing all N lines per keystroke. Combined
     // with the module-level lineCache in syllables.ts, a steady-state rebuild
-    // for a 50-line poem is N hash lookups, not N word-tokenisations.
+    // for a 50-line story is N hash lookups, not N word-tokenisations.
     private lineTexts: string[] = [];
     private lineCounts: number[] = [];
     constructor(view: EditorView) {
@@ -175,7 +175,7 @@ const issueHighlightField = StateField.define<DecorationSet>({
   provide: (f) => EditorView.decorations.from(f),
 });
 
-// Strongest-line decoration — subtle gold accent for the best line in the poem.
+// Strongest-line decoration — subtle gold accent for the best line in the story.
 const setStrongestLine = StateEffect.define<DecorationSet>();
 const clearStrongestLine = StateEffect.define<void>();
 
@@ -449,7 +449,7 @@ export interface StoryBodyEditorProps {
   /** Scroll a line into view WITHOUT moving the cursor or focusing. */
   peekLine?: number | null;
   peekBump?: number;
-  /** Subtly highlight the strongest line in the poem (from AI analysis). */
+  /** Subtly highlight the strongest line in the story (from AI analysis). */
   strongestLine?: number | null;
   issueHighlight?: [number, number, string?] | null;
   /** Persistent dim highlights for all AI issue line ranges after analysis. */
@@ -762,7 +762,7 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
 
   const extensions = useMemo(
     () => [
-      // Prevent poem-load/suggestion-apply transactions from polluting undo history.
+      // Prevent story-load/suggestion-apply transactions from polluting undo history.
       // react-codemirror marks external value changes with ExternalChange; we intercept
       // them and annotate addToHistory=false so Ctrl+Z can't undo past the loaded state.
       EditorState.transactionExtender.of((tr) =>
@@ -792,11 +792,15 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
       ...typewriterExtension,
       placeholder("Start writing…"),
       ...(showSyllables ? [syllableCountPlugin] : []),
-      ...poemSpellExtensions,
+      ...storySpellExtensions,
       formatMarksExtension,
       formatMarksTheme,
-      ...basicSetup(),
-      poemEditorTheme,
+      ...basicSetup({
+        lineNumbers: false,
+        foldGutter: false,
+        highlightActiveLineGutter: false,
+      }),
+      storyEditorTheme,
     ],
     [props.spellBump, props.spellMode, showSyllables],
   );

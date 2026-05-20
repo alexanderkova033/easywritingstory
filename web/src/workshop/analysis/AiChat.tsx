@@ -26,13 +26,13 @@ export function AiChat({
   const [chatStatus, setChatStatus] = useState<"idle" | "loading" | "error">("idle");
   const [chatError, setChatError] = useState("");
 
-  // Persist chat per poem.
+  // Persist chat per story.
   useEffect(() => { saveChat(storyId, messages); }, [storyId, messages]);
-  // When storyId changes, reload that poem's saved messages.
-  const lastPoemRef = useRef(storyId);
+  // When storyId changes, reload that story's saved messages.
+  const lastStoryRef = useRef(storyId);
   useEffect(() => {
-    if (lastPoemRef.current !== storyId) {
-      lastPoemRef.current = storyId;
+    if (lastStoryRef.current !== storyId) {
+      lastStoryRef.current = storyId;
       setMessages(loadChat(storyId));
     }
   }, [storyId]);

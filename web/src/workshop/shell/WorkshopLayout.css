@@ -250,7 +250,7 @@
 }
 
 /* ── Fade-on-idle: drift chrome, AI analysis, and the mouse cursor away
- * after stillness. Driven by data-focus-idle on <html>, set by PoemWorkshop.
+ * after stillness. Driven by data-focus-idle on <html>, set by StoryWorkshop.
  * Mouse activity reveals; idle reapplies. */
 .story-workshop.is-focus-mode .topbar,
 .story-workshop.is-focus-mode .mobile-toolbar-wrap,

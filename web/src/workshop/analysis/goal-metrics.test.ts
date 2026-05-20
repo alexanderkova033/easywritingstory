@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { evaluateGoals } from "@/workshop/goals/metrics";
 import type { DocumentStats } from "./line-stats";
 
-function stats(partial: Partial<DocumentStats> & Pick<DocumentStats, "lines">): DocumentStats {
+function stats(partial: Partial<DocumentStats> = {}): DocumentStats {
   return {
     totalLines: 0,
     nonEmptyLines: 0,
@@ -13,8 +13,6 @@ function stats(partial: Partial<DocumentStats> & Pick<DocumentStats, "lines">): 
     estimatedReadingMinutes: 0,
     stanzaStats: [],
     avgWordsPerNonEmptyLine: 0,
-    longestLineByWords: null,
-    longestLineByChars: null,
     prose: {
       sentences: [],
       avgWordsPerSentence: 0,
@@ -28,15 +26,10 @@ function stats(partial: Partial<DocumentStats> & Pick<DocumentStats, "lines">): 
 }
 
 describe("evaluateGoals", () => {
-  it("warns when lines below minimum", () => {
+  it("warns when word count is below minimum", () => {
     const out = evaluateGoals(
-      stats({
-        lines: [],
-        totalLines: 2,
-        nonEmptyLines: 2,
-        totalWords: 10,
-      }),
-      { minLines: 5 },
+      stats({ totalWords: 100 }),
+      { minWords: 500 },
     );
     expect(out.warnings.some((w) => w.includes("below your minimum"))).toBe(true);
   });
@@ -44,7 +37,6 @@ describe("evaluateGoals", () => {
   it("warns when paragraph count is outside range", () => {
     const low = evaluateGoals(
       stats({
-        lines: [],
         stanzaCount: 1,
         stanzaStats: [
           {
@@ -64,11 +56,7 @@ describe("evaluateGoals", () => {
     expect(low.warnings.some((w) => w.includes("Paragraphs"))).toBe(true);
 
     const high = evaluateGoals(
-      stats({
-        lines: [],
-        stanzaCount: 4,
-        stanzaStats: [],
-      }),
+      stats({ stanzaCount: 4, stanzaStats: [] }),
       { maxStanzas: 2 },
     );
     expect(high.warnings.some((w) => w.includes("above your maximum"))).toBe(

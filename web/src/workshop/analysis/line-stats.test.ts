@@ -24,10 +24,9 @@ describe("computeDocumentStats", () => {
     expect(s.stanzaCount).toBe(3);
   });
 
-  it("computes avg words per non-empty line and longest line", () => {
+  it("computes avg words per non-empty line", () => {
     const s = computeDocumentStats("one two\nthree four five\n");
     expect(s.avgWordsPerNonEmptyLine).toBe(2.5);
-    expect(s.longestLineByWords).toEqual({ lineNumber: 2, words: 3 });
   });
 
   it("estimates reading minutes from word count", () => {

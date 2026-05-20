@@ -115,7 +115,7 @@ export function AppearanceFormFields(props: {
   onChange: (next: AppearanceSettings) => void;
 }) {
   const { appearance, onChange } = props;
-  const poemSel = STORY_FONT_OPTIONS.find((o) => o.id === appearance.storyFont) ?? STORY_FONT_OPTIONS[0]!;
+  const storySel = STORY_FONT_OPTIONS.find((o) => o.id === appearance.storyFont) ?? STORY_FONT_OPTIONS[0]!;
   const uiSel = UI_FONT_OPTIONS.find((o) => o.id === appearance.uiFont) ?? UI_FONT_OPTIONS[0]!;
 
   return (
@@ -141,7 +141,7 @@ export function AppearanceFormFields(props: {
       </label>
 
       <div className="font-preview" aria-hidden="true">
-        <div className="font-preview-poem" style={{ fontFamily: poemSel.fontFamily }}>
+        <div className="font-preview-story" style={{ fontFamily: storySel.fontFamily }}>
           She walks in beauty, like the night
           <br />
           Of cloudless climes and starry skies

@@ -408,7 +408,7 @@ export function WorkshopLibraryModal(props: Props) {
                 type="button"
                 className="small-btn small-btn-primary"
                 onClick={m.saveSnapshot}
-                {...hint("Save a snapshot of the current poem")}
+                {...hint("Save a snapshot of the current story")}
               >
                 Save now
               </button>
@@ -445,7 +445,7 @@ export function WorkshopLibraryModal(props: Props) {
                         className="small-btn"
                         onClick={() => setDiffSnapshotId(diffSnapshotId === snap.id ? null : snap.id)}
                         aria-pressed={diffSnapshotId === snap.id}
-                        {...hint("Show word-level diff between this snapshot and the current poem")}
+                        {...hint("Show word-level diff between this snapshot and the current story")}
                       >
                         {diffSnapshotId === snap.id ? "Hide diff" : "Diff"}
                       </button>
@@ -453,12 +453,12 @@ export function WorkshopLibraryModal(props: Props) {
                         type="button"
                         className="small-btn"
                         onClick={() => {
-                          if (window.confirm(`Restore to "${formatRelativeSnapshotWhen(snap.createdAt)}"${snap.label ? ` (${snap.label})` : ""}?\n\nThis will replace the current poem text.`)) {
+                          if (window.confirm(`Restore to "${formatRelativeSnapshotWhen(snap.createdAt)}"${snap.label ? ` (${snap.label})` : ""}?\n\nThis will replace the current story text.`)) {
                             m.restoreRevision(snap);
                             setIsLibraryOpen(false);
                           }
                         }}
-                        {...hint("Restore poem to this snapshot")}
+                        {...hint("Restore story to this snapshot")}
                       >
                         Restore
                       </button>
@@ -497,7 +497,7 @@ export function WorkshopLibraryModal(props: Props) {
                     {diffSnapshotId === snap.id && (() => {
                       const tokens = wordDiff(snap.body, m.body);
                       return (
-                        <div className="snapshot-diff-view" aria-label="Poem diff">
+                        <div className="snapshot-diff-view" aria-label="Story diff">
                           {tokens.map((tok, i) =>
                             tok.type === "same" ? (
                               <span key={i}>{tok.text}</span>

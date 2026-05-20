@@ -75,11 +75,6 @@ export function WorkshopTopbarHeader(props: Props) {
 
   const hint = useHoverHintBinder();
 
-  const topbarLinesHint =
-    m.quickDocStats.totalLines !== m.quickDocStats.nonEmptyLines
-      ? `${m.quickDocStats.nonEmptyLines} lines with text; ${m.quickDocStats.totalLines} total in editor (includes blanks)`
-      : "Lines containing at least one character";
-
   return (
     <header
       className={`topbar ${isFocusMode ? "is-focus" : ""}`}
@@ -189,7 +184,7 @@ export function WorkshopTopbarHeader(props: Props) {
           </p>
         </div>
 
-        {/* Mobile-only poem title — centred between brand icon and actions */}
+        {/* Mobile-only story title — centred between brand icon and actions */}
         <button
           type="button"
           className="topbar-mobile-title"
@@ -198,7 +193,7 @@ export function WorkshopTopbarHeader(props: Props) {
             setMetaOpen(true);
             requestAnimationFrame(() => document.getElementById("story-title")?.focus());
           }}
-          aria-label="Edit poem title"
+          aria-label="Edit story title"
         >
           {m.title.trim() || "Untitled"}
         </button>
@@ -212,20 +207,17 @@ export function WorkshopTopbarHeader(props: Props) {
           <div className={`topbar-context-stats${isFocusMode ? " topbar-focus-stats" : ""}`}>
             <span
               className={isFocusMode ? "topbar-focus-stat" : "topbar-context-stat"}
-              {...hint("Word count in poem body")}
+              {...hint("Word count in story body")}
             >
               {m.quickDocStats.totalWords} words
             </span>
             <span className={isFocusMode ? "topbar-focus-sep" : "topbar-context-sep"} aria-hidden>·</span>
             <span
               className={isFocusMode ? "topbar-focus-stat" : "topbar-context-stat"}
-              {...hint(topbarLinesHint)}
+              {...hint("Paragraphs (text blocks separated by blank lines)")}
             >
-              {m.quickDocStats.nonEmptyLines} lines
+              {m.quickDocStats.stanzaCount} paragraphs
             </span>
-            {!isFocusMode && m.quickDocStats.totalLines !== m.quickDocStats.nonEmptyLines ? (
-              <span className="topbar-context-hint"> ({m.quickDocStats.totalLines} incl. blanks)</span>
-            ) : null}
             {m.lastAiScore != null && (
               <>
                 <span className={isFocusMode ? "topbar-focus-sep" : "topbar-context-sep"} aria-hidden>·</span>
@@ -266,7 +258,7 @@ export function WorkshopTopbarHeader(props: Props) {
                   aria-haspopup="true"
                   aria-expanded={isStatsOpen}
                   aria-label="Story statistics"
-                  {...hint("Stats: full word, line, sentence & paragraph counts")}
+                  {...hint("Stats: full word, sentence & paragraph counts")}
                 >
                   <svg className="topbar-ghost-icon" viewBox="0 0 24 24" aria-hidden focusable="false">
                     <path fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" d="M18 20V10M12 20V4M6 20v-6" />
@@ -280,16 +272,8 @@ export function WorkshopTopbarHeader(props: Props) {
                         <span className="tsp-val">{m.docStats.totalWords}</span>
                       </div>
                       <div className="tsp-row">
-                        <span className="tsp-label">Lines</span>
-                        <span className="tsp-val">{m.docStats.nonEmptyLines}</span>
-                      </div>
-                      <div className="tsp-row">
                         <span className="tsp-label">Characters</span>
                         <span className="tsp-val">{m.docStats.totalChars}</span>
-                      </div>
-                      <div className="tsp-row">
-                        <span className="tsp-label">Syllables (est.)</span>
-                        <span className="tsp-val">{m.docStats.totalSyllables}</span>
                       </div>
                       <div className="tsp-row">
                         <span className="tsp-label">Paragraphs</span>
@@ -332,8 +316,8 @@ export function WorkshopTopbarHeader(props: Props) {
                 type="button"
                 className="topbar-ghost-btn"
                 onClick={() => { setFindMode("find"); setIsFindOpen(true); }}
-                aria-label="Find in poem (⌘F)"
-                {...hint("Find text in the poem (⌘/Ctrl+F)")}
+                aria-label="Find in story (⌘F)"
+                {...hint("Find text in the story (⌘/Ctrl+F)")}
               >
                 <svg className="topbar-ghost-icon" viewBox="0 0 24 24" aria-hidden focusable="false">
                   <circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" strokeWidth="1.75"/>
@@ -389,8 +373,8 @@ export function WorkshopTopbarHeader(props: Props) {
                     <hr className="topbar-overflow-divider" />
                     {/* ── Share ── */}
                     <span className="topbar-overflow-group-label">Share</span>
-                    <button type="button" className="topbar-overflow-item" role="menuitem" onClick={() => { setIsShareOpen(true); setTopbarOverflowOpen(false); }}>Share poem</button>
-                    <button type="button" className="topbar-overflow-item" role="menuitem" onClick={() => { setIsExportOpen(true); setTopbarOverflowOpen(false); }}>Export poem</button>
+                    <button type="button" className="topbar-overflow-item" role="menuitem" onClick={() => { setIsShareOpen(true); setTopbarOverflowOpen(false); }}>Share story</button>
+                    <button type="button" className="topbar-overflow-item" role="menuitem" onClick={() => { setIsExportOpen(true); setTopbarOverflowOpen(false); }}>Export story</button>
                     <hr className="topbar-overflow-divider" />
                     {/* ── App ── */}
                     <span className="topbar-overflow-group-label">App</span>

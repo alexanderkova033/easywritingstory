@@ -35,15 +35,11 @@ export function ToolsOverviewStrip(props: ToolsOverviewStripProps) {
   } = props;
 
   void heavyToolsStale;
+  void docStats;
 
   const goalIssue = goalEvaluation.warnings.length > 0;
   const spellIssue = wordlistReady && spellHitCount > 0;
   const checklistIssue = checklistOpenCount > 0;
-
-  const linesTitle =
-    docStats.totalLines !== docStats.nonEmptyLines
-      ? `${docStats.nonEmptyLines} lines with text · ${docStats.totalLines} total in editor (includes blanks)`
-      : `${docStats.nonEmptyLines} lines with text`;
 
   const issuesIssue = issuesQueueCount > 0;
 
@@ -68,24 +64,6 @@ export function ToolsOverviewStrip(props: ToolsOverviewStripProps) {
           {issuesIssue ? issuesQueueCount : "✓"}
         </span>
         <span className="tools-overview-pill-l">issues</span>
-      </button>
-      <button
-        type="button"
-        className={`tools-overview-pill ${activeTab === "lines" ? "is-current" : ""}`}
-        onClick={() => onOpenTab("lines")}
-        {...hint("Open Lines — per-line syllable and word counts")}
-      >
-        <span className="tools-overview-pill-k">{docStats.totalWords}</span>
-        <span className="tools-overview-pill-l">words</span>
-      </button>
-      <button
-        type="button"
-        className={`tools-overview-pill ${activeTab === "lines" ? "is-current" : ""}`}
-        onClick={() => onOpenTab("lines")}
-        {...hint(`${linesTitle} — jump to line tools`)}
-      >
-        <span className="tools-overview-pill-k">{docStats.nonEmptyLines}</span>
-        <span className="tools-overview-pill-l">lines</span>
       </button>
       <button
         type="button"

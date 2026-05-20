@@ -10,7 +10,7 @@ import { clearChunkReloadFlag, lazyWithReload } from "@/app/lazy-with-reload";
 import { STORAGE_KEY_LANDING_DISMISSED, runStorageMigrationOnce } from "@/shared/storage-keys";
 import "@/app/index.css";
 
-// Migrate legacy easy-poems:* keys to easy-stories:* on first boot. Must
+// Migrate legacy easy-stories:* keys to easy-stories:* on first boot. Must
 // run before any other code reads from localStorage; applyAppearance() below
 // is the first such read.
 runStorageMigrationOnce();

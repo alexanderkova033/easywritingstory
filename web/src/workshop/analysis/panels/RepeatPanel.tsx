@@ -148,7 +148,7 @@ export function RepeatPanel({
         repetition.phrases.length === 0 ? (
           <EmptyState title="No phrase echoes">
             <p className="muted small">
-              No 2- or 3-word phrases repeat across your poem.
+              No 2- or 3-word phrases repeat across your story.
             </p>
           </EmptyState>
         ) : filteredPhrases.length === 0 ? (

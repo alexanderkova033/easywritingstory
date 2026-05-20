@@ -7,7 +7,7 @@ const SERVER_REQUEST_TIMEOUT_MS = Number(
   process.env.SERVER_REQUEST_TIMEOUT_MS ?? 120_000,
 );
 
-const log = createRequestLogger({ service: "easy-poems-api" });
+const log = createRequestLogger({ service: "easy-stories-api" });
 
 const app = createApp();
 

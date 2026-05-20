@@ -22,13 +22,13 @@ describe("local-draft-library", () => {
     detach();
   });
 
-  it("creates one poem when storage is empty", () => {
+  it("creates one story when storage is empty", () => {
     const lib = loadOrCreateLibrary();
     expect(lib.stories).toHaveLength(1);
     expect(lib.activeId).toBe(lib.stories[0]!.id);
   });
 
-  it("upserts title and body on the active poem", () => {
+  it("upserts title and body on the active story", () => {
     const lib = loadOrCreateLibrary();
     const next = upsertActiveStory(lib, {
       title: "Sea",
@@ -59,13 +59,13 @@ describe("local-draft-library", () => {
     expect(storyById(lib, lib.activeId)?.form).toBeUndefined();
   });
 
-  it("mergeImportedStories appends poems from backup JSON", () => {
+  it("mergeImportedStories appends stories from backup JSON", () => {
     const lib = loadOrCreateLibrary();
     const raw = JSON.stringify({
-      easyPoemsWorkshopExport: true,
+      easyStoriesWorkshopExport: true,
       version: 1,
       exportedAt: "2026-01-01T00:00:00.000Z",
-      poems: [{ title: "Imported", body: "a\nb\n" }],
+      stories: [{ title: "Imported", body: "a\nb\n" }],
     });
     const merged = mergeImportedStories(lib, raw);
     expect("error" in merged).toBe(false);
@@ -76,7 +76,7 @@ describe("local-draft-library", () => {
     expect(active?.title).toBe("Imported");
   });
 
-  it("removeStory keeps at least one blank poem", () => {
+  it("removeStory keeps at least one blank story", () => {
     let lib = loadOrCreateLibrary();
     const onlyId = lib.stories[0]!.id;
     lib = removeStory(lib, onlyId);

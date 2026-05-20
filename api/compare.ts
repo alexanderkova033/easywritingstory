@@ -9,8 +9,9 @@ import { checkRateLimit, getRateLimitRetrySec } from "./_rate-limit";
 import { callOpenAI, sendParsedResponse } from "./_openai";
 import { cooldownFor, precheckSpend, recordSpend } from "./_usage-cap";
 import { gibberishGuard } from "./_gibberish";
+import { buildExamPromptBlock, getExamMode, type ExamMode } from "./_exam-modes";
 
-const SYSTEM_PROMPT = `You are an encouraging short-story editor. The user is revising a short story (typically under 2,000 words, often for IGCSE creative writing). You receive a diff (previous → current) plus the previous score. Score the CURRENT version. Return JSON only (no fences). Keys:
+const SYSTEM_PROMPT_BASE = `You are an encouraging short-story editor. The user is revising a short story (typically under 2,000 words, often for IGCSE creative writing). You receive a diff (previous → current) plus the previous score. Score the CURRENT version. Return JSON only (no fences). Keys:
 overall_score (int 1-100, CURRENT), warm_reaction (≤14w, terse), strengths[] (2-3, ≤6w, terse), weaknesses[] (2-3, ≤6w, terse), strongest_line {line:int, why:≤8w}, issues[] (2-5 — mix serious craft problems with smaller nitpicks; pick the most useful across that range), comparison {improvements:[], regressions:[], unchanged:[]} (0-3 items each, ≤6w, may be empty).
 overall_feedback (string, 2-3 full sentences, holistic read of the current draft as a whole — voice, pacing, what it accomplishes, where it lands).
 personal_feedback (string, 2-3 full sentences addressed to the writer as "you". Note the revision arc — what improved, what their instincts seem drawn to, one concrete craft move to grow into next. Mentor tone, not rubric).
@@ -18,6 +19,10 @@ Each issue: id, severity ("high"|"medium"|"low"), line_start, line_end, headline
   rationale (3-5 full sentences — (1) name the specific craft problem, (2) explain WHY it weakens the writing in this story's context with concrete words/phrases, (3) describe how it lands on the reader (sensory, emotional, or narrative effect, what gets blurred or lost), (4) when useful, contrast with what a sharper move would do. Speak about THIS passage, not generalities.),
   improvements[] (2-4 concrete moves, each ≤14 words, naming a specific technique or word swap), rewrite?, confidence? ("low" only).
 Cover a range of craft angles across issues — character voice, dialogue, pacing, sensory detail, sentence rhythm, show-don't-tell, diction, tense/POV consistency. Headline stays terse; rationale gets paragraph-length detail; improvements stay punchy but specific. Use local analysis hints if provided. 1-based line numbers.`;
+
+function buildSystemPrompt(examMode: ExamMode | null): string {
+  return examMode ? `${SYSTEM_PROMPT_BASE}${buildExamPromptBlock(examMode)}` : SYSTEM_PROMPT_BASE;
+}
 
 interface LocalAnalysis {
   cliches?: Array<{ phrase: string; lineNumber: number }>;
@@ -115,6 +120,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     model?: unknown;
     localAnalysis?: unknown;
     goals?: unknown;
+    examMode?: unknown;
     writingFocus?: unknown;
   };
 
@@ -162,6 +168,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const local = (body.localAnalysis && typeof body.localAnalysis === "object" ? body.localAnalysis : undefined) as LocalAnalysis | undefined;
   const goals = (body.goals && typeof body.goals === "object" ? body.goals : undefined) as GoalsContext | undefined;
   const writingFocus = typeof body.writingFocus === "string" ? body.writingFocus.slice(0, 500) : undefined;
+  const examMode = getExamMode(typeof body.examMode === "string" ? body.examMode : undefined);
   const scoreHistory = Array.isArray(body.scoreHistory)
     ? (body.scoreHistory as unknown[]).filter((v): v is number => typeof v === "number").slice(-10)
     : undefined;
@@ -180,7 +187,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     {
       model,
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: buildSystemPrompt(examMode) },
         { role: "user", content: userMessage },
       ],
       max_tokens: 5000,

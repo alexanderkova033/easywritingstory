@@ -39,7 +39,7 @@ export function ExportModal({
         className="modal"
         role="dialog"
         aria-modal="true"
-        aria-label="Export poem"
+        aria-label="Export story"
       >
         <div className="modal-head">
           <h2 className="modal-title">Export</h2>
@@ -241,7 +241,7 @@ export function ExportModal({
                 type="button"
                 className="small-btn"
                 onClick={() =>
-                  void m.saveCurrentPoemToFolder({
+                  void m.saveCurrentStoryToFolder({
                     txt: true,
                     md: true,
                     html: true,
@@ -250,15 +250,15 @@ export function ExportModal({
                   })
                 }
                 {...hint(
-                  "Pick a folder and write the current poem as .txt, .md, .html, .docx, and .pdf into it.",
+                  "Pick a folder and write the current story as .txt, .md, .html, .docx, and .pdf into it.",
                 )}
               >
-                Save current poem to folder…
+                Save current story to folder…
               </button>
               <button
                 type="button"
                 className="small-btn"
-                onClick={() => void m.saveCurrentPoemToFolder({ docx: true })}
+                onClick={() => void m.saveCurrentStoryToFolder({ docx: true })}
                 {...hint("Pick a folder and write only the .docx there.")}
               >
                 Just .docx
@@ -267,17 +267,17 @@ export function ExportModal({
                 type="button"
                 className="small-btn"
                 onClick={() =>
-                  void m.saveAllPoemsToFolder({
+                  void m.saveAllStoriesToFolder({
                     docx: true,
                     txt: true,
                     json: true,
                   })
                 }
                 {...hint(
-                  "Pick a folder and write every poem in your library as .docx + .txt, plus a JSON backup of everything.",
+                  "Pick a folder and write every story in your library as .docx + .txt, plus a JSON backup of everything.",
                 )}
               >
-                Save all poems to folder…
+                Save all stories to folder…
               </button>
             </div>
           </div>

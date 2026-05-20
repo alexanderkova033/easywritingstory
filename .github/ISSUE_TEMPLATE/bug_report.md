@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a problem with easywriting-poem
+about: Report a problem with easywriting-story
 title: "[bug] "
 labels: bug
 ---

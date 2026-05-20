@@ -22,7 +22,7 @@ const POINTER_LEAVE_GRACE_MS = 160;
 /** If `transitionend` does not fire, force unmount. */
 const EXIT_FALLBACK_MS = 240;
 
-export const UI_HOVER_HINT_DOM_ID = "easy-poems-ui-hover-hint";
+export const UI_HOVER_HINT_DOM_ID = "easy-stories-ui-hover-hint";
 const PREV_DESCRIBEDBY_ATTR = "data-eph-prev-describedby";
 
 type BubbleState = {

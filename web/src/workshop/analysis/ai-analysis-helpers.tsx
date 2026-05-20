@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type { AnalysisIssue, StoryAnalysis, StoryComparison } from "@/workshop/analysis/ai-analyze";
-import { STORAGE_KEY_AI_MODEL, STORAGE_KEY_AI_SCORING_ENABLED } from "@/shared/storage-keys";
+import { getExamModeMeta } from "@/workshop/analysis/ai-analyze";
+import { STORAGE_KEY_AI_EXAM_MODE, STORAGE_KEY_AI_MODEL, STORAGE_KEY_AI_SCORING_ENABLED } from "@/shared/storage-keys";
 
 export const LS_KEY_MODEL = STORAGE_KEY_AI_MODEL;
 export const DEFAULT_MODEL = "gpt-5-nano";
@@ -9,10 +10,10 @@ export const LEGACY_MODEL_MAP: Record<string, string> = {
   "gpt-4o": "gpt-5",
 };
 
-export const LS_SCORE_HISTORY_PREFIX = "easy-poems:ai-score-history:";
-export const LS_LAST_HASH_PREFIX = "easy-poems:ai-last-hash:";
-export const LS_CHAT_PREFIX = "easy-poems:ai-chat:";
-export const LS_SNAPSHOTS_PREFIX = "easy-poems:ai-snapshots:";
+export const LS_SCORE_HISTORY_PREFIX = "easy-stories:ai-score-history:";
+export const LS_LAST_HASH_PREFIX = "easy-stories:ai-last-hash:";
+export const LS_CHAT_PREFIX = "easy-stories:ai-chat:";
+export const LS_SNAPSHOTS_PREFIX = "easy-stories:ai-snapshots:";
 export const MAX_SNAPSHOTS = 3;
 export const MAX_SCORE_HISTORY = 15;
 
@@ -136,6 +137,19 @@ export function appendScoreHistory(storyId: string | undefined, score: number): 
   if (!storyId) return next;
   try { localStorage.setItem(LS_SCORE_HISTORY_PREFIX + storyId, JSON.stringify(next)); } catch { /* ignore */ }
   return next;
+}
+
+export const LS_KEY_EXAM_MODE = STORAGE_KEY_AI_EXAM_MODE;
+
+/** Returns the stored exam-mode id, or null if none / unrecognised. */
+export function loadStoredExamMode(): string | null {
+  try {
+    const raw = localStorage.getItem(LS_KEY_EXAM_MODE);
+    if (!raw) return null;
+    return getExamModeMeta(raw)?.id ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export function loadScoringEnabled(): boolean {

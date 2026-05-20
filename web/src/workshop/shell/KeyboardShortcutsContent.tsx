@@ -3,7 +3,7 @@ export function KeyboardShortcutsContent() {
   return (
     <>
       <p className="shortcuts-modal-lead muted small">
-        These shortcuts work globally unless your cursor is in the poem or another
+        These shortcuts work globally unless your cursor is in the story or another
         text field.
       </p>
       <ul className="shortcuts-modal-list">
@@ -26,11 +26,11 @@ export function KeyboardShortcutsContent() {
         </li>
         <li>
           <kbd className="kbd-hint">⌘</kbd> / <kbd className="kbd-hint">Ctrl</kbd> +{" "}
-          <kbd className="kbd-hint">F</kbd> — find in poem.
+          <kbd className="kbd-hint">F</kbd> — find in story.
         </li>
         <li>
           <kbd className="kbd-hint">⌘</kbd> / <kbd className="kbd-hint">Ctrl</kbd> +{" "}
-          <kbd className="kbd-hint">H</kbd> — replace in poem.
+          <kbd className="kbd-hint">H</kbd> — replace in story.
         </li>
         <li>
           <kbd className="kbd-hint">⌘</kbd> / <kbd className="kbd-hint">Ctrl</kbd> +{" "}

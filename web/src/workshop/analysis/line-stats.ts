@@ -14,14 +14,6 @@ const SENTENCE_TERMINATOR = /[.!?]+["'’”)]*\s+(?=[A-Z"'“(])|[.!?]+["'’�
 /** Crude detector for dialogue spans inside a paragraph. Matches `"..."` / `“...”`. */
 const DIALOGUE_SPAN = /["“]([^"”]+)["”]/g;
 
-export interface LineStatRow {
-  lineNumber: number;
-  text: string;
-  syllables: number;
-  words: number;
-  chars: number;
-}
-
 /** Per-stanza aggregates (stanzas separated by one or more blank lines). */
 export interface StanzaStat {
   stanzaIndex: number;
@@ -108,7 +100,6 @@ export interface ProseMetrics {
 }
 
 export interface DocumentStats {
-  lines: LineStatRow[];
   totalLines: number;
   nonEmptyLines: number;
   totalSyllables: number;
@@ -122,10 +113,6 @@ export interface DocumentStats {
   stanzaStats: StanzaStat[];
   /** Mean words per non-empty line (1 decimal); 0 if no non-empty lines. */
   avgWordsPerNonEmptyLine: number;
-  /** Line with the most words (ties: earliest line). */
-  longestLineByWords: { lineNumber: number; words: number } | null;
-  /** Line with the most characters (ties: earliest line). */
-  longestLineByChars: { lineNumber: number; chars: number } | null;
   /** Sentence-level metrics for prose. */
   prose: ProseMetrics;
 }
@@ -245,7 +232,6 @@ export function computeDocumentStats(body: string): DocumentStats {
   const rawLines = body.split("\n");
   if (rawLines.length === 0) {
     return {
-      lines: [],
       totalLines: 0,
       nonEmptyLines: 0,
       totalSyllables: 0,
@@ -255,44 +241,23 @@ export function computeDocumentStats(body: string): DocumentStats {
       estimatedReadingMinutes: 0,
       stanzaStats: [],
       avgWordsPerNonEmptyLine: 0,
-      longestLineByWords: null,
-      longestLineByChars: null,
       prose: { ...EMPTY_PROSE },
     };
   }
 
-  const lines: LineStatRow[] = [];
+  interface PerLineCounts { text: string; words: number; syllables: number }
+  const lineCounts: PerLineCounts[] = [];
   let totalSyllables = 0;
   let totalWords = 0;
   let nonEmpty = 0;
-  let longestWords: { lineNumber: number; words: number } | null = null;
-  let longestChars: { lineNumber: number; chars: number } | null = null;
 
-  for (let i = 0; i < rawLines.length; i++) {
-    const text = rawLines[i]!;
-    const ws = wordsInLine(text);
-    const wn = ws.length;
+  for (const text of rawLines) {
+    const wn = wordsInLine(text).length;
     const syllables = countSyllablesInLine(text);
-    const ch = text.length;
-    const isNonEmpty = text.trim().length > 0;
-    if (isNonEmpty) nonEmpty++;
+    if (text.trim().length > 0) nonEmpty++;
     totalSyllables += syllables;
     totalWords += wn;
-    if (isNonEmpty) {
-      if (!longestWords || wn > longestWords.words) {
-        longestWords = { lineNumber: i + 1, words: wn };
-      }
-      if (!longestChars || ch > longestChars.chars) {
-        longestChars = { lineNumber: i + 1, chars: ch };
-      }
-    }
-    lines.push({
-      lineNumber: i + 1,
-      text,
-      syllables,
-      words: wn,
-      chars: ch,
-    });
+    lineCounts.push({ text, words: wn, syllables });
   }
 
   let stanzaCount = 0;
@@ -318,7 +283,7 @@ export function computeDocumentStats(body: string): DocumentStats {
     let stSyl = 0;
     let stLines = 0;
     while (end < rawLines.length && rawLines[end]!.trim() !== "") {
-      const row = lines[end]!;
+      const row = lineCounts[end]!;
       stLines++;
       if (row.text.trim().length > 0) {
         stNonEmpty++;
@@ -349,7 +314,6 @@ export function computeDocumentStats(body: string): DocumentStats {
   const prose = computeProseMetrics(body, rawLines, totalWords, totalSyllables);
 
   return {
-    lines,
     totalLines: rawLines.length,
     nonEmptyLines: nonEmpty,
     totalSyllables,
@@ -359,8 +323,6 @@ export function computeDocumentStats(body: string): DocumentStats {
     estimatedReadingMinutes,
     stanzaStats,
     avgWordsPerNonEmptyLine,
-    longestLineByWords: longestWords,
-    longestLineByChars: longestChars,
     prose,
   };
 }

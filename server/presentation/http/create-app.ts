@@ -30,7 +30,7 @@ export function createApp() {
 
   app.get("/health", (req, res) => {
     const t0 = performance.now();
-    res.json({ ok: true, service: "easy-poems-api" });
+    res.json({ ok: true, service: "easy-stories-api" });
     const durationMs = Math.round(performance.now() - t0);
     req.log.info("health", { path: "/health", status: 200, durationMs });
   });

@@ -260,7 +260,7 @@ export function ReadingModeModal({ title, formNote, body, onClose }: ReadingMode
               type="button"
               className="reading-mode-icon-btn"
               onClick={handleCopy}
-              aria-label="Copy poem to clipboard"
+              aria-label="Copy story to clipboard"
               title="Copy"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -273,7 +273,7 @@ export function ReadingModeModal({ title, formNote, body, onClose }: ReadingMode
               type="button"
               className="reading-mode-icon-btn"
               onClick={() => window.print()}
-              aria-label="Print poem"
+              aria-label="Print story"
               title="Print"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -307,7 +307,7 @@ export function ReadingModeModal({ title, formNote, body, onClose }: ReadingMode
         </div>
 
         <article
-          className={`reading-mode-poem ${lineNumbers ? "with-line-numbers" : ""} ${dropCap ? "with-drop-cap" : ""}`}
+          className={`reading-mode-story ${lineNumbers ? "with-line-numbers" : ""} ${dropCap ? "with-drop-cap" : ""}`}
           style={{ fontSize: `${fontSize}rem` }}
         >
           {title && <h1 className="reading-mode-title">{title}</h1>}

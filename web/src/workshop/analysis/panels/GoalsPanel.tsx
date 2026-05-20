@@ -104,20 +104,6 @@ export function GoalsPanel({
 
       <div className="goal-cards">
         <MetricGoalCard
-          label="Lines"
-          current={docStats.nonEmptyLines}
-          isSoft={!!goals.softGoals?.includes("targetLines")}
-          onToggleSoft={() => toggleGoalSoft("targetLines")}
-          targetValue={goals.targetLines}
-          rangeMin={goals.minLines}
-          rangeMax={goals.maxLines}
-          onSetTarget={(v) => setGoalValue("targetLines", v)}
-          onSetRange={(min, max) => {
-            setGoalValue("minLines", min);
-            setGoalValue("maxLines", max);
-          }}
-        />
-        <MetricGoalCard
           label="Paragraphs"
           current={docStats.stanzaCount}
           hint="Paragraphs are blocks of text separated by blank lines"

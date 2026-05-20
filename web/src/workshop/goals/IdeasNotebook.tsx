@@ -316,7 +316,7 @@ export function IdeasNotebook() {
       ) : null}
 
       <p className="muted small ideas-notebook-hint">
-        Jot poem ideas. Pick a mood colour. Drag to reorder. Tick when written.
+        Jot story ideas. Pick a mood colour. Drag to reorder. Tick when written.
       </p>
 
       <form className="ideas-notebook-add" onSubmit={onAdd}>

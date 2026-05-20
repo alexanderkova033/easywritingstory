@@ -127,7 +127,7 @@
 }
 
 .reading-mode-controls,
-.reading-mode-poem,
+.reading-mode-story,
 .reading-mode-close {
   position: relative;
   z-index: 1;
@@ -271,8 +271,8 @@
   opacity: 1;
 }
 
-/* ── Poem content ─────────────────────────────────────────────── */
-.reading-mode-poem {
+/* ── Story content ─────────────────────────────────────────────── */
+.reading-mode-story {
   padding: 2.6rem 3.4rem 3.2rem;
   color: var(--rm-ink);
 }
@@ -354,7 +354,7 @@
 }
 
 /* Line numbers via data attribute — no DOM clutter */
-.reading-mode-poem.with-line-numbers .reading-mode-line[data-line-number]::before {
+.reading-mode-story.with-line-numbers .reading-mode-line[data-line-number]::before {
   content: attr(data-line-number);
   position: absolute;
   left: -2.6rem;
@@ -372,7 +372,7 @@
 }
 
 /* Drop cap on first content line */
-.reading-mode-poem.with-drop-cap .reading-mode-line.is-first::first-letter {
+.reading-mode-story.with-drop-cap .reading-mode-line.is-first::first-letter {
   font-size: 3.1em;
   float: left;
   line-height: 0.88;
@@ -471,11 +471,11 @@
     display: none !important;
   }
 
-  .reading-mode-poem {
+  .reading-mode-story {
     padding: 1rem 0;
   }
 
-  .reading-mode-poem.with-line-numbers .reading-mode-line[data-line-number]::before {
+  .reading-mode-story.with-line-numbers .reading-mode-line[data-line-number]::before {
     color: rgba(0,0,0,0.55);
   }
 }
@@ -505,11 +505,11 @@
     position: fixed;
   }
 
-  .reading-mode-poem {
+  .reading-mode-story {
     padding: 1.6rem 1.5rem 2.5rem;
   }
 
-  .reading-mode-poem.with-line-numbers {
+  .reading-mode-story.with-line-numbers {
     padding-left: 3.2rem;
   }
 
@@ -523,7 +523,7 @@
 }
 
 @media (min-width: 521px) {
-  .reading-mode-poem.with-line-numbers {
+  .reading-mode-story.with-line-numbers {
     padding-left: 5rem;
   }
 }

@@ -8,7 +8,7 @@ export type LineDiffRow =
  * Line-oriented diff (LCS on lines). Pairs adjacent delete+insert as "change"
  * for a compact poetry-oriented view.
  */
-export function diffPoemLines(left: string, right: string): LineDiffRow[] {
+export function diffStoryLines(left: string, right: string): LineDiffRow[] {
   const a = left.split("\n");
   const b = right.split("\n");
   const n = a.length;

@@ -327,10 +327,10 @@ export function StoryWorkshop() {
         : undefined,
     };
   }, [m.clicheHits, m.repeated, m.docStats.prose, m.docStats.stanzaCount]);
-  const prevActivePoemIdRef = useRef(m.activeStoryId);
+  const prevActiveStoryIdRef = useRef(m.activeStoryId);
   useEffect(() => {
-    if (m.activeStoryId !== prevActivePoemIdRef.current) {
-      prevActivePoemIdRef.current = m.activeStoryId;
+    if (m.activeStoryId !== prevActiveStoryIdRef.current) {
+      prevActiveStoryIdRef.current = m.activeStoryId;
       setIssueHighlight(null);
       const { lines, words } = deriveAiHighlights(m.activeStoryId);
       setPersistentIssueHighlights(lines);
@@ -766,7 +766,7 @@ export function StoryWorkshop() {
     document.getElementById("story-title")?.focus();
   };
 
-  const printPoemText = useMemo(() => {
+  const printStoryText = useMemo(() => {
     const t = m.title.trim();
     const f = m.formNote.trim();
     return `${t ? `${t}\n\n` : ""}${f ? `${f}\n\n` : ""}${m.body}`;
@@ -1036,17 +1036,6 @@ export function StoryWorkshop() {
         },
       },
       {
-        id: "go-line",
-        title: "Go to line",
-        keywords: "go line jump",
-        run: () => {
-          m.setToolTab("lines");
-          queueMicrotask(() => {
-            document.getElementById("go-line-input")?.focus();
-          });
-        },
-      },
-      {
         id: "templates",
         title: "Story starters",
         keywords: "template starter opening dialogue action sensory memory mystery character",
@@ -1124,8 +1113,8 @@ export function StoryWorkshop() {
 
       {m.sampleStoryActive && (
         <SampleStoryBanner
-          onClear={m.clearSamplePoem}
-          onKeep={m.keepSamplePoem}
+          onClear={m.clearSampleStory}
+          onKeep={m.keepSampleStory}
         />
       )}
 
@@ -1809,32 +1798,20 @@ export function StoryWorkshop() {
                   </div>
                 </div>
               </div>
-              {(m.goals.targetLines != null || m.goals.targetStanzas != null || m.goals.targetLinesPerStanza != null) && (
+              {m.goals.targetStanzas != null && (
                 <div className="editor-goal-strip" aria-label="Goal progress">
                   {m.goals.preset && (
                     <span className="editor-goal-strip-form">{FORM_PRESETS.find(p => p.key === m.goals.preset)?.label}</span>
                   )}
-                  {m.goals.targetLines != null && (
-                    <span className={`editor-goal-strip-item${m.docStats.nonEmptyLines === m.goals.targetLines ? " is-met" : m.docStats.nonEmptyLines > m.goals.targetLines ? " is-over" : ""}`}>
-                      {m.docStats.nonEmptyLines}/{m.goals.targetLines} lines
-                    </span>
-                  )}
-                  {m.goals.targetStanzas != null && (
-                    <span className={`editor-goal-strip-item${m.docStats.stanzaCount === m.goals.targetStanzas ? " is-met" : m.docStats.stanzaCount > m.goals.targetStanzas ? " is-over" : ""}`}>
-                      {m.docStats.stanzaCount}/{m.goals.targetStanzas} stanzas
-                    </span>
-                  )}
-                  {m.goals.targetLinesPerStanza != null && m.docStats.stanzaCount > 0 && (
-                    <span className={`editor-goal-strip-item${Math.round(m.docStats.nonEmptyLines / m.docStats.stanzaCount) === m.goals.targetLinesPerStanza ? " is-met" : ""}`}>
-                      {Math.round(m.docStats.nonEmptyLines / m.docStats.stanzaCount)}/{m.goals.targetLinesPerStanza} L/S
-                    </span>
-                  )}
+                  <span className={`editor-goal-strip-item${m.docStats.stanzaCount === m.goals.targetStanzas ? " is-met" : m.docStats.stanzaCount > m.goals.targetStanzas ? " is-over" : ""}`}>
+                    {m.docStats.stanzaCount}/{m.goals.targetStanzas} paragraphs
+                  </span>
                 </div>
               )}
             </div>
           </div>
           <pre className="story-print-fallback" aria-hidden="true">
-            {printPoemText}
+            {printStoryText}
           </pre>
 
           {/* Mobile quick-stats strip — always visible at bottom of editor on narrow screens */}
@@ -1845,8 +1822,8 @@ export function StoryWorkshop() {
             </span>
             <span className="mobile-editor-stat-divider" aria-hidden>·</span>
             <span className="mobile-editor-stat">
-              <span className="mobile-editor-stat-val">{m.quickDocStats.totalLines}</span>
-              <span className="mobile-editor-stat-lbl">lines</span>
+              <span className="mobile-editor-stat-val">{m.quickDocStats.stanzaCount}</span>
+              <span className="mobile-editor-stat-lbl">paragraphs</span>
             </span>
             {m.lastAiScore != null && (
               <>
@@ -1964,7 +1941,7 @@ export function StoryWorkshop() {
               onKeyDown={onToolTabKeyDown}
             >
               {(() => {
-                const CORE_OVERVIEW: string[] = ["issues", "lines"];
+                const CORE_OVERVIEW: string[] = ["issues"];
                 const visibleTabs = TOOL_TABS.filter((t) => bucketTabs.includes(t.id));
                 const isOverview = toolTabBucket(m.toolTab) === "overview";
                 const collapsed = isOverview && !allTabsExpanded;
@@ -2031,6 +2008,7 @@ export function StoryWorkshop() {
             stanzaRhymeGroups={m.stanzaRhymeGroups}
             repeated={m.repeated}
             repetition={m.repetition}
+            craft={m.craft}
             spellHits={m.spellHits}
             wordlist={m.wordlist}
             wordlistErr={m.wordlistErr}

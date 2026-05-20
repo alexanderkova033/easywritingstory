@@ -6,7 +6,7 @@ export interface ClicheHit {
 
 /**
  * Common poetic/literary clichés to flag.
- * Lowercase; matched case-insensitively against poem lines.
+ * Lowercase; matched case-insensitively against story lines.
  */
 const CLICHES: string[] = [
   // Nature / time

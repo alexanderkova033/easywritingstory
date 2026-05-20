@@ -199,7 +199,7 @@ export function FormatToolbar({
         <button
           type="button"
           className="fmt-btn fmt-tidy-btn"
-          {...hint("Remove double spaces in the poem")}
+          {...hint("Remove double spaces in the story")}
           aria-label="Remove double spaces"
           onMouseDown={(e) => { e.preventDefault(); apply(tidyDoubleSpaces); }}
         >
@@ -247,7 +247,7 @@ export function FormatToolbar({
             <button
               type="button"
               className="fmt-btn fmt-tidy-btn"
-              {...hint("Reading view — clean display of finished poem (⌘/Ctrl+Shift+R)")}
+              {...hint("Reading view — clean display of finished story (⌘/Ctrl+Shift+R)")}
               aria-label="Reading view"
               onMouseDown={(e) => { e.preventDefault(); onReadingMode(); }}
             >

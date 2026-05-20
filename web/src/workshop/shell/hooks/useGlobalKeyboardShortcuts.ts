@@ -33,7 +33,7 @@ export interface GlobalKeyboardShortcutsInput {
  *   Ctrl/Cmd+Shift+A → analyze
  *   Escape       → close any open overlay
  *
- * The two listeners that previously lived inline in PoemWorkshop have been
+ * The two listeners that previously lived inline in StoryWorkshop have been
  * collapsed into a single keydown handler so we install one window listener
  * instead of two.
  */
@@ -86,12 +86,6 @@ export function useGlobalKeyboardShortcuts(input: GlobalKeyboardShortcutsInput):
       if (key === "z" && e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
         e.preventDefault();
         setIsFocusMode((v) => !v);
-        return;
-      }
-      if (key === "g" && ctrlOrMeta && !e.shiftKey && !e.altKey) {
-        e.preventDefault();
-        setToolTab("lines");
-        queueMicrotask(() => document.getElementById("go-line-input")?.focus());
         return;
       }
       if (key === "s" && ctrlOrMeta && e.shiftKey && !e.altKey) {

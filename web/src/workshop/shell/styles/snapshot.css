@@ -75,7 +75,7 @@
 
 /* ---- Snapshot inline diff ---- */
 .snapshot-diff-view {
-  font-family: var(--font-poem);
+  font-family: var(--font-story);
   font-size: 0.83rem;
   line-height: 1.65;
   white-space: pre-wrap;
@@ -86,7 +86,7 @@
   background: color-mix(in srgb, var(--bg) 70%, var(--surface));
   margin-top: 0.35rem;
   color: var(--text);
-  /* Cap height so a long poem diff doesn't push everything off screen */
+  /* Cap height so a long story diff doesn't push everything off screen */
   max-height: 16rem;
   overflow-y: auto;
   overscroll-behavior: contain;

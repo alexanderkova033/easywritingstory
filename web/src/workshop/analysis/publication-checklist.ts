@@ -2,7 +2,7 @@ import type { DocumentStats } from "./line-stats";
 import type { GoalEvaluation } from "@/workshop/goals/metrics";
 import type { ToolTab } from "@/workshop/shell/workshop-helpers";
 
-export type ChecklistIcon = "lines" | "title" | "spell" | "goals";
+export type ChecklistIcon = "title" | "spell" | "goals" | "draft";
 
 export interface ChecklistItem {
   done: boolean;
@@ -29,13 +29,12 @@ export function buildPublicationChecklist(args: {
 
   items.push({
     done: docStats.nonEmptyLines > 0,
-    text: "At least one non-empty line",
-    icon: "lines",
+    text: "Story body has some text",
+    icon: "draft",
     detail:
       docStats.nonEmptyLines === 0
-        ? "Add your poem before publishing."
+        ? "Add your story before publishing."
         : undefined,
-    openToolTab: docStats.nonEmptyLines === 0 ? "lines" : undefined,
   });
 
   items.push({
@@ -64,7 +63,7 @@ export function buildPublicationChecklist(args: {
 
   items.push({
     done: goalEvaluation.warnings.length === 0,
-    text: "Draft meets your line / word / syllable goals",
+    text: "Draft meets your word and paragraph goals",
     icon: "goals",
     detail:
       goalEvaluation.warnings.length > 0
@@ -75,8 +74,8 @@ export function buildPublicationChecklist(args: {
   });
 
   const tips: string[] = [
-    "Read the whole poem aloud once before you share it — your ear will catch clunky rhythm.",
-    "Rough read-aloud minutes (and stanza blocks) live in Totals.",
+    "Read the whole story aloud once before you share it — your ear will catch clunky rhythm.",
+    "Rough read-aloud minutes and paragraph counts live in Totals.",
   ];
 
   return { items, tips };

@@ -397,7 +397,7 @@
   .editor-meta-collapsed-title {
     font-size: 1rem;
     font-weight: 600;
-    font-family: var(--font-poem);
+    font-family: var(--font-story);
     flex: 1;
     min-width: 0;
     overflow: hidden;
@@ -434,7 +434,7 @@
   .mobile-toolbar-wrap { display: block !important; animation: none !important; }
 }
 
-/* ── Tools empty state — only shown on mobile when poem has no content ── */
+/* ── Tools empty state — only shown on mobile when story has no content ── */
 .tools-empty-hint {
   display: none;
 }
@@ -1238,7 +1238,7 @@
   accent-color: var(--accent);
 }
 
-/* Meter controls + stress bars moved to ./PoemWorkshop.meter.css */
+/* Meter controls + stress bars moved to ./StoryWorkshop.meter.css */
 
 /* ── Tools panel shortcuts footer ─────────────────────────────────────────── */
 
@@ -1350,7 +1350,7 @@
 }
 
 .spell-suggestion-actions .small-btn {
-  font-family: var(--font-poem), Georgia, serif;
+  font-family: var(--font-story), Georgia, serif;
   font-size: 0.92rem;
   padding: 0.32rem 0.7rem;
   border-radius: 999px;
@@ -2064,7 +2064,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: var(--font-poem), Georgia, serif;
+  font-family: var(--font-story), Georgia, serif;
   font-size: 0.86rem;
   color: color-mix(in srgb, var(--text) 75%, var(--muted));
 }
@@ -2364,7 +2364,7 @@
 }
 
 .spell-hit-word {
-  font-family: var(--font-poem), Georgia, serif;
+  font-family: var(--font-story), Georgia, serif;
   font-size: 1.18rem;
   font-weight: 700;
   letter-spacing: -0.005em;
@@ -2903,14 +2903,14 @@
 .writing-prompt {
   position: absolute;
   /* Second line position: content padding-top + one line height */
-  top: calc(0.6rem + var(--poem-font-size, 1rem) * var(--poem-line-height, 1.65));
-  /* Left: content padding + gutter estimate so it aligns with poem text */
+  top: calc(0.6rem + var(--story-font-size, 1rem) * var(--story-line-height, 1.65));
+  /* Left: content padding + gutter estimate so it aligns with story text */
   left: 3.4rem;
   right: 0.7rem;
   margin: 0;
-  font-family: var(--font-poem), Georgia, serif;
-  font-size: var(--poem-font-size, 1rem);
-  line-height: var(--poem-line-height, 1.65);
+  font-family: var(--font-story), Georgia, serif;
+  font-size: var(--story-font-size, 1rem);
+  line-height: var(--story-line-height, 1.65);
   font-style: italic;
   color: var(--muted);
   opacity: 0.45;
@@ -2937,7 +2937,7 @@
   line-height: 1.45;
 }
 
-/* Word-style calm: generous line height in the poem editor on desktop */
+/* Word-style calm: generous line height in the story editor on desktop */
 @media (min-width: 900px) {
   .cm-editor {
     line-height: 1.85 !important;
@@ -3404,7 +3404,7 @@
 }
 
 #story-title {
-  font-family: var(--font-poem);
+  font-family: var(--font-story);
   font-size: 1.15rem;
   font-weight: 500;
   letter-spacing: -0.015em;
@@ -3638,7 +3638,7 @@
 
 .revision-snippet {
   margin: 0;
-  font-family: var(--font-poem), Georgia, serif;
+  font-family: var(--font-story), Georgia, serif;
   font-size: 0.85rem;
   color: color-mix(in srgb, var(--text) 78%, var(--muted));
   white-space: nowrap;
@@ -6040,7 +6040,7 @@
   gap: 0.4rem;
 }
 
-/* ---- Print: poem only ---- */
+/* ---- Print: story only ---- */
 .story-print-fallback {
   display: none;
 }
@@ -6088,7 +6088,7 @@
   .story-print-fallback {
     display: block !important;
     white-space: pre-wrap;
-    font-family: var(--font-poem), Georgia, "Times New Roman", serif;
+    font-family: var(--font-story), Georgia, "Times New Roman", serif;
     font-size: 11pt;
     line-height: 1.45;
     color: #111;
@@ -7374,7 +7374,7 @@ button.snap-dupes-strip:hover {
 
 .snap-snippet {
   margin: 0;
-  font-family: var(--font-poem), Georgia, serif;
+  font-family: var(--font-story), Georgia, serif;
   font-size: 0.95rem;
   line-height: 1.35;
   color: var(--text);

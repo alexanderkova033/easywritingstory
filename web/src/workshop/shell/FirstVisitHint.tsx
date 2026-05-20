@@ -27,7 +27,7 @@ export function FirstVisitHint({
           <strong>Start writing</strong> — or{" "}
           {onSuggest ? (
             <button type="button" className="linkish welcome-guide-inline" onClick={() => { onSuggest(); dismiss(); }}>
-              get a poem idea ✦
+              get a story idea ✦
             </button>
           ) : (
             "open the Suggest tab for ideas"

@@ -24,6 +24,6 @@ describe("HTTP API", () => {
       .expect(200);
     assert.equal(res.headers["x-request-id"], customId);
     assert.equal(res.body.ok, true);
-    assert.equal(res.body.service, "easy-poems-api");
+    assert.equal(res.body.service, "easy-stories-api");
   });
 });

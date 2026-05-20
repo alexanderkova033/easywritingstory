@@ -9,7 +9,7 @@ Versioning follows [Semantic Versioning](https://semver.org/) once a first tagge
 
 ## Unreleased — Story pivot
 
-This project began life as **easywriting-poem**, a poetry workshop with rhyme, meter, syllable, and form-specific tools. It has been pivoted to **easywriting-story**, a short-story workshop aimed at IGCSE creative-writing coursework and stories under 2,000 words.
+This project began life as **easywriting-story**, a poetry workshop with rhyme, meter, syllable, and form-specific tools. It has been pivoted to **easywriting-story**, a short-story workshop aimed at IGCSE creative-writing coursework and stories under 2,000 words.
 
 ### Removed (poetry-only)
 - Deleted `web/src/workshop/rhyme/` (rhyme finder, datamuse cache, scheme detection, internal rhymes, rhyme tooltip, manual rhyme links/unlinks storage).
@@ -45,20 +45,20 @@ This project began life as **easywriting-poem**, a poetry workshop with rhyme, m
 - Max story length on every AI endpoint reduced: 20,000 chars → **15,000 chars** (~2,500 words).
 
 ### Changed (branding)
-- Top-level package names renamed `easy-poems*` → `easywritingstory*` across the three `package.json` files.
+- Top-level package names renamed `easy-stories*` → `easywritingstory*` across the three `package.json` files.
 - `web/index.html` title, meta description, OG tags, Twitter card, and noscript fallback rewritten.
 - Sitemap + robots.txt URLs swapped for `easywritingstory.vercel.app`.
-- Sample workshop content swapped from "The Candle" (poem) to "The Last Bus" (story opening).
+- Sample workshop content swapped from "The Candle" (story) to "The Last Bus" (story opening).
 - Landing page hero, sub, demo content, concept cards, footer CTA all rewritten. Demo now shows word counts + reading grade instead of rhyme badges + syllables.
-- Topbar brand badge: `poem` → `story`. Logo SVG updated to an open-book icon.
+- Topbar brand badge: `story` → `story`. Logo SVG updated to an open-book icon.
 - Workshop UI strings updated throughout: "Ask about your story", "Story font", "Paragraphs" goal label, story-aware tour copy, prose-flavoured sample suggestions.
 - README rewritten with IGCSE positioning.
 - `docs/FEATURES.md`, `docs/AI_INTEGRATION.md`, `docs/ARCHITECTURE.md`, `docs/REQUIREMENTS.md`, `docs/PRIORITIES.md` rewritten for the story workshop.
 
 ### Deferred (no functional impact)
-- File renames (`PoemWorkshop.tsx` → `StoryWorkshop.tsx`, `PoemBodyEditor.tsx` → `StoryBodyEditor.tsx`, `usePoemWorkshopModel.ts` → `useStoryWorkshopModel.ts`, etc.).
-- Internal identifier sweep (`Poem` → `Story` types, `.poem-*` CSS class names).
-- `easy-poems:*` → `easy-stories:*` localStorage key migration.
+- File renames (`StoryWorkshop.tsx` → `StoryWorkshop.tsx`, `StoryBodyEditor.tsx` → `StoryBodyEditor.tsx`, `useStoryWorkshopModel.ts` → `useStoryWorkshopModel.ts`, etc.).
+- Internal identifier sweep (`Story` → `Story` types, `.story-*` CSS class names).
+- `easy-stories:*` → `easy-stories:*` localStorage key migration.
 - Removal of deprecated rhyme/stanza/syllable fields in `WorkshopGoals` (kept on the type until callers stop reading them).
 
 ---
@@ -67,7 +67,7 @@ This project began life as **easywriting-poem**, a poetry workshop with rhyme, m
 
 ### Network / first-load
 - `<link rel="dns-prefetch">` for Datamuse, dictionaryapi.dev, Vercel analytics and insights origins — warms DNS/TLS before the first AI or rhyme/define call.
-- Lazy-load `ReadingModeModal`, `ShareModal`, `ViewSharedPoem`, and `BackgroundPicker` via `React.lazy`. Each ships its own dynamic chunk; the initial workshop bundle drops ~200–300 KB.
+- Lazy-load `ReadingModeModal`, `ShareModal`, `ViewSharedStory`, and `BackgroundPicker` via `React.lazy`. Each ships its own dynamic chunk; the initial workshop bundle drops ~200–300 KB.
 - Tightened Vite `manualChunks` so lazy-loaded modules don't get re-merged into the eager `workshop-tools` chunk.
 
 ### Off-main-thread

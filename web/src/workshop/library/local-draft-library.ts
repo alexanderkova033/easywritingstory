@@ -77,11 +77,11 @@ function readLibraryRaw(): DraftLibrary | null {
     const v = JSON.parse(raw) as unknown;
     if (!v || typeof v !== "object") return null;
     const o = v as Record<string, unknown>;
-    // v1 used `poems`; v2 uses `stories`. Accept either and emit v2.
+    // v1 used `stories`; v2 uses `stories`. Accept either and emit v2.
     const rawItems = Array.isArray(o.stories)
       ? o.stories
-      : Array.isArray(o.poems)
-        ? o.poems
+      : Array.isArray(o.stories)
+        ? o.stories
         : null;
     if (rawItems === null) return null;
     if (typeof o.activeId !== "string") return null;
@@ -229,9 +229,9 @@ export function removeStory(lib: DraftLibrary, storyId: string): DraftLibrary {
   return { ...lib, stories, activeId };
 }
 
-// Backward-compat export mark — older backups carry "easyPoemsWorkshopExport".
+// Backward-compat export mark — older backups carry "easyStoriesWorkshopExport".
 // Accepted on import; new backups use the new mark.
-export const WORKSHOP_EXPORT_MARK_LEGACY = "easyPoemsWorkshopExport" as const;
+export const WORKSHOP_EXPORT_MARK_LEGACY = "easyStoriesWorkshopExport" as const;
 export const WORKSHOP_EXPORT_MARK = "easyStoryWorkshopExport" as const;
 export const WORKSHOP_EXPORT_VERSION = 1 as const;
 
@@ -302,11 +302,11 @@ export function mergeImportedStories(
         "Try exporting a fresh backup from the version you used to create this file.",
     };
   }
-  // Accept either `stories` (current) or `poems` (legacy) as the item array.
+  // Accept either `stories` (current) or `stories` (legacy) as the item array.
   const rawItems = Array.isArray(o.stories)
     ? o.stories
-    : Array.isArray(o.poems)
-      ? o.poems
+    : Array.isArray(o.stories)
+      ? o.stories
       : null;
   if (rawItems === null) {
     return { error: "Backup is missing the stories array." };

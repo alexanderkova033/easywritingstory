@@ -1,13 +1,9 @@
 import type { ReactNode } from "react";
 import type { ChecklistItem } from "@/workshop/analysis/publication-checklist";
 
-export const LINES_TABLE_MAX = 400;
-
 export function checklistJumpLabel(item: ChecklistItem): string {
   if (item.focusTitleField) return "Focus title";
   switch (item.openToolTab) {
-    case "lines":
-      return "Lines";
     case "spell":
       return "Spelling";
     case "goals":

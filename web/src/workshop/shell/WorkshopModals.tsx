@@ -36,7 +36,7 @@ interface WorkshopModalsProps {
   // Share
   isShareOpen: boolean;
   onCloseShare: () => void;
-  // Shared poem view
+  // Shared story view
   sharedStoryView: SharedStory | null;
   onDismissSharedStory: () => void;
   onAddSharedStoryToDrafts: (story: SharedStory) => void;

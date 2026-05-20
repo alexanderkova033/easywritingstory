@@ -15,8 +15,6 @@ export interface GoalEvaluation {
   warnings: string[];
   /** Hints for soft/aspirational goals — shown only in the goals panel. */
   softHints: string[];
-  /** Always empty in the story app; retained on the shape for legacy callers. */
-  syllableOverLines: number[];
   /** Always null in the story app; retained on the shape for legacy callers. */
   rhymeSchemeMatches: boolean | null;
   /** Always "" in the story app; retained on the shape for legacy callers. */
@@ -31,12 +29,11 @@ function isSoft(goals: WorkshopGoals, key: string): boolean {
   return goals.softGoals?.includes(key) ?? false;
 }
 
-function metricLabel(metric: "lines" | "paragraphs" | "words"): {
+function metricLabel(metric: "paragraphs" | "words"): {
   singular: string;
   plural: string;
   cap: string;
 } {
-  if (metric === "lines") return { singular: "line", plural: "lines", cap: "Lines" };
   if (metric === "paragraphs") return { singular: "paragraph", plural: "paragraphs", cap: "Paragraphs" };
   return { singular: "word", plural: "words", cap: "Words" };
 }
@@ -50,7 +47,7 @@ interface MetricBag {
 
 function evalMetric(
   current: number,
-  metric: "lines" | "paragraphs" | "words",
+  metric: "paragraphs" | "words",
   bag: MetricBag,
   add: (key: string, msg: string) => void,
 ): void {
@@ -89,18 +86,6 @@ export function evaluateGoals(
   };
 
   evalMetric(
-    stats.nonEmptyLines,
-    "lines",
-    {
-      key: "targetLines",
-      target: goals.targetLines,
-      min: goals.minLines,
-      max: goals.maxLines,
-    },
-    addMessage,
-  );
-
-  evalMetric(
     stats.stanzaCount,
     "paragraphs",
     {
@@ -127,7 +112,6 @@ export function evaluateGoals(
   return {
     warnings,
     softHints,
-    syllableOverLines: [],
     rhymeSchemeMatches: null,
     detectedSchemeCanonical: "",
     targetSchemeCanonical: "",

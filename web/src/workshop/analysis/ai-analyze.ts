@@ -35,6 +35,97 @@ export interface StrongestLine {
   why: string;
 }
 
+export interface ExamGradeComponent {
+  name: string;
+  mark: number;
+  outOf: number;
+  comment?: string;
+}
+
+export interface ExamGrade {
+  /** Spec id, e.g. "igcse-edexcel-coursework". Set by the client, not the model. */
+  modeId: string;
+  /** Human-readable spec label, e.g. "IGCSE Edexcel — Imaginative Writing (coursework)". */
+  modeLabel: string;
+  mark: number;
+  outOf: number;
+  band?: string;
+  comment?: string;
+  breakdown: ExamGradeComponent[];
+}
+
+/**
+ * Catalogue of supported exam modes. Mirrors the server-side EXAM_MODES list
+ * in api/_exam-modes.ts — keep the ids in sync. Rubric prompts live only on
+ * the server (the client doesn't need them).
+ */
+export interface ExamModeMeta {
+  id: string;
+  label: string;
+  description: string;
+  totalMarks: number;
+  components: { name: string; outOf: number }[];
+}
+
+export const EXAM_MODES: readonly ExamModeMeta[] = [
+  {
+    id: "igcse-edexcel-coursework",
+    label: "IGCSE Edexcel — Imaginative Writing (coursework)",
+    description: "Pearson Edexcel IGCSE English Language A, Paper 3 coursework — 40 marks",
+    totalMarks: 40,
+    components: [
+      { name: "Content & Structure (AO4)", outOf: 24 },
+      { name: "Style & Accuracy (AO5)",   outOf: 16 },
+    ],
+  },
+  {
+    id: "igcse-cambridge-coursework",
+    label: "IGCSE Cambridge — Composition (coursework)",
+    description: "Cambridge IGCSE 0500 / 0990 Component 3 coursework — 40 marks per assignment",
+    totalMarks: 40,
+    components: [
+      { name: "Content & Structure (W1-W3)", outOf: 16 },
+      { name: "Style & Accuracy (W4-W5)",    outOf: 24 },
+    ],
+  },
+  {
+    id: "alevel-aqa-nea",
+    label: "A-Level AQA — Original Writing (NEA)",
+    description: "AQA A-Level English Language 7702, NEA Original Writing piece — 25 marks",
+    totalMarks: 25,
+    components: [
+      { name: "AO5 — Creative & Expressive Writing", outOf: 25 },
+    ],
+  },
+  {
+    id: "alevel-edexcel-nea",
+    label: "A-Level Edexcel — Crafting Language (NEA)",
+    description: "Pearson Edexcel A-Level English Language 9EL0, NEA crafted text — 40 marks",
+    totalMarks: 40,
+    components: [
+      { name: "AO2 — Language methods", outOf: 15 },
+      { name: "AO5 — Creativity",       outOf: 25 },
+    ],
+  },
+  {
+    id: "alevel-ocr-nea",
+    label: "A-Level OCR — Original Writing (NEA)",
+    description: "OCR A-Level English Language H470, NEA original writing — 25 marks",
+    totalMarks: 25,
+    components: [
+      { name: "AO2 — Language methods", outOf: 10 },
+      { name: "AO5 — Creativity",       outOf: 15 },
+    ],
+  },
+];
+
+export type ExamModeId = (typeof EXAM_MODES)[number]["id"];
+
+export function getExamModeMeta(id: string | undefined | null): ExamModeMeta | null {
+  if (!id) return null;
+  return EXAM_MODES.find((m) => m.id === id) ?? null;
+}
+
 export interface StoryAnalysis {
   meta: AnalysisMeta;
   overall_score: number;
@@ -44,11 +135,13 @@ export interface StoryAnalysis {
   weaknesses?: string[];
   strongest_line?: StrongestLine;
   overall_direction?: string;
-  /** 2-3 sentence holistic read of the poem as a whole. */
+  /** 2-3 sentence holistic read of the story as a whole. */
   overall_feedback?: string;
   /** 2-3 sentences addressed to the writer ("you"), warm/mentor tone. */
   personal_feedback?: string;
   clarifying_question?: string;
+  /** Set when the analysis was run in an exam-grading mode. */
+  exam_grade?: ExamGrade;
   issues: AnalysisIssue[];
 }
 
@@ -96,6 +189,33 @@ function parseStringArray(v: unknown, max: number): string[] | undefined {
   return out.length > 0 ? out : undefined;
 }
 
+function parseExamGrade(v: unknown, mode: ExamModeMeta | null): ExamGrade | undefined {
+  if (!mode || !v || typeof v !== "object") return undefined;
+  const o = v as Record<string, unknown>;
+  const markRaw = typeof o.mark === "number" ? o.mark : parseFloat(String(o.mark));
+  if (!Number.isFinite(markRaw)) return undefined;
+  const mark = Math.max(0, Math.min(mode.totalMarks, Math.round(markRaw)));
+  const breakdownRaw = Array.isArray(o.breakdown) ? (o.breakdown as unknown[]) : [];
+  const breakdown: ExamGradeComponent[] = mode.components.map((comp, i) => {
+    const entry = (breakdownRaw[i] && typeof breakdownRaw[i] === "object")
+      ? breakdownRaw[i] as Record<string, unknown>
+      : null;
+    const cMarkRaw = entry ? (typeof entry.mark === "number" ? entry.mark : parseFloat(String(entry.mark))) : NaN;
+    const cMark = Number.isFinite(cMarkRaw) ? Math.max(0, Math.min(comp.outOf, Math.round(cMarkRaw))) : 0;
+    const comment = entry && typeof entry.comment === "string" ? entry.comment.trim() : undefined;
+    return { name: comp.name, mark: cMark, outOf: comp.outOf, comment };
+  });
+  return {
+    modeId: mode.id,
+    modeLabel: mode.label,
+    mark,
+    outOf: mode.totalMarks,
+    band: typeof o.band === "string" && o.band.trim() ? o.band.trim() : undefined,
+    comment: typeof o.comment === "string" && o.comment.trim() ? o.comment.trim() : undefined,
+    breakdown,
+  };
+}
+
 function parseStrongestLine(v: unknown): StrongestLine | undefined {
   if (!v || typeof v !== "object") return undefined;
   const o = v as Record<string, unknown>;
@@ -135,7 +255,7 @@ function balanceAndCapIssues<T extends { severity?: "high" | "medium" | "low" }>
   return out;
 }
 
-function parseAnalysis(obj: Record<string, unknown>): StoryAnalysis {
+function parseAnalysis(obj: Record<string, unknown>, examMode: ExamModeMeta | null = null): StoryAnalysis {
   const issuesRaw = Array.isArray(obj.issues) ? obj.issues : [];
   const meta = (obj.meta ?? {}) as Record<string, unknown>;
 
@@ -159,6 +279,7 @@ function parseAnalysis(obj: Record<string, unknown>): StoryAnalysis {
       ? obj.personal_feedback.trim() : undefined,
     clarifying_question: typeof obj.clarifying_question === "string" && obj.clarifying_question.trim()
       ? obj.clarifying_question.trim() : undefined,
+    exam_grade: parseExamGrade(obj.exam_grade, examMode),
     issues: balanceAndCapIssues(issuesRaw
       .filter((x): x is Record<string, unknown> => x !== null && typeof x === "object")
       .map((iss, idx) => ({
@@ -197,8 +318,8 @@ export interface StoryComparison extends StoryAnalysis {
   comparison: ComparisonChanges;
 }
 
-function parseComparison(obj: Record<string, unknown>): StoryComparison {
-  const base = parseAnalysis(obj);
+function parseComparison(obj: Record<string, unknown>, examMode: ExamModeMeta | null = null): StoryComparison {
+  const base = parseAnalysis(obj, examMode);
   const c = (obj.comparison ?? {}) as Record<string, unknown>;
   const toStrArr = (v: unknown) =>
     Array.isArray(v) ? (v as unknown[]).filter((x): x is string => typeof x === "string") : [];
@@ -264,7 +385,7 @@ export function buildChangesText(prev: string[], curr: string[]): string {
   return lines.length === 0 ? "(no line-level changes — same text)" : lines.join("\n");
 }
 
-export async function comparePoem(
+export async function compareStory(
   {
     title,
     lines,
@@ -274,6 +395,7 @@ export async function comparePoem(
     goals,
     writingFocus,
     scoreHistory,
+    examMode,
   }: {
     title: string;
     lines: string[];
@@ -283,16 +405,18 @@ export async function comparePoem(
     goals?: Record<string, number>;
     writingFocus?: string;
     scoreHistory?: number[];
+    examMode?: string | null;
   },
   model = "gpt-5-nano",
   signal?: AbortSignal,
 ): Promise<StoryComparison> {
   const changesText = buildChangesText(previousLines, lines);
+  const examModeMeta = getExamModeMeta(examMode);
   const response = await fetch("/api/compare", {
     method: "POST",
     signal,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, lines, changesText, previousScores, model, localAnalysis, goals, writingFocus, scoreHistory }),
+    body: JSON.stringify({ title, lines, changesText, previousScores, model, localAnalysis, goals, writingFocus, scoreHistory, examMode: examModeMeta?.id }),
   });
 
   if (!response.ok) {
@@ -303,12 +427,12 @@ export async function comparePoem(
   }
 
   const data = (await response.json()) as Record<string, unknown>;
-  return parseComparison(data);
+  return parseComparison(data, examModeMeta);
 }
 
 export type HarshnessLevel = "baby" | "casual" | "student" | "editor" | "critic";
 
-export async function analyzePoem(
+export async function analyzeStory(
   {
     title,
     lines,
@@ -316,6 +440,7 @@ export async function analyzePoem(
     goals,
     harshness,
     writingFocus,
+    examMode,
   }: {
     title: string;
     lines: string[];
@@ -323,15 +448,17 @@ export async function analyzePoem(
     goals?: Record<string, number>;
     harshness?: HarshnessLevel;
     writingFocus?: string;
+    examMode?: string | null;
   },
   model = "gpt-5-nano",
   signal?: AbortSignal,
 ): Promise<StoryAnalysis> {
+  const examModeMeta = getExamModeMeta(examMode);
   const response = await fetch("/api/analyze", {
     method: "POST",
     signal,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, lines, model, localAnalysis, goals, harshness, writingFocus }),
+    body: JSON.stringify({ title, lines, model, localAnalysis, goals, harshness, writingFocus, examMode: examModeMeta?.id }),
   });
 
   if (!response.ok) {
@@ -342,5 +469,5 @@ export async function analyzePoem(
   }
 
   const data = (await response.json()) as Record<string, unknown>;
-  return parseAnalysis(data);
+  return parseAnalysis(data, examModeMeta);
 }

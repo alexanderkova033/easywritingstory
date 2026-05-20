@@ -10,6 +10,7 @@ import { checkRateLimit, getRateLimitRetrySec } from "./_rate-limit";
 import { callOpenAI, sendParsedResponse } from "./_openai";
 import { cooldownFor, precheckSpend, recordSpend } from "./_usage-cap";
 import { gibberishGuard } from "./_gibberish";
+import { buildExamPromptBlock, getExamMode, type ExamMode } from "./_exam-modes";
 
 const HARSHNESS_PERSONAS: Record<string, string> = {
   baby:    "a kind, encouraging reader who celebrates effort and only mentions one very obvious improvement gently",
@@ -19,10 +20,11 @@ const HARSHNESS_PERSONAS: Record<string, string> = {
   critic:  "a senior IGCSE creative-writing examiner — rigorous against the rubric for content/structure (24) and style/accuracy (16), expecting sophisticated vocabulary, varied sentence forms, and clear narrative arc",
 };
 
-function buildSystemPrompt(harshness?: string): string {
+function buildSystemPrompt(harshness?: string, examMode?: ExamMode | null): string {
   const persona = harshness && harshness in HARSHNESS_PERSONAS
     ? HARSHNESS_PERSONAS[harshness as keyof typeof HARSHNESS_PERSONAS]
     : HARSHNESS_PERSONAS.editor;
+  const examBlock = examMode ? buildExamPromptBlock(examMode) : "";
   return `You are ${persona}. The user is writing a short story (typically under 2,000 words, often for IGCSE creative writing coursework). Return JSON only (no fences). Keys:
 overall_score (int 1-100), warm_reaction (≤14 words, terse), strengths[] (2-3 items, ≤6w each, terse), weaknesses[] (2-3, ≤6w, terse), strongest_line {line:int, why:≤8w}, issues[] (2-5 — mix serious craft problems with smaller nitpicks; pick the most useful across that range).
 overall_feedback (string, 1-2 short sentences max, holistic read of the story — voice, pacing, what it lands or misses. Specific, not generic. Keep it tight.).
@@ -32,7 +34,7 @@ Each issue: id, severity ("high"|"medium"|"low"), line_start, line_end, headline
   improvements[] (2-4 concrete moves the writer can try, each ≤14 words, naming a specific technique or word swap rather than vague advice),
   rewrite? (omit unless you can offer a clearly stronger one-sentence replacement),
   confidence? ("low" only — omit otherwise).
-Cover a range of craft angles across issues — character voice, dialogue naturalness, pacing, sensory detail, sentence rhythm, show-don't-tell, tense/POV consistency, diction, cliché. Use local analysis hints (clichés, sentence-length stats, dialogue %, reading grade, repeated words) when present. 1-based line numbers. Keep headline terse; rationale gets full paragraph-length sentences; improvements stay punchy but specific.`;
+Cover a range of craft angles across issues — character voice, dialogue naturalness, pacing, sensory detail, sentence rhythm, show-don't-tell, tense/POV consistency, diction, cliché. Use local analysis hints (clichés, sentence-length stats, dialogue %, reading grade, repeated words) when present. 1-based line numbers. Keep headline terse; rationale gets full paragraph-length sentences; improvements stay punchy but specific.${examBlock}`;
 }
 
 interface LocalAnalysis {
@@ -138,6 +140,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     localAnalysis?: unknown;
     goals?: unknown;
     harshness?: unknown;
+    examMode?: unknown;
     writingFocus?: unknown;
   };
 
@@ -161,6 +164,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const local = (body.localAnalysis && typeof body.localAnalysis === "object" ? body.localAnalysis : undefined) as LocalAnalysis | undefined;
   const goals = (body.goals && typeof body.goals === "object" ? body.goals : undefined) as GoalsContext | undefined;
   const harshness = typeof body.harshness === "string" ? body.harshness : undefined;
+  const examMode = getExamMode(typeof body.examMode === "string" ? body.examMode : undefined);
   const writingFocus = typeof body.writingFocus === "string" ? body.writingFocus.slice(0, 500) : undefined;
 
   const MAX_LINES = 800;
@@ -190,7 +194,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     {
       model,
       messages: [
-        { role: "system", content: buildSystemPrompt(harshness) },
+        { role: "system", content: buildSystemPrompt(harshness, examMode) },
         { role: "user", content: buildPrompt(title, lines, local, goals, writingFocus) },
       ],
       max_tokens: 4000,

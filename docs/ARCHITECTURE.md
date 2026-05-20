@@ -2,7 +2,7 @@
 
 This document records the key design decisions in **easywriting-story** and the reasoning behind them.
 
-> Historical note: this project began as **easy-poems**, a poetry workshop. It was pivoted to short-story writing (target: stories under 2,000 words, IGCSE creative writing coursework). Some internal identifiers — file names like `PoemWorkshop.tsx`, classes like `.poem-...`, storage keys prefixed `easy-poems:` — still reflect the original name and will be renamed in a follow-up sweep. They have no functional effect.
+> Historical note: this project began as **easy-stories**, a poetry workshop. It was pivoted to short-story writing (target: stories under 2,000 words, IGCSE creative writing coursework). Some internal identifiers — file names like `StoryWorkshop.tsx`, classes like `.story-...`, storage keys prefixed `easy-stories:` — still reflect the original name and will be renamed in a follow-up sweep. They have no functional effect.
 
 ---
 
@@ -34,7 +34,7 @@ This document records the key design decisions in **easywriting-story** and the 
 - Lighter than Monaco (which is built for IDE use cases) and more actively maintained than Ace.
 - First-class TypeScript support and a well-defined extension API.
 
-**Soft-wrap:** `EditorView.lineWrapping` is on. Long sentences flow to the next visual row at the soft-wrap point; the editor never shrinks text to fit a viewport. (An earlier per-line font-scaling plugin existed for poetry where line integrity mattered; it was removed during the story pivot — see commit history for `PoemBodyEditor.tsx`.)
+**Soft-wrap:** `EditorView.lineWrapping` is on. Long sentences flow to the next visual row at the soft-wrap point; the editor never shrinks text to fit a viewport. (An earlier per-line font-scaling plugin existed for poetry where line integrity mattered; it was removed during the story pivot — see commit history for `StoryBodyEditor.tsx`.)
 
 **Trade-offs:**
 - Adds ~300 KB to the bundle (gzipped: ~100 KB).
@@ -150,7 +150,7 @@ web/src/
     palette/           # Command palette
     reading/           # Distraction-free reader mode
     sharing/           # Share modal (DOCX / PDF / image / link)
-    shell/             # PoemWorkshop (workshop shell), top bar, modals
+    shell/             # StoryWorkshop (workshop shell), top bar, modals
     text/              # Generic word + syllable utilities (formerly under meter/)
     tour/              # First-visit tour
     vocabulary/        # Word-lookup popover

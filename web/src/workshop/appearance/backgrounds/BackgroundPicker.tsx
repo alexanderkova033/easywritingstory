@@ -10,7 +10,7 @@ import { generateBackground } from "./generate-background";
 
 const PRESET_OPTIONS = BACKGROUND_OPTIONS.filter((o) => o.id !== "custom");
 
-const RECENTS_KEY = "easy-poems:recent-backgrounds";
+const RECENTS_KEY = "easy-stories:recent-backgrounds";
 const MAX_RECENTS = 3;
 
 function loadRecents(): BackgroundId[] {

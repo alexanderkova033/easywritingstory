@@ -10,6 +10,7 @@ import type {
   RepeatedWord,
   RepetitionAnalysis,
 } from "@/workshop/analysis/repeated-words";
+import type { StoryCraftAnalysis } from "@/workshop/analysis/story-craft";
 import type { RevisionSnapshot } from "@/workshop/library/revision-snapshots";
 import type { LineDiffRow } from "@/workshop/library/diff-lines";
 // Opaque stubs — meter machinery has been removed; these prop slots are dead
@@ -26,9 +27,9 @@ import type { ToolTab } from "@/workshop/shell/workshop-helpers";
 import type { RhymeBreadth } from "@/workshop/analysis/use-heavy-analysis";
 import { IssuesPanel } from "./panels/IssuesPanel";
 import { GoalsPanel } from "./panels/GoalsPanel";
-import { LinesPanel } from "./panels/LinesPanel";
 import { RepeatPanel } from "./panels/RepeatPanel";
 import { SpellPanel } from "./panels/SpellPanel";
+import { CraftPanel } from "./panels/CraftPanel";
 
 
 export interface WorkshopToolPanelsProps {
@@ -46,6 +47,7 @@ export interface WorkshopToolPanelsProps {
   clicheHits: ClicheHit[];
   repeated: RepeatedWord[];
   repetition: RepetitionAnalysis;
+  craft: StoryCraftAnalysis;
   spellHits: SpellHit[];
   wordlist: Set<string> | null;
   wordlistErr: string | null;
@@ -160,19 +162,20 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
         />
       ) : null}
 
-      {toolTab === "lines" ? (
-        <LinesPanel
-          docStats={props.docStats}
-          heavyToolsStale={props.heavyToolsStale}
-          goToLine={props.goToLine}
-        />
-      ) : null}
-
       {toolTab === "repeat" ? (
         <RepeatPanel
           docStats={props.docStats}
           repeated={props.repeated}
           repetition={props.repetition}
+          heavyToolsStale={props.heavyToolsStale}
+          goToLine={props.goToLine}
+        />
+      ) : null}
+
+      {toolTab === "craft" ? (
+        <CraftPanel
+          docStats={props.docStats}
+          craft={props.craft}
           heavyToolsStale={props.heavyToolsStale}
           goToLine={props.goToLine}
         />

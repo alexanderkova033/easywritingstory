@@ -14,6 +14,8 @@ import { analyzeRepetition } from "@/workshop/analysis/repeated-words";
 import type { RepetitionAnalysis } from "@/workshop/analysis/repeated-words";
 import { scanCliches } from "@/workshop/analysis/cliche-scan";
 import type { ClicheHit } from "@/workshop/analysis/cliche-scan";
+import { analyzeStoryCraft } from "@/workshop/analysis/story-craft";
+import type { StoryCraftAnalysis } from "@/workshop/analysis/story-craft";
 
 // Opaque stubs for rhyme-derived shapes that the worker no longer computes.
 // Kept on the result type so downstream call-sites (WorkshopToolPanels,
@@ -36,6 +38,7 @@ export interface HeavyAnalysisResult {
   id: number;
   repetition: RepetitionAnalysis;
   clicheHits: ClicheHit[];
+  craft: StoryCraftAnalysis;
   rhymeClusters: RhymeCluster[];
   vowelTailClusters: RhymeCluster[];
   assonanceClusters: RhymeCluster[];
@@ -52,6 +55,7 @@ self.onmessage = (e: MessageEvent<HeavyAnalysisRequest>) => {
     id,
     repetition: analyzeRepetition(heavyLines),
     clicheHits: scanCliches(heavyLines),
+    craft: analyzeStoryCraft(heavyLines),
     rhymeClusters: [],
     vowelTailClusters: [],
     assonanceClusters: [],

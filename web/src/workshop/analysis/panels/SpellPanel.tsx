@@ -393,7 +393,7 @@ export function SpellPanel({
                   className="small-btn"
                   onClick={() =>
                     downloadTextFile(
-                      "easy-poems-personal-dictionary.json",
+                      "easy-stories-personal-dictionary.json",
                       `${JSON.stringify(personalWords, null, 2)}\n`,
                     )
                   }

@@ -15,7 +15,7 @@ interface TourStep {
 
 const STEPS: TourStep[] = [
   {
-    id: "poem-editor",
+    id: "story-editor",
     title: "Your writing space",
     body: "Type your story here. Autosaves to this browser as you type — nothing leaves your device. Press Enter for a new line; blank line between paragraphs.",
     placement: "right",
@@ -38,7 +38,7 @@ const STEPS: TourStep[] = [
   {
     id: "rail-library",
     title: "Drafts & snapshots",
-    body: "Keep many poems and switch instantly. Save a snapshot to lock a version — compare any two later, line by line, to see what changed.",
+    body: "Keep many stories and switch instantly. Save a snapshot to lock a version — compare any two later, line by line, to see what changed.",
     placement: "right",
     pad: 8,
   },

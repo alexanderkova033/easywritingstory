@@ -182,7 +182,7 @@ export async function llmIsGibberish(
       {
         role: "system",
         content:
-          "Classify whether the user's input is keyboard mashing, random characters, repeated nonsense, or otherwise NOT a sincere attempt at a poem (even a clumsy or short one counts as sincere). Return JSON only: {\"gibberish\": true} for mashing/nonsense, otherwise {\"gibberish\": false}.",
+          "Classify whether the user's input is keyboard mashing, random characters, repeated nonsense, or otherwise NOT a sincere attempt at a story (even a clumsy or short one counts as sincere). Return JSON only: {\"gibberish\": true} for mashing/nonsense, otherwise {\"gibberish\": false}.",
       },
       { role: "user", content: sample },
     ],
@@ -228,8 +228,8 @@ function block(reason: string, retryAfterSec: number): GibberishGuardResult {
     body: {
       error:
         reason === "gibberish-cooldown"
-          ? `Earlier input looked like keyboard mashing rather than a poem. Please wait ${Math.ceil(retryAfterSec / 60)} minute(s) and try again with real text.`
-          : "Input looks like keyboard mashing rather than a poem. Try again with real text — a 15 minute cooldown is now in effect.",
+          ? `Earlier input looked like keyboard mashing rather than a story. Please wait ${Math.ceil(retryAfterSec / 60)} minute(s) and try again with real text.`
+          : "Input looks like keyboard mashing rather than a story. Try again with real text — a 15 minute cooldown is now in effect.",
       retryAfterSec,
       reason,
     },

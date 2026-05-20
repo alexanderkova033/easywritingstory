@@ -72,7 +72,7 @@ easywritingstory/
 
 Source layout is **feature-first**, not layer-first. Cross-cutting helpers live in `web/src/shared/`.
 
-> Historical-naming note: several files under `web/src/workshop/shell/` and `web/src/workshop/editor/` still carry the `Poem*` prefix from before the story pivot (`PoemWorkshop.tsx`, `PoemBodyEditor.tsx`, `usePoemWorkshopModel.ts`, etc.). They will be renamed in a focused sweep; until then they are the canonical story-app implementations despite their filenames.
+> Historical-naming note: several files under `web/src/workshop/shell/` and `web/src/workshop/editor/` still carry the `Story*` prefix from before the story pivot (`StoryWorkshop.tsx`, `StoryBodyEditor.tsx`, `useStoryWorkshopModel.ts`, etc.). They will be renamed in a focused sweep; until then they are the canonical story-app implementations despite their filenames.
 
 ---
 
@@ -99,7 +99,7 @@ npm run lint       # eslint
 - **Feature folders** own their types, tests, and styles. Avoid cross-feature imports through deep paths — expose a clean public surface.
 - **No new top-level CSS files** — extend the existing token system in `web/src/app/index.css`.
 - **Comments:** explain WHY for non-obvious code. Never describe WHAT — names should do that.
-- **Decorations on the editor:** any new CodeMirror extension that runs on every doc change must respect the `IS_TOUCH_DEVICE` gating pattern in [PoemBodyEditor.tsx](web/src/workshop/editor/PoemBodyEditor.tsx) or be designed to be cheap on iPad.
+- **Decorations on the editor:** any new CodeMirror extension that runs on every doc change must respect the `IS_TOUCH_DEVICE` gating pattern in [StoryBodyEditor.tsx](web/src/workshop/editor/StoryBodyEditor.tsx) or be designed to be cheap on iPad.
 
 ---
 

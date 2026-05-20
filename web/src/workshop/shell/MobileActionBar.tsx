@@ -69,7 +69,7 @@ export function MobileActionBar({ isFocusMode, activeTab, wordCount, isAnalyzing
           navigator.vibrate?.(8);
           onAnalyse();
         }}
-        aria-label={isAnalyzing ? "Analysing poem…" : "Analyse poem with AI"}
+        aria-label={isAnalyzing ? "Analysing story…" : "Analyse story with AI"}
         disabled={isAnalyzing}
       >
         {isAnalyzing

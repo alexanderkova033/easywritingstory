@@ -214,7 +214,7 @@ export function useExportActions(input: ExportActionsInput) {
 
   const folderPickerSupported = isDirectoryPickerSupported();
 
-  const saveCurrentPoemToFolder = useCallback(
+  const saveCurrentStoryToFolder = useCallback(
     async (formats: FolderSaveFormats) => {
       setExportErr(null);
       if (!isDirectoryPickerSupported()) {
@@ -250,7 +250,7 @@ export function useExportActions(input: ExportActionsInput) {
     [title, formNote, bodyLiveRef, flashFolderSave],
   );
 
-  const saveAllPoemsToFolder = useCallback(
+  const saveAllStoriesToFolder = useCallback(
     async (formats: FolderSaveFormats) => {
       setExportErr(null);
       if (!isDirectoryPickerSupported()) {
@@ -270,11 +270,11 @@ export function useExportActions(input: ExportActionsInput) {
           spellMode: state.spellMode,
         });
         let totalFiles = 0;
-        for (const poem of flushed.stories) {
-          const cleanBody = stripFormatMarkers(poem.body);
+        for (const story of flushed.stories) {
+          const cleanBody = stripFormatMarkers(story.body);
           const written = await saveStoryToDirectory(dir, {
-            title: poem.title,
-            formNote: poem.form?.trim() || undefined,
+            title: story.title,
+            formNote: story.form?.trim() || undefined,
             body: cleanBody,
             formats,
           });
@@ -356,7 +356,7 @@ export function useExportActions(input: ExportActionsInput) {
           return;
         }
         setImportNoticeKind("success");
-        setImportNotice(`Imported ${merged.added} poem(s).`);
+        setImportNotice(`Imported ${merged.added} story(s).`);
         setLibrary(merged.lib);
         applyLoadedStory(merged.lib);
       };
@@ -391,7 +391,7 @@ export function useExportActions(input: ExportActionsInput) {
     onImportBackupFile,
     folderPickerSupported,
     folderSaveFlash,
-    saveCurrentPoemToFolder,
-    saveAllPoemsToFolder,
+    saveCurrentStoryToFolder,
+    saveAllStoriesToFolder,
   };
 }

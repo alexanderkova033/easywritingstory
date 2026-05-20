@@ -147,8 +147,8 @@ export function ReadAloudButton({ getText }: ReadAloudButtonProps) {
       <button
         type="button"
         className={`fmt-btn fmt-tidy-btn read-aloud-btn${speaking ? " is-active" : ""}`}
-        {...hint(speaking ? "Stop reading aloud" : "Read poem aloud")}
-        aria-label={speaking ? "Stop reading aloud" : "Read poem aloud"}
+        {...hint(speaking ? "Stop reading aloud" : "Read story aloud")}
+        aria-label={speaking ? "Stop reading aloud" : "Read story aloud"}
         onClick={speaking ? stop : play}
       >
         {speaking ? "⏹" : "▶"}

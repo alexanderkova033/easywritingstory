@@ -22,7 +22,7 @@
 :root {
   color-scheme: light dark;
   --font-ui: "DM Sans", "Segoe UI", system-ui, sans-serif;
-  --font-poem: "Literata", Georgia, "Times New Roman", serif;
+  --font-story: "Literata", Georgia, "Times New Roman", serif;
   --font-metric: "IBM Plex Mono", ui-monospace, monospace;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -546,53 +546,53 @@ html[data-writing-focus-v2] body::after {
   outline-offset: 2px;
 }
 
-/* ---- User poem font (html data-poem-font) ---- */
-html[data-poem-font="literata"] {
-  --font-poem: "Literata", Georgia, "Times New Roman", serif;
+/* ---- User story font (html data-story-font) ---- */
+html[data-story-font="literata"] {
+  --font-story: "Literata", Georgia, "Times New Roman", serif;
 }
 
-html[data-poem-font="spectral"] {
-  --font-poem: "Spectral", Georgia, serif;
+html[data-story-font="spectral"] {
+  --font-story: "Spectral", Georgia, serif;
 }
 
-html[data-poem-font="lora"] {
-  --font-poem: "Lora", Georgia, serif;
+html[data-story-font="lora"] {
+  --font-story: "Lora", Georgia, serif;
 }
 
-html[data-poem-font="crimson-pro"] {
-  --font-poem: "Crimson Pro", Georgia, serif;
+html[data-story-font="crimson-pro"] {
+  --font-story: "Crimson Pro", Georgia, serif;
 }
 
-html[data-poem-font="source-serif"] {
-  --font-poem: "Source Serif 4", Georgia, serif;
+html[data-story-font="source-serif"] {
+  --font-story: "Source Serif 4", Georgia, serif;
 }
 
-html[data-poem-font="eb-garamond"] {
-  --font-poem: "EB Garamond", Georgia, serif;
+html[data-story-font="eb-garamond"] {
+  --font-story: "EB Garamond", Georgia, serif;
 }
 
-html[data-poem-font="playfair"] {
-  --font-poem: "Playfair Display", Georgia, serif;
+html[data-story-font="playfair"] {
+  --font-story: "Playfair Display", Georgia, serif;
 }
 
-html[data-poem-font="cormorant"] {
-  --font-poem: "Cormorant Garamond", Georgia, serif;
+html[data-story-font="cormorant"] {
+  --font-story: "Cormorant Garamond", Georgia, serif;
 }
 
-html[data-poem-font="merriweather"] {
-  --font-poem: "Merriweather", Georgia, serif;
+html[data-story-font="merriweather"] {
+  --font-story: "Merriweather", Georgia, serif;
 }
 
-html[data-poem-font="alegreya"] {
-  --font-poem: "Alegreya", Georgia, serif;
+html[data-story-font="alegreya"] {
+  --font-story: "Alegreya", Georgia, serif;
 }
 
-html[data-poem-font="dm-serif"] {
-  --font-poem: "DM Serif Display", Georgia, serif;
+html[data-story-font="dm-serif"] {
+  --font-story: "DM Serif Display", Georgia, serif;
 }
 
-html[data-poem-font="libre-baskerville"] {
-  --font-poem: "Libre Baskerville", Georgia, serif;
+html[data-story-font="libre-baskerville"] {
+  --font-story: "Libre Baskerville", Georgia, serif;
 }
 
 /* ---- User UI font ---- */
@@ -616,11 +616,11 @@ html[data-ui-font="system"] {
   --font-ui: system-ui, "Segoe UI", sans-serif;
 }
 
-/* ---- Poem text size / weight / decoration (set via inline style vars) ---- */
+/* ---- Story text size / weight / decoration (set via inline style vars) ---- */
 :root {
-  --poem-font-size: 1rem;
-  --poem-font-weight: 400;
-  --poem-text-decoration: none;
+  --story-font-size: 1rem;
+  --story-font-weight: 400;
+  --story-text-decoration: none;
 }
 
 /* ---- Named backgrounds live in ./themes/*.css (imported at top) ---- */
@@ -658,7 +658,7 @@ body.tab-hidden *::after {
 }
 
 /* Pause heavy ambient backdrops while the editor is focused. .is-editor-typing
-   is toggled by PoemBodyEditor on focusin/focusout. Frees GPU/compositor budget
+   is toggled by StoryBodyEditor on focusin/focusout. Frees GPU/compositor budget
    for caret + text layout during keystrokes. Only fires on touch where the gain
    matters; desktop machines have headroom and the animation cue is nicer. */
 @media (hover: none) and (pointer: coarse) {

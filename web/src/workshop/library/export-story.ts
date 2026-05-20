@@ -93,7 +93,7 @@ export function exportFilename(
   return `${todayPrefix()}-${slugBase(title, body)}.${ext}`;
 }
 
-export async function buildPoemDocxBlob(
+export async function buildStoryDocxBlob(
   title: string,
   formNote: string | undefined,
   body: string,
@@ -137,11 +137,11 @@ export async function downloadDocxFile(
   formNote: string | undefined,
   body: string,
 ): Promise<void> {
-  const blob = await buildPoemDocxBlob(title, formNote, body);
+  const blob = await buildStoryDocxBlob(title, formNote, body);
   triggerBlobDownload(filename, blob);
 }
 
-export async function buildPoemPdfBlob(
+export async function buildStoryPdfBlob(
   title: string,
   formNote: string | undefined,
   body: string,
@@ -207,7 +207,7 @@ export async function downloadPdfFile(
   formNote: string | undefined,
   body: string,
 ): Promise<void> {
-  const blob = await buildPoemPdfBlob(title, formNote, body);
+  const blob = await buildStoryPdfBlob(title, formNote, body);
   triggerBlobDownload(filename, blob);
 }
 
@@ -219,14 +219,14 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-export function buildPoemHtml(
+export function buildStoryHtml(
   title: string,
   formNote: string | undefined,
   body: string,
 ): string {
   const t = title.trim();
   const f = formNote?.trim();
-  const docTitle = t || "Poem";
+  const docTitle = t || "Story";
   const bodyHtml = body
     .split("\n")
     .map((line) => {
@@ -294,12 +294,12 @@ export async function downloadHtmlFile(
   formNote: string | undefined,
   body: string,
 ): Promise<void> {
-  const html = buildPoemHtml(title, formNote, body);
+  const html = buildStoryHtml(title, formNote, body);
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
   triggerBlobDownload(filename, blob);
 }
 
-export async function buildPoemPngBlob(
+export async function buildStoryPngBlob(
   title: string,
   formNote: string | undefined,
   body: string,
@@ -364,7 +364,7 @@ export async function downloadPngFile(
   formNote: string | undefined,
   body: string,
 ): Promise<void> {
-  const blob = await buildPoemPngBlob(title, formNote, body);
+  const blob = await buildStoryPngBlob(title, formNote, body);
   triggerBlobDownload(filename, blob);
 }
 
@@ -393,7 +393,7 @@ export async function pickExportDirectory(): Promise<FileSystemDirectoryHandle |
   if (!isDirectoryPickerSupported()) return null;
   try {
     const picker = (window as ExtendedWindow).showDirectoryPicker!;
-    return await picker({ mode: "readwrite", id: "easy-poems-export", startIn: "documents" });
+    return await picker({ mode: "readwrite", id: "easy-stories-export", startIn: "documents" });
   } catch (e) {
     if (
       e instanceof DOMException &&
@@ -477,22 +477,22 @@ export async function saveStoryToDirectory(
   }
   if (formats.html) {
     const name = `${base}.html`;
-    await writeTextToDirectory(dir, name, buildPoemHtml(title, formNote, body));
+    await writeTextToDirectory(dir, name, buildStoryHtml(title, formNote, body));
     written.push(name);
   }
   if (formats.docx) {
     const name = `${base}.docx`;
-    await writeBlobToDirectory(dir, name, await buildPoemDocxBlob(title, formNote, body));
+    await writeBlobToDirectory(dir, name, await buildStoryDocxBlob(title, formNote, body));
     written.push(name);
   }
   if (formats.pdf) {
     const name = `${base}.pdf`;
-    await writeBlobToDirectory(dir, name, await buildPoemPdfBlob(title, formNote, body));
+    await writeBlobToDirectory(dir, name, await buildStoryPdfBlob(title, formNote, body));
     written.push(name);
   }
   if (formats.png) {
     const name = `${base}.png`;
-    await writeBlobToDirectory(dir, name, await buildPoemPngBlob(title, formNote, body));
+    await writeBlobToDirectory(dir, name, await buildStoryPngBlob(title, formNote, body));
     written.push(name);
   }
   return written;

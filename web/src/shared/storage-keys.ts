@@ -1,14 +1,14 @@
 /**
  * All localStorage/sessionStorage keys used by easywriting-story, in one place.
  *
- * Historical note: this project began as easywriting-poem. The original prefix
- * was `easy-poems:`. {@link runStorageMigrationOnce} copies every legacy key
+ * Historical note: this project began as easywriting-story. The original prefix
+ * was `easy-stories:`. {@link runStorageMigrationOnce} copies every legacy key
  * to its new name on first boot of the story app and is idempotent, so it's
  * safe to leave the call in place forever.
  */
 
 const NEW_PREFIX = "easy-stories:";
-const OLD_PREFIX = "easy-poems:";
+const OLD_PREFIX = "easy-stories:";
 
 // Draft library
 export const STORAGE_KEY_LIBRARY = "easy-stories:library:v1";
@@ -53,6 +53,7 @@ export const STORAGE_KEY_WORD_LOOKUP_ENABLED = "easy-stories:wordLookupEnabled";
 // AI settings
 export const STORAGE_KEY_AI_MODEL = "ep_openai_model";
 export const STORAGE_KEY_AI_SCORING_ENABLED = "easy-stories:ai-scoring-enabled";
+export const STORAGE_KEY_AI_EXAM_MODE = "easy-stories:ai-exam-mode";
 
 // Landing page
 export const STORAGE_KEY_LANDING_DISMISSED = "easy-stories:landing-dismissed";
@@ -67,10 +68,10 @@ export const STORAGE_KEY_TOOLS_WIDTH = "easy-stories:tools-panel-width";
 export const STORAGE_KEY_RAIL_WIDTH = "easy-stories:rail-width";
 
 // One-time migration marker (own key — under the new prefix only).
-const MIGRATION_MARKER = "easy-stories:migration:from-easy-poems:v1";
+const MIGRATION_MARKER = "easy-stories:migration:from-easy-stories:v1";
 
 /**
- * One-time migration of legacy `easy-poems:*` storage keys to the new
+ * One-time migration of legacy `easy-stories:*` storage keys to the new
  * `easy-stories:*` prefix. Idempotent — once the marker is set the function
  * is a cheap localStorage read and returns immediately.
  *

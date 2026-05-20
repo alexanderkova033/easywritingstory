@@ -1,5 +1,5 @@
 /**
- * Voice fingerprint — fully local heuristic over the writer's saved poems.
+ * Voice fingerprint — fully local heuristic over the writer's saved stories.
  * Zero AI tokens. Returns up to 3 short tags describing recurring tendencies
  * (imagery cluster, line-length tendency, end-stop vs enjambment).
  *

@@ -672,7 +672,7 @@
     min-width: 0;
   }
 
-  /* Hide the text label "easywriting" and POEM badge — icon alone is enough */
+  /* Hide the text label "easywriting" and STORY badge — icon alone is enough */
   .brand-mark {
     font-size: 0;      /* collapses text to zero width */
     gap: 0;
@@ -731,7 +731,7 @@
     height: 2.2rem;
   }
 
-  /* Poem title — centred identity pill in mobile topbar */
+  /* Story title — centred identity pill in mobile topbar */
   .topbar-mobile-title {
     flex: 1 1 0;
     min-width: 0;
@@ -997,7 +997,7 @@
 
 .brand-mark {
   margin: 0;
-  font-family: var(--font-poem);
+  font-family: var(--font-story);
   font-size: clamp(1.2rem, 2.2vw, 1.38rem);
   font-weight: 600;
   letter-spacing: -0.02em;

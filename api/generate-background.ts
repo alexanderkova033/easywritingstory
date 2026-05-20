@@ -1,7 +1,7 @@
 /**
  * Vercel serverless function — POST /api/generate-background
  *
- * Accepts { prompt } (a scene description or poem), calls OpenAI, and returns
+ * Accepts { prompt } (a scene description or story), calls OpenAI, and returns
  * a CustomBackgroundTheme JSON object with CSS variable values for the backdrop.
  */
 
@@ -10,7 +10,7 @@ import { checkRateLimit } from "./_rate-limit";
 import { callOpenAI } from "./_openai";
 import { cooldownFor, precheckSpend, recordSpend } from "./_usage-cap";
 
-const SYSTEM_PROMPT = `You are a visual designer creating CSS colour themes for a poetry writing app. Given a description or poem, generate a cohesive colour palette that captures its mood and atmosphere.
+const SYSTEM_PROMPT = `You are a visual designer creating CSS colour themes for a poetry writing app. Given a description or story, generate a cohesive colour palette that captures its mood and atmosphere.
 
 Return ONLY this JSON object (no markdown fences, no explanation):
 {
@@ -36,7 +36,7 @@ Rules:
 • Choose dark (bg in range #080808–#181818) for night, moody, dramatic, or intimate scenes. Choose light (bg in range #e8e8e8–#f6f6f6) for day, airy, fresh, or open scenes.
 • surface must be noticeably but not dramatically lighter than bg. surface2 slightly lighter than surface.
 • text must have WCAG AA contrast (4.5:1 ratio minimum) against bg.
-• accent should be the emotional "colour" of the poem/scene — one that fits the mood, not merely vivid.
+• accent should be the emotional "colour" of the story/scene — one that fits the mood, not merely vivid.
 • Ambient rgba values use colours harmonious with the accent; they are nearly transparent atmospheric washes.
 • shineTop for dark themes: rgba with A 0.04–0.06. For light themes: rgba(255,255,255,0.35–0.50).
 • Return ONLY the JSON — no extra text, no code block.`;

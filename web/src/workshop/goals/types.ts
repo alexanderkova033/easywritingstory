@@ -2,21 +2,15 @@
 export interface WorkshopGoals {
   // Exact-value targets (mutually exclusive with their range counterparts below;
   // when both set, exact takes precedence).
-  targetLines?: number;
   targetStanzas?: number;
   targetWords?: number;
 
   // Range targets — use either side or both. Half-open ranges allowed
-  // (e.g. minLines only = "at least", maxLines only = "at most").
-  minLines?: number;
-  maxLines?: number;
+  // (e.g. minWords only = "at least", maxWords only = "at most").
   minStanzas?: number;
   maxStanzas?: number;
   minWords?: number;
   maxWords?: number;
-
-  /** Flag lines whose estimated syllables exceed this. */
-  maxSyllablesPerLine?: number;
 
   /**
    * Target end-rhyme scheme as a letter string (e.g. "ABAB", "AABBA").
@@ -27,7 +21,7 @@ export interface WorkshopGoals {
   /**
    * When true, `targetRhymeScheme` is one stanza's pattern. Each stanza is
    * compared independently against the pattern. When false/undefined,
-   * `targetRhymeScheme` is the full-poem pattern.
+   * `targetRhymeScheme` is the full-story pattern.
    */
   targetRhymeSchemePerStanza?: boolean;
 
@@ -35,9 +29,6 @@ export interface WorkshopGoals {
   softGoals?: string[];
   /** Key of the active form preset, if any. */
   preset?: string;
-  // Legacy fields kept for load compatibility only
-  targetLinesPerStanza?: number;
-  syllablePattern?: number[];
 }
 
 export interface FormPreset {
@@ -80,16 +71,12 @@ export const FORM_PRESETS: FormPreset[] = [
  * positives from empty meta values.
  */
 export const NUMERIC_GOAL_KEYS = [
-  "targetLines",
   "targetStanzas",
   "targetWords",
-  "minLines",
-  "maxLines",
   "minStanzas",
   "maxStanzas",
   "minWords",
   "maxWords",
-  "maxSyllablesPerLine",
 ] as const satisfies readonly (keyof WorkshopGoals)[];
 
 export const ALL_GOAL_KEYS = [

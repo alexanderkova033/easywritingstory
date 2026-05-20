@@ -361,7 +361,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                   <span className="lp-fmt-btn lp-fmt-focus">◉</span>
                 </span>
               </div>
-              {/* Line-numbered poem body */}
+              {/* Line-numbered story body */}
               <div className="lp-story-body">
                 {[
                   { text: "The platform sign blinked once and went dark.", words: 8 },
