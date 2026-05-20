@@ -12,7 +12,7 @@ export function buildPlainTextTitleBody(
   return lines.join("\n").replace(/\n+$/, "") + (lines.length ? "\n" : "");
 }
 
-export function buildMarkdownPoem(
+export function buildMarkdownStory(
   title: string,
   formNote: string | undefined,
   body: string,
@@ -449,7 +449,7 @@ export interface FolderSaveFormats {
   json?: boolean;
 }
 
-export async function savePoemToDirectory(
+export async function saveStoryToDirectory(
   dir: FileSystemDirectoryHandle,
   args: {
     title: string;
@@ -472,7 +472,7 @@ export async function savePoemToDirectory(
   }
   if (formats.md) {
     const name = `${base}.md`;
-    await writeTextToDirectory(dir, name, buildMarkdownPoem(title, formNote, body));
+    await writeTextToDirectory(dir, name, buildMarkdownStory(title, formNote, body));
     written.push(name);
   }
   if (formats.html) {

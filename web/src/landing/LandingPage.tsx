@@ -107,10 +107,19 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
       {/* Sticky mini-header — appears after hero scrolls out of view */}
       <header className={`landing-sticky-bar${stickyVisible ? " is-visible" : ""}`} aria-hidden={!stickyVisible}>
         <svg className="landing-sticky-logo" viewBox="0 0 24 24" aria-hidden width="20" height="20">
-          <path d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z" fill="#d98c3e" stroke="white" strokeWidth="0.7" strokeLinejoin="round" />
-          <path d="M12 7L12 19" stroke="rgba(0,0,0,0.22)" strokeWidth="0.55" strokeLinecap="round" fill="none" />
-          <path d="M5.5 9.5L10 10M5.5 11.5L10 12M14 10L18.5 9.5M14 12L18.5 11.5" stroke="#fbe2c2" strokeWidth="0.7" strokeLinecap="round" fill="none" />
-          <path d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z" fill="none" stroke="rgba(80,40,10,0.25)" strokeWidth="0.8" strokeLinejoin="round" />
+          <path d="M11 4L11 23L12 21L13 23L13 4Z" fill="#8c2a1c" />
+          <path d="M11.5 4.3L11.5 21.4L12 21L12.5 21.4L12.5 4.3Z" fill="#cf4530" opacity="0.95" />
+          <path d="M3 6.8C6 5.8 9 5.8 12 7.8L12 19.8C9 17.8 6 17.8 3 18.8Z" fill="#a85515" />
+          <path d="M3 6C6 5 9 5 12 7L12 19C9 17 6 17 3 18Z" fill="#f0a85a" />
+          <path d="M3 6C6 5 9 5 12 7L12 7.5C9 5.5 6 5.5 3 6.5Z" fill="#fbd99c" opacity="0.75" />
+          <path d="M12 7.8C15 5.8 18 4.8 21 4.8L21 16.8C18 16.8 15 17.8 12 19.8Z" fill="#6b3010" />
+          <path d="M12 7C15 5 18 4 21 4L21 16C18 16 15 17 12 19Z" fill="#b56b1f" />
+          <path d="M12 7C15 5 18 4 21 4L21 4.6C18 4.6 15 5.6 12 7.6Z" fill="#d98c3e" opacity="0.9" />
+          <path d="M12 7.3L12 18.7" stroke="#3a1a08" strokeWidth="0.5" strokeLinecap="round" opacity="0.4" />
+          <path d="M5.2 10L9.8 10M5 12L10 12M5.5 14L9.5 14" stroke="#a85515" strokeWidth="0.7" strokeLinecap="round" opacity="0.5" />
+          <path d="M14 10C16 9 17.5 8.3 19 8.1" stroke="#f0a85a" strokeWidth="0.7" strokeLinecap="round" fill="none" opacity="0.65" />
+          <path d="M14 12C16 11 17.5 10.3 19 10.1" stroke="#f0a85a" strokeWidth="0.7" strokeLinecap="round" fill="none" opacity="0.65" />
+          <path d="M14 14C16 13 17.5 12.3 19 12.1" stroke="#f0a85a" strokeWidth="0.7" strokeLinecap="round" fill="none" opacity="0.65" />
         </svg>
         <span className="landing-sticky-name">easywriting <span className="landing-brand-badge">story</span></span>
         <button type="button" className="landing-btn landing-btn-primary landing-sticky-cta" onClick={onEnter}>
@@ -162,10 +171,20 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
         </svg>
         <div className="landing-hero-inner">
           <div className="landing-hero-eyebrow landing-hero-eyebrow-desktop">
-            <svg className="landing-hero-feather" viewBox="0 0 24 24" aria-hidden width="22" height="22">
-              <path d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z" fill="#d98c3e" stroke="white" strokeWidth="0.7" strokeLinejoin="round" />
-              <path d="M12 7L12 19" stroke="rgba(0,0,0,0.22)" strokeWidth="0.55" strokeLinecap="round" fill="none" />
-              <path d="M5.5 9.5L10 10M5.5 11.5L10 12M14 10L18.5 9.5M14 12L18.5 11.5" stroke="#fbe2c2" strokeWidth="0.7" strokeLinecap="round" fill="none" />
+            <svg className="landing-hero-logo" viewBox="0 0 24 24" aria-hidden width="22" height="22">
+              <path d="M11 4L11 23L12 21L13 23L13 4Z" fill="#8c2a1c" />
+              <path d="M11.5 4.3L11.5 21.4L12 21L12.5 21.4L12.5 4.3Z" fill="#cf4530" opacity="0.95" />
+              <path d="M3 6.8C6 5.8 9 5.8 12 7.8L12 19.8C9 17.8 6 17.8 3 18.8Z" fill="#a85515" />
+              <path d="M3 6C6 5 9 5 12 7L12 19C9 17 6 17 3 18Z" fill="#f0a85a" />
+              <path d="M3 6C6 5 9 5 12 7L12 7.5C9 5.5 6 5.5 3 6.5Z" fill="#fbd99c" opacity="0.75" />
+              <path d="M12 7.8C15 5.8 18 4.8 21 4.8L21 16.8C18 16.8 15 17.8 12 19.8Z" fill="#6b3010" />
+              <path d="M12 7C15 5 18 4 21 4L21 16C18 16 15 17 12 19Z" fill="#b56b1f" />
+              <path d="M12 7C15 5 18 4 21 4L21 4.6C18 4.6 15 5.6 12 7.6Z" fill="#d98c3e" opacity="0.9" />
+              <path d="M12 7.3L12 18.7" stroke="#3a1a08" strokeWidth="0.5" strokeLinecap="round" opacity="0.4" />
+              <path d="M5.2 10L9.8 10M5 12L10 12M5.5 14L9.5 14" stroke="#a85515" strokeWidth="0.7" strokeLinecap="round" opacity="0.5" />
+              <path d="M14 10C16 9 17.5 8.3 19 8.1" stroke="#f0a85a" strokeWidth="0.7" strokeLinecap="round" fill="none" opacity="0.65" />
+              <path d="M14 12C16 11 17.5 10.3 19 10.1" stroke="#f0a85a" strokeWidth="0.7" strokeLinecap="round" fill="none" opacity="0.65" />
+              <path d="M14 14C16 13 17.5 12.3 19 12.1" stroke="#f0a85a" strokeWidth="0.7" strokeLinecap="round" fill="none" opacity="0.65" />
             </svg>
             <span className="landing-brand-name">easywriting <span className="landing-brand-badge">story</span></span>
           </div>
@@ -269,7 +288,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
             <div className="lp-topbar-left">
               <span className="lp-brand">
                 <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden>
-                  <path d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z" fill="currentColor" />
+                  <path d="M3 6C6 5 9 5 12 7C15 5 18 4 21 4L21 16C18 16 15 17 12 19C9 17 6 17 3 18Z" fill="currentColor" />
                 </svg>
                 easywriting<span className="lp-brand-badge">story</span>
               </span>
@@ -325,8 +344,8 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                 </div>
               </div>
               {/* Story header row with format toolbar */}
-              <div className="lp-poem-header">
-                <span className="lp-poem-label">Story</span>
+              <div className="lp-story-header">
+                <span className="lp-story-label">Story</span>
                 <span className="lp-format-toolbar">
                   <span className="lp-fmt-btn lp-fmt-bold">B</span>
                   <span className="lp-fmt-btn lp-fmt-under">U</span>
@@ -343,7 +362,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                 </span>
               </div>
               {/* Line-numbered poem body */}
-              <div className="lp-poem-body">
+              <div className="lp-story-body">
                 {[
                   { text: "The platform sign blinked once and went dark.", words: 8 },
                   { text: "Maya pulled her sleeves over her hands and counted the people left waiting: three.", words: 14 },
@@ -353,10 +372,10 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                   { text: "She told herself it was only a delay.", words: 8 },
                   { text: "It was always only a delay.", words: 6 },
                 ].map((row, i) => (
-                  <div key={i} className="lp-poem-row">
+                  <div key={i} className="lp-story-row">
                     <span className="lp-line-num">{i + 1}</span>
                     <span className="lp-rhyme-gutter" aria-hidden />
-                    <span className="lp-poem-text">{row.text || " "}</span>
+                    <span className="lp-story-text">{row.text || " "}</span>
                     {row.words != null && (
                       <span className="lp-syl-wrap">
                         <span className="lp-syl-bar" style={{ width: `${Math.min(row.words / 18, 1) * 28}px` }} />

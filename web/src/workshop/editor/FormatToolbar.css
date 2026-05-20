@@ -324,7 +324,7 @@
   text-decoration-skip-ink: none;
 }
 
-.poem-workshop[data-tool-tab="spell"] .cm-spell-error {
+.story-workshop[data-tool-tab="spell"] .cm-spell-error {
   text-decoration-color: color-mix(in srgb, var(--danger) 78%, transparent);
   text-decoration-thickness: 1.5px;
 }

@@ -90,8 +90,8 @@ async function fetchDefinition(word: string, signal: AbortSignal): Promise<Defin
 export interface SelectionSuggestPopoverProps {
   anchorRect: DOMRect;
   selectedText: string;
-  poemTitle: string;
-  poemLines: string[];
+  storyTitle: string;
+  storyLines: string[];
   wordLookupEnabled?: boolean;
   /** AI analysis issues currently visible — used to surface AI feedback when the selection matches a flagged word. */
   aiIssues?: AnalysisIssue[];
@@ -104,8 +104,8 @@ export interface SelectionSuggestPopoverProps {
 export function SelectionSuggestPopover({
   anchorRect,
   selectedText,
-  poemTitle,
-  poemLines,
+  storyTitle,
+  storyLines,
   wordLookupEnabled = true,
   aiIssues,
   onApplyLine,
@@ -161,8 +161,8 @@ export function SelectionSuggestPopover({
     const sylTarget = syllableInput.trim() ? parseInt(syllableInput.trim(), 10) : undefined;
     try {
       const results = await fetchLineSuggestions(
-        poemTitle,
-        poemLines,
+        storyTitle,
+        storyLines,
         trimmedText,
         Number.isFinite(sylTarget) && sylTarget! > 0 ? sylTarget : undefined,
         Number.isFinite(sylTarget) && sylTarget! > 0 && syllableTolerance > 0 ? syllableTolerance : undefined,
@@ -173,7 +173,7 @@ export function SelectionSuggestPopover({
       setErrorMsg((err as Error).message);
       setRewritePhase("error");
     }
-  }, [poemTitle, poemLines, trimmedText, syllableInput, syllableTolerance]);
+  }, [storyTitle, storyLines, trimmedText, syllableInput, syllableTolerance]);
 
   const handleDefine = useCallback(async () => {
     setDefinePhase("loading");

@@ -24,7 +24,10 @@ Set these in the Vercel project dashboard (Production, Preview, Development as a
 | Variable | Required | Purpose |
 |---|---|---|
 | `OPENAI_API_KEY` | yes (for AI features) | Project-owned key. AI panels show "not configured" if missing. |
-| `OPENAI_MODEL` | optional | Override default model. |
+| `OPENAI_DISABLED` | optional | Set to `true` to disable all AI endpoints without redeploying. Returns `503` from every AI route. |
+| `OPENAI_MODEL` | optional | Override default model (current default: `gpt-5-nano`). |
+| `KV_REST_API_URL` | recommended in prod | Vercel KV REST endpoint — durable rate-limit + spend counters across cold starts. |
+| `KV_REST_API_TOKEN` | recommended in prod | Token for the same KV instance. |
 
 **Never commit `.env` files.** `.gitignore` excludes them; double-check before pushing.
 
@@ -47,11 +50,12 @@ If you add a third-party script, style, or fetch target, update the CSP in the s
 
 `npm run build` runs:
 
-1. `npm run check:cmu-stress` — fails if `cmu-stress.txt` is older than `wordlist-en.txt`. Regenerate with `npm run generate:cmu-stress`.
-2. `tsc --noEmit -p tsconfig.json` — type-check.
-3. `vite build` — produce hashed static files in `web/dist`.
+1. `tsc --noEmit -p tsconfig.json` — type-check.
+2. `vite build` — produce hashed static files in `web/dist`.
 
 A red build blocks the deploy.
+
+(The historical `check:cmu-stress` build step was removed when the poetry CMU pronouncing dictionary was deleted.)
 
 ---
 
@@ -80,7 +84,7 @@ No DB migration concerns — there's no backend database.
 
 ## Custom domain
 
-`easywritingpoem.org` is the production domain. DNS configuration lives in the registrar; the Vercel project must list it under Domains with HTTPS auto-provisioned.
+Production domain TBD (the placeholder used in `sitemap.xml` is `easywritingstory.vercel.app`; update both the sitemap and the OG / Twitter card URLs in `web/index.html` when a real domain is wired up). DNS configuration lives in the registrar; the Vercel project must list it under Domains with HTTPS auto-provisioned.
 
 ---
 
@@ -92,8 +96,12 @@ No DB migration concerns — there's no backend database.
 
 ---
 
-## Scaling considerations
+## Cost & abuse controls
 
-- **Rate limiter** is in-memory per function instance. One key serves all users — switch to Vercel KV / Upstash Redis before traffic grows.
-- **OpenAI cost** is unbounded per request type. Consider per-IP daily caps and per-request token budgets if abuse appears.
-- **CMU lexicon** is bundled into the client. ~1–2 MB gzipped. Acceptable but watch bundle growth.
+- **Spend caps:** `api/_usage-cap.ts` enforces a per-IP monthly cap ($3.00) and a global daily kill switch ($3.00). Both back off to a process-local Map in local dev; persist via Vercel KV in production.
+- **Per-endpoint cooldowns:** Analyze and Compare have model-dependent cooldowns (90 s nano, 180 s mini, 240 s gpt-5). Other endpoints share a 5 s default.
+- **Rate limit:** per-IP per-minute sliding window in `api/_rate-limit.ts`.
+- **Gibberish guard:** a cheap pre-flight check rejects unrecognisable text before the expensive analysis call.
+- **Hard payload limits:** every AI endpoint rejects payloads over 15,000 characters (~2,500 words) — comfortably above the 2,000-word IGCSE target.
+
+If costs spike, the fastest mitigation is `OPENAI_DISABLED=true` in the Vercel env (no redeploy needed).

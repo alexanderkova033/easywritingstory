@@ -8,7 +8,7 @@ Thanks for considering a contribution. This guide covers local setup, convention
 
 ```sh
 git clone <fork-url>
-cd Easy-poems/web
+cd easywritingstory/web
 npm install      # postinstall syncs the word list
 npm run dev      # Vite dev server on localhost:5173
 ```
@@ -24,28 +24,25 @@ For local dev:
 2. Run `vercel dev` from the repo root (not `web/`) so `/api/*` serverless routes are served.
 3. Without the key, AI panels show a "not configured" notice. Everything else still works.
 
-### Regenerating the stress lexicon
-
-If `web/public/wordlist-en.txt` changes:
-```sh
-cd web && npm run generate:cmu-stress
-```
-The build fails with instructions if `cmu-stress.txt` is older than the word list.
+The legacy `generate:cmu-stress` / `check:cmu-stress` scripts were removed with the rest of the poetry tooling; no lexicon-freshness check runs as part of the build any more.
 
 ---
 
 ## Project layout
 
 ```
-easywriting-poem/
+easywritingstory/
 ├── api/                       # Vercel serverless functions (OpenAI proxy)
-│   ├── analyze.ts             # Poem critique with harshness personas
-│   ├── suggest.ts             # Continue / words / rhyme / spark / line
+│   ├── analyze.ts             # Story critique with harshness personas
+│   ├── suggest.ts             # idea / continue / words / spark / line
 │   ├── chat.ts                # Post-analysis chat
-│   ├── compare.ts             # Snapshot comparison
+│   ├── compare.ts             # Revision comparison
 │   ├── generate-background.ts # AI theme generation
 │   ├── _openai.ts             # Shared OpenAI client + retries
-│   └── _rate-limit.ts         # In-memory rate limiting
+│   ├── _rate-limit.ts         # Per-IP rate limiting
+│   ├── _usage-cap.ts          # Spend caps + per-endpoint cooldowns
+│   ├── _gibberish.ts          # Cheap pre-flight gibberish guard
+│   └── _kv.ts                 # Vercel KV wrapper (fallback to in-memory)
 ├── web/                       # Frontend (Vite + React)
 │   └── src/
 │       ├── app/               # Root component, global CSS, themes
@@ -53,11 +50,10 @@ easywriting-poem/
 │       ├── workshop/          # Main workshop UI
 │       │   ├── shell/         # Topbar, layout, drawer, main shell
 │       │   ├── editor/        # CodeMirror config + extensions
-│       │   ├── analysis/      # AI analysis, ribbons, chat, ideas
-│       │   ├── meter/         # Meter heuristics + display
-│       │   ├── rhyme/         # Rhyme grouping
-│       │   ├── goals/         # Writing goals
-│       │   ├── library/       # Poem list, virtualized
+│       │   ├── analysis/      # AI analysis, prose metrics, chat, ideas
+│       │   ├── text/          # Generic word + syllable utilities
+│       │   ├── goals/         # Writing goals + story-length presets
+│       │   ├── library/       # Story list, virtualized
 │       │   ├── sharing/       # Export (DOCX / PDF / image / link)
 │       │   ├── reading/       # Reading-mode modal
 │       │   ├── appearance/    # Themes + AI background generator
@@ -76,13 +72,15 @@ easywriting-poem/
 
 Source layout is **feature-first**, not layer-first. Cross-cutting helpers live in `web/src/shared/`.
 
+> Historical-naming note: several files under `web/src/workshop/shell/` and `web/src/workshop/editor/` still carry the `Poem*` prefix from before the story pivot (`PoemWorkshop.tsx`, `PoemBodyEditor.tsx`, `usePoemWorkshopModel.ts`, etc.). They will be renamed in a focused sweep; until then they are the canonical story-app implementations despite their filenames.
+
 ---
 
 ## Scripts
 
 ```sh
 npm run dev        # Vite dev server
-npm run build      # type-check + CMU stress check + vite build
+npm run build      # type-check + vite build
 npm run preview    # serve the built output
 npm test           # vitest unit tests (run-once)
 npm run test:watch # vitest watch mode
@@ -91,7 +89,7 @@ npm run test:e2e:ui  # playwright in UI mode
 npm run lint       # eslint
 ```
 
-`npm run build` must pass before merging — it runs type-check and lexicon-freshness check.
+`npm run build` must pass before merging — it runs `tsc --noEmit` + `vite build`.
 
 ---
 

@@ -2,9 +2,9 @@ import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { useHoverHintBinder } from "@/workshop/hints/HoverHintsContext";
 import { SavedAgo } from "./components/SavedAgo";
 import { SessionTimer } from "./components/SessionTimer";
-import type { usePoemWorkshopModel } from "./usePoemWorkshopModel";
+import type { useStoryWorkshopModel } from "./useStoryWorkshopModel";
 
-type Model = ReturnType<typeof usePoemWorkshopModel>;
+type Model = ReturnType<typeof useStoryWorkshopModel>;
 
 type Props = {
   m: Model;
@@ -95,43 +95,29 @@ export function WorkshopTopbarHeader(props: Props) {
                 aria-hidden
                 focusable="false"
               >
-                {/* Open book — amber accent fill, white stroke for any-bg visibility */}
-                <path
-                  d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z"
-                  fill="#d98c3e"
-                  stroke="white"
-                  strokeWidth="0.7"
-                  strokeLinejoin="round"
-                />
-                {/* Spine */}
-                <path
-                  d="M12 7L12 19"
-                  stroke="rgba(0,0,0,0.22)"
-                  strokeWidth="0.55"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-                {/* Page-line highlights (suggest text) */}
-                <path
-                  d="M5.5 9.5L10 10M5.5 11.5L10 12M14 10L18.5 9.5M14 12L18.5 11.5"
-                  stroke="#fbe2c2"
-                  strokeWidth="0.7"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-                {/* Dark outline for light-background visibility */}
-                <path
-                  d="M3 6C6 5 9 5 12 7C15 5 18 5 21 6L21 18C18 17 15 17 12 19C9 17 6 17 3 18Z"
-                  fill="none"
-                  stroke="rgba(80,40,10,0.25)"
-                  strokeWidth="0.8"
-                  strokeLinejoin="round"
-                />
+                {/* Bookmark ribbon (behind pages) */}
+                <path d="M11 4L11 23L12 21L13 23L13 4Z" fill="#8c2a1c" />
+                <path d="M11.5 4.3L11.5 21.4L12 21L12.5 21.4L12.5 4.3Z" fill="#cf4530" opacity="0.95" />
+                {/* Left page: back layer, body, top highlight */}
+                <path d="M3 6.8C6 5.8 9 5.8 12 7.8L12 19.8C9 17.8 6 17.8 3 18.8Z" fill="#a85515" />
+                <path d="M3 6C6 5 9 5 12 7L12 19C9 17 6 17 3 18Z" fill="#f0a85a" />
+                <path d="M3 6C6 5 9 5 12 7L12 7.5C9 5.5 6 5.5 3 6.5Z" fill="#fbd99c" opacity="0.75" />
+                {/* Right page: back layer, body, top highlight */}
+                <path d="M12 7.8C15 5.8 18 4.8 21 4.8L21 16.8C18 16.8 15 17.8 12 19.8Z" fill="#6b3010" />
+                <path d="M12 7C15 5 18 4 21 4L21 16C18 16 15 17 12 19Z" fill="#b56b1f" />
+                <path d="M12 7C15 5 18 4 21 4L21 4.6C18 4.6 15 5.6 12 7.6Z" fill="#d98c3e" opacity="0.9" />
+                {/* Spine line — subtle gutter cue between pages */}
+                <path d="M12 7.3L12 18.7" stroke="#3a1a08" strokeWidth="0.5" strokeLinecap="round" opacity="0.4" />
+                {/* Text lines — left page (horizontal), right page (curved to match contour) */}
+                <path d="M5.2 10L9.8 10M5 12L10 12M5.5 14L9.5 14" stroke="#a85515" strokeWidth="0.7" strokeLinecap="round" opacity="0.5" />
+                <path d="M14 10C16 9 17.5 8.3 19 8.1" stroke="#f0a85a" strokeWidth="0.7" strokeLinecap="round" fill="none" opacity="0.65" />
+                <path d="M14 12C16 11 17.5 10.3 19 10.1" stroke="#f0a85a" strokeWidth="0.7" strokeLinecap="round" fill="none" opacity="0.65" />
+                <path d="M14 14C16 13 17.5 12.3 19 12.1" stroke="#f0a85a" strokeWidth="0.7" strokeLinecap="round" fill="none" opacity="0.65" />
               </svg>
               easywriting<span className="brand-product-badge">story</span>
             </h1>
             <div className="topbar-draft-inline">
-              <label className="draft-library-label" htmlFor="draft-poem-select">
+              <label className="draft-library-label" htmlFor="draft-story-select">
                 Draft
               </label>
               <div className="draft-select-wrap">
@@ -158,13 +144,13 @@ export function WorkshopTopbarHeader(props: Props) {
                   />
                 </svg>
                 <select
-                  id="draft-poem-select"
+                  id="draft-story-select"
                   className="draft-library-select"
-                  value={m.activePoemId}
-                  onChange={(e) => m.selectPoem(e.target.value)}
+                  value={m.activeStoryId}
+                  onChange={(e) => m.selectStory(e.target.value)}
                   aria-label="Active draft"
                 >
-                  {m.poemOptions.map((o) => (
+                  {m.storyOptions.map((o) => (
                     <option key={o.id} value={o.id}>
                       {o.label}
                       {o.archived ? " (archived)" : ""}
@@ -175,7 +161,7 @@ export function WorkshopTopbarHeader(props: Props) {
               <button
                 type="button"
                 className="topbar-draft-icon-btn"
-                onClick={() => m.newPoem()}
+                onClick={() => m.newStory()}
                 aria-label="New draft"
                 {...hint("New draft")}
               >
@@ -197,8 +183,8 @@ export function WorkshopTopbarHeader(props: Props) {
             </div>
           </div>
           <p className="brand-sub">
-            {m.library.poems.length > 1
-              ? `${m.library.poems.length} drafts saved · private, local, no account`
+            {m.library.stories.length > 1
+              ? `${m.library.stories.length} drafts saved · private, local, no account`
               : "Private, local, no account"}
           </p>
         </div>
@@ -210,7 +196,7 @@ export function WorkshopTopbarHeader(props: Props) {
           onClick={() => {
             setMobileTab("write");
             setMetaOpen(true);
-            requestAnimationFrame(() => document.getElementById("poem-title")?.focus());
+            requestAnimationFrame(() => document.getElementById("story-title")?.focus());
           }}
           aria-label="Edit poem title"
         >

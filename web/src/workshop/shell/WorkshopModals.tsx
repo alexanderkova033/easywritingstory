@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { TemplatesModal } from "./TemplatesModal";
 import { lazyWithReload } from "@/app/lazy-with-reload";
-import type { SharedPoem } from "@/workshop/sharing/sharing";
+import type { SharedStory } from "@/workshop/sharing/sharing";
 
 // Heavy modals are lazy — first paint of the workshop doesn't need them.
 // Each opens infrequently and ships its own CSS, so deferring them keeps
@@ -16,9 +16,9 @@ const ShareModal = lazy(
     import("@/workshop/sharing/ShareModal").then((m) => ({ default: m.ShareModal })),
   ),
 );
-const ViewSharedPoem = lazy(
+const ViewSharedStory = lazy(
   lazyWithReload(() =>
-    import("@/workshop/sharing/ShareModal").then((m) => ({ default: m.ViewSharedPoem })),
+    import("@/workshop/sharing/ShareModal").then((m) => ({ default: m.ViewSharedStory })),
   ),
 );
 
@@ -37,16 +37,16 @@ interface WorkshopModalsProps {
   isShareOpen: boolean;
   onCloseShare: () => void;
   // Shared poem view
-  sharedPoemView: SharedPoem | null;
-  onDismissSharedPoem: () => void;
-  onAddSharedPoemToDrafts: (poem: SharedPoem) => void;
+  sharedStoryView: SharedStory | null;
+  onDismissSharedStory: () => void;
+  onAddSharedStoryToDrafts: (story: SharedStory) => void;
 }
 
 export function WorkshopModals({
   isTemplatesOpen, onCloseTemplates, onInsertTemplate,
   isReadingMode, onCloseReadingMode, title, formNote, body,
   isShareOpen, onCloseShare,
-  sharedPoemView, onDismissSharedPoem, onAddSharedPoemToDrafts,
+  sharedStoryView, onDismissSharedStory, onAddSharedStoryToDrafts,
 }: WorkshopModalsProps) {
   return (
     <>
@@ -71,18 +71,18 @@ export function WorkshopModals({
       {isShareOpen && (
         <Suspense fallback={null}>
           <ShareModal
-            poem={{ title, body }}
+            story={{ title, body }}
             onClose={onCloseShare}
           />
         </Suspense>
       )}
 
-      {sharedPoemView && (
+      {sharedStoryView && (
         <Suspense fallback={null}>
-          <ViewSharedPoem
-            poem={sharedPoemView}
-            onDismiss={onDismissSharedPoem}
-            onAddToDrafts={() => onAddSharedPoemToDrafts(sharedPoemView)}
+          <ViewSharedStory
+            story={sharedStoryView}
+            onDismiss={onDismissSharedStory}
+            onAddToDrafts={() => onAddSharedStoryToDrafts(sharedStoryView)}
           />
         </Suspense>
       )}

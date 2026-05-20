@@ -2,16 +2,16 @@ import { tryLocalStorageSetItem } from "@/shared/platform/browser-storage";
 import { STORAGE_KEY_APPEARANCE } from "@/shared/storage-keys";
 
 export {
-  POEM_FONT_OPTIONS,
+  STORY_FONT_OPTIONS,
   UI_FONT_OPTIONS,
-  POEM_SIZE_OPTIONS,
-  POEM_WEIGHT_OPTIONS,
-  POEM_DECORATION_OPTIONS,
-  type PoemFontId,
+  STORY_SIZE_OPTIONS,
+  STORY_WEIGHT_OPTIONS,
+  STORY_DECORATION_OPTIONS,
+  type StoryFontId,
   type UiFontId,
-  type PoemSizeId,
-  type PoemWeightId,
-  type PoemDecorationId,
+  type StorySizeId,
+  type StoryWeightId,
+  type StoryDecorationId,
 } from "./fonts";
 
 export {
@@ -21,16 +21,16 @@ export {
 } from "./backgrounds/presets";
 
 import {
-  POEM_FONT_OPTIONS,
+  STORY_FONT_OPTIONS,
   UI_FONT_OPTIONS,
-  POEM_SIZE_OPTIONS,
-  POEM_WEIGHT_OPTIONS,
-  POEM_DECORATION_OPTIONS,
-  type PoemFontId,
+  STORY_SIZE_OPTIONS,
+  STORY_WEIGHT_OPTIONS,
+  STORY_DECORATION_OPTIONS,
+  type StoryFontId,
   type UiFontId,
-  type PoemSizeId,
-  type PoemWeightId,
-  type PoemDecorationId,
+  type StorySizeId,
+  type StoryWeightId,
+  type StoryDecorationId,
 } from "./fonts";
 
 import {
@@ -46,12 +46,12 @@ export type BackdropMotionSetting = "system" | "on" | "off";
 export type BackdropPowerSetting = "off" | "low" | "very-low";
 
 export interface AppearanceSettings {
-  poemFont: PoemFontId;
+  storyFont: StoryFontId;
   uiFont: UiFontId;
   background: BackgroundId;
-  poemSize: PoemSizeId;
-  poemWeight: PoemWeightId;
-  poemDecoration: PoemDecorationId;
+  storySize: StorySizeId;
+  storyWeight: StoryWeightId;
+  storyDecoration: StoryDecorationId;
   /** Overrides animation preference. */
   backdropMotion: BackdropMotionSetting;
   /** Reduce paint complexity (fewer layers / less blend). */
@@ -61,12 +61,12 @@ export interface AppearanceSettings {
 }
 
 const DEFAULTS: AppearanceSettings = {
-  poemFont: "literata",
+  storyFont: "literata",
   uiFont: "dm-sans",
   background: "default",
-  poemSize: "md",
-  poemWeight: "normal",
-  poemDecoration: "none",
+  storySize: "md",
+  storyWeight: "normal",
+  storyDecoration: "none",
   backdropMotion: "system",
   backdropPower: "off",
   customBackground: null,
@@ -76,8 +76,8 @@ export function defaultAppearance(): AppearanceSettings {
   return { ...DEFAULTS };
 }
 
-function isPoemFontId(x: string): x is PoemFontId {
-  return POEM_FONT_OPTIONS.some((o) => o.id === x);
+function isStoryFontId(x: string): x is StoryFontId {
+  return STORY_FONT_OPTIONS.some((o) => o.id === x);
 }
 
 function isUiFontId(x: string): x is UiFontId {
@@ -88,16 +88,16 @@ function isBackgroundId(x: string): x is BackgroundId {
   return BACKGROUND_OPTIONS.some((o) => o.id === x);
 }
 
-function isPoemSizeId(x: string): x is PoemSizeId {
-  return POEM_SIZE_OPTIONS.some((o) => o.id === x);
+function isStorySizeId(x: string): x is StorySizeId {
+  return STORY_SIZE_OPTIONS.some((o) => o.id === x);
 }
 
-function isPoemWeightId(x: string): x is PoemWeightId {
-  return POEM_WEIGHT_OPTIONS.some((o) => o.id === x);
+function isStoryWeightId(x: string): x is StoryWeightId {
+  return STORY_WEIGHT_OPTIONS.some((o) => o.id === x);
 }
 
-function isPoemDecorationId(x: string): x is PoemDecorationId {
-  return POEM_DECORATION_OPTIONS.some((o) => o.id === x);
+function isStoryDecorationId(x: string): x is StoryDecorationId {
+  return STORY_DECORATION_OPTIONS.some((o) => o.id === x);
 }
 
 function isBackdropMotionSetting(x: string): x is BackdropMotionSetting {
@@ -121,7 +121,23 @@ function loadCustomBackground(v: unknown): CustomBackgroundTheme | null {
   return o as unknown as CustomBackgroundTheme;
 }
 
-const APPEARANCE_SCHEMA_VERSION = 3;
+const APPEARANCE_SCHEMA_VERSION = 4;
+
+/**
+ * Returns the first non-empty string from candidates that passes the guard, or
+ * the supplied fallback. Used by the appearance loader to accept either the
+ * new field name (`storyFont`) or the legacy field name (`poemFont`).
+ */
+function pickString<T extends string>(
+  guard: (s: string) => s is T,
+  fallback: T,
+  ...candidates: unknown[]
+): T {
+  for (const c of candidates) {
+    if (typeof c === "string" && guard(c)) return c;
+  }
+  return fallback;
+}
 
 export function loadAppearance(): AppearanceSettings {
   try {
@@ -131,34 +147,13 @@ export function loadAppearance(): AppearanceSettings {
     if (!v || typeof v !== "object") return { ...DEFAULTS };
     const o = v as Record<string, unknown>;
     return {
-      poemFont:
-        typeof o.poemFont === "string" && isPoemFontId(o.poemFont)
-          ? o.poemFont
-          : DEFAULTS.poemFont,
-      uiFont:
-        typeof o.uiFont === "string" && isUiFontId(o.uiFont)
-          ? o.uiFont
-          : DEFAULTS.uiFont,
-      background:
-        typeof o.background === "string" && isBackgroundId(o.background)
-          ? o.background
-          : DEFAULTS.background,
-      poemSize:
-        typeof o.poemSize === "string" && isPoemSizeId(o.poemSize)
-          ? o.poemSize
-          : DEFAULTS.poemSize,
-      poemWeight:
-        typeof o.poemWeight === "string" && isPoemWeightId(o.poemWeight)
-          ? o.poemWeight
-          : DEFAULTS.poemWeight,
-      poemDecoration:
-        typeof o.poemDecoration === "string" && isPoemDecorationId(o.poemDecoration)
-          ? o.poemDecoration
-          : DEFAULTS.poemDecoration,
-      backdropMotion:
-        typeof o.backdropMotion === "string" && isBackdropMotionSetting(o.backdropMotion)
-          ? o.backdropMotion
-          : DEFAULTS.backdropMotion,
+      storyFont: pickString(isStoryFontId, DEFAULTS.storyFont, o.storyFont, o.poemFont),
+      uiFont: pickString(isUiFontId, DEFAULTS.uiFont, o.uiFont),
+      background: pickString(isBackgroundId, DEFAULTS.background, o.background),
+      storySize: pickString(isStorySizeId, DEFAULTS.storySize, o.storySize, o.poemSize),
+      storyWeight: pickString(isStoryWeightId, DEFAULTS.storyWeight, o.storyWeight, o.poemWeight),
+      storyDecoration: pickString(isStoryDecorationId, DEFAULTS.storyDecoration, o.storyDecoration, o.poemDecoration),
+      backdropMotion: pickString(isBackdropMotionSetting, DEFAULTS.backdropMotion, o.backdropMotion),
       backdropPower:
         typeof o.backdropPower === "string" && isBackdropPowerSetting(o.backdropPower)
           ? o.backdropPower
@@ -179,7 +174,7 @@ export function saveAppearance(s: AppearanceSettings): boolean {
   );
 }
 
-const POEM_SIZE_VAR: Record<PoemSizeId, string> = {
+const STORY_SIZE_VAR: Record<StorySizeId, string> = {
   xs: "0.95rem",
   sm: "1.075rem",
   md: "1.2rem",
@@ -187,7 +182,7 @@ const POEM_SIZE_VAR: Record<PoemSizeId, string> = {
   xl: "1.55rem",
 };
 
-const POEM_WEIGHT_VAR: Record<PoemWeightId, string> = {
+const STORY_WEIGHT_VAR: Record<StoryWeightId, string> = {
   normal: "400",
   medium: "500",
   bold: "700",
@@ -228,9 +223,13 @@ function clearCustomVars(el: HTMLElement): void {
   _customVarsApplied = false;
 }
 
+// The CSS-side variables and dataset attributes (`--poem-font-size`,
+// `data-poem-font`, etc.) keep their `poem-*` names to avoid rewriting every
+// CSS file that reads them. This is purely a name mismatch with the TS-side
+// `storyFont` / `storySize` settings; the values flow through unchanged.
 export function applyAppearance(s: AppearanceSettings): void {
   const el = document.documentElement;
-  el.dataset.poemFont = s.poemFont;
+  el.dataset.poemFont = s.storyFont;
   el.dataset.uiFont = s.uiFont;
 
   const isCustomActive = s.background === "custom" && s.customBackground != null;
@@ -268,10 +267,10 @@ export function applyAppearance(s: AppearanceSettings): void {
     el.setAttribute("data-backdrop-low-power", "");
     el.dataset.backdropPower = s.backdropPower;
   }
-  el.style.setProperty("--poem-font-size", POEM_SIZE_VAR[s.poemSize]);
-  el.style.setProperty("--poem-font-weight", POEM_WEIGHT_VAR[s.poemWeight]);
+  el.style.setProperty("--poem-font-size", STORY_SIZE_VAR[s.storySize]);
+  el.style.setProperty("--poem-font-weight", STORY_WEIGHT_VAR[s.storyWeight]);
   el.style.setProperty(
     "--poem-text-decoration",
-    s.poemDecoration === "underline" ? "underline" : "none",
+    s.storyDecoration === "underline" ? "underline" : "none",
   );
 }

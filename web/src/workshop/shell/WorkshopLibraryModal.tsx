@@ -2,12 +2,12 @@ import type { CSSProperties, Dispatch, MutableRefObject, SetStateAction } from "
 import type { Virtualizer } from "@tanstack/react-virtual";
 import { useHoverHintBinder } from "@/workshop/hints/HoverHintsContext";
 import type { DraftMeta } from "@/workshop/library/library-meta";
-import type { PoemRecord } from "@/workshop/library/local-draft-library";
+import type { StoryRecord } from "@/workshop/library/local-draft-library";
 import { wordDiff } from "@/workshop/library/text-diff";
 import { formatRelativeSnapshotWhen, formatSnapshotWhen } from "./workshop-helpers";
-import type { usePoemWorkshopModel } from "./usePoemWorkshopModel";
+import type { useStoryWorkshopModel } from "./useStoryWorkshopModel";
 
-type Model = ReturnType<typeof usePoemWorkshopModel>;
+type Model = ReturnType<typeof useStoryWorkshopModel>;
 
 function bookHueFromId(id: string): number {
   let h = 0;
@@ -20,7 +20,7 @@ function bookHueFromId(id: string): number {
 export type LibraryRow = {
   id: string;
   label: string;
-  poem: PoemRecord;
+  story: StoryRecord;
   meta: DraftMeta;
 };
 
@@ -113,7 +113,7 @@ export function WorkshopLibraryModal(props: Props) {
                 type="button"
                 className="small-btn small-btn-primary"
                 onClick={() => {
-                  m.newPoem();
+                  m.newStory();
                   setIsLibraryOpen(false);
                 }}
               >
@@ -123,7 +123,7 @@ export function WorkshopLibraryModal(props: Props) {
                 type="button"
                 className="small-btn"
                 onClick={() => {
-                  m.duplicatePoem();
+                  m.duplicateStory();
                   setIsLibraryOpen(false);
                 }}
               >
@@ -136,7 +136,7 @@ export function WorkshopLibraryModal(props: Props) {
                     type="button"
                     className="small-btn danger-btn"
                     onClick={() => {
-                      m.deleteCurrentPoem();
+                      m.deleteCurrentStory();
                       setShowDeleteCurrentConfirm(false);
                       setIsLibraryOpen(false);
                     }}
@@ -222,10 +222,10 @@ export function WorkshopLibraryModal(props: Props) {
               >
                 {libraryVirtualizer.getVirtualItems().map((vItem) => {
                   const row = libraryListRows[vItem.index]!;
-                  const { id, label, poem, meta } = row;
+                  const { id, label, story, meta } = row;
                   const tags = (meta.tags ?? []).join(", ");
-                  const firstLine = poem.body.split("\n").find((l) => l.trim().length > 0)?.trim() ?? "";
-                  const isActive = id === m.activePoemId;
+                  const firstLine = story.body.split("\n").find((l) => l.trim().length > 0)?.trim() ?? "";
+                  const isActive = id === m.activeStoryId;
                   const isArchived = Boolean(meta.archived);
                   const spineTitle = (label && label.trim()) || "Untitled";
                   return (
@@ -254,7 +254,7 @@ export function WorkshopLibraryModal(props: Props) {
                             type="button"
                             className={`book ${meta.pinned ? "is-pinned" : ""}`}
                             onClick={() => {
-                              m.selectPoem(id);
+                              m.selectStory(id);
                               setIsLibraryOpen(false);
                             }}
                             aria-current={isActive ? "true" : undefined}
@@ -293,7 +293,7 @@ export function WorkshopLibraryModal(props: Props) {
                                 type="button"
                                 className="small-btn draft-row-dup"
                                 onClick={() => {
-                                  m.duplicatePoemById(id);
+                                  m.duplicateStoryById(id);
                                   setIsLibraryOpen(false);
                                 }}
                                 {...hint("Duplicate this draft")}

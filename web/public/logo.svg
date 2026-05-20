@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 88" width="300" height="88">
-  <!-- Icon background -->
-  <rect x="8" y="8" width="72" height="72" rx="15" fill="#1a0f08"/>
+  <!-- v3 open-book + bookmark, scaled 3x into the icon area at the left -->
+  <g transform="translate(8 8) scale(3)">
+    <path d="M11 4L11 23L12 21L13 23L13 4Z" fill="#8c2a1c"/>
+    <path d="M11.5 4.3L11.5 21.4L12 21L12.5 21.4L12.5 4.3Z" fill="#cf4530" opacity="0.95"/>
+    <path d="M3 6.8C6 5.8 9 5.8 12 7.8L12 19.8C9 17.8 6 17.8 3 18.8Z" fill="#a85515"/>
+    <path d="M3 6C6 5 9 5 12 7L12 19C9 17 6 17 3 18Z" fill="#f0a85a"/>
+    <path d="M3 6C6 5 9 5 12 7L12 7.5C9 5.5 6 5.5 3 6.5Z" fill="#fbd99c" opacity="0.75"/>
+    <path d="M12 7.8C15 5.8 18 4.8 21 4.8L21 16.8C18 16.8 15 17.8 12 19.8Z" fill="#6b3010"/>
+    <path d="M12 7C15 5 18 4 21 4L21 16C18 16 15 17 12 19Z" fill="#b56b1f"/>
+    <path d="M12 7C15 5 18 4 21 4L21 4.6C18 4.6 15 5.6 12 7.6Z" fill="#d98c3e" opacity="0.9"/>
+    <path d="M12 7.3L12 18.7" stroke="#3a1a08" stroke-width="0.5" stroke-linecap="round" opacity="0.4"/>
+    <path d="M5.2 10L9.8 10M5 12L10 12M5.5 14L9.5 14" stroke="#a85515" stroke-width="0.7" stroke-linecap="round" opacity="0.5"/>
+    <path d="M14 10C16 9 17.5 8.3 19 8.1" stroke="#f0a85a" stroke-width="0.7" stroke-linecap="round" fill="none" opacity="0.65"/>
+    <path d="M14 12C16 11 17.5 10.3 19 10.1" stroke="#f0a85a" stroke-width="0.7" stroke-linecap="round" fill="none" opacity="0.65"/>
+    <path d="M14 14C16 13 17.5 12.3 19 12.1" stroke="#f0a85a" stroke-width="0.7" stroke-linecap="round" fill="none" opacity="0.65"/>
+  </g>
 
-  <!-- Open book body -->
-  <path d="M20 30C28 27 36 27 44 32C52 27 60 27 68 30L68 58C60 55 52 55 44 60C36 55 28 55 20 58Z" fill="#d98c3e"/>
-  <!-- Page-line highlights -->
-  <path d="M26 38L40 38.5M26 43L40 43.5M48 38.5L62 38M48 43.5L62 43" stroke="#fbe2c2" stroke-width="1.1" stroke-linecap="round" fill="none"/>
-  <!-- Spine -->
-  <path d="M44 32L44 60" stroke="#1a0f08" stroke-width="1.1" stroke-linecap="round" fill="none" opacity="0.55"/>
-
-  <!-- Wordmark — "Easy" -->
+  <!-- Wordmark -->
   <text
     x="96" y="38"
     font-family="Georgia, 'Times New Roman', serif"
@@ -19,8 +26,6 @@
     fill="#2e1a0a"
     letter-spacing="-0.4"
   >Easy</text>
-
-  <!-- Wordmark — "Story" -->
   <text
     x="96" y="65"
     font-family="Georgia, 'Times New Roman', serif"
@@ -29,7 +34,5 @@
     fill="#5a3618"
     letter-spacing="-0.3"
   >Story</text>
-
-  <!-- Decorative rule between the two words -->
   <line x1="96" y1="42" x2="218" y2="42" stroke="#d98c3e" stroke-width="0.9" opacity="0.45"/>
 </svg>

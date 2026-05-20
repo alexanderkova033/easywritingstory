@@ -20,11 +20,11 @@ const BackgroundPicker = lazy(
   ),
 );
 import { FirstVisitHint } from "./FirstVisitHint";
-import { SamplePoemBanner } from "./SamplePoemBanner";
+import { SampleStoryBanner } from "./SampleStoryBanner";
 // RhymeTooltip removed in the story rebrand; placeholder kept inline.
 const RhymeTooltip = (_p: { sampleActive: boolean }) => null;
 import { FeedbackWidget } from "./FeedbackWidget";
-import { PoemBodyEditor } from "@/workshop/editor/PoemBodyEditor";
+import { StoryBodyEditor } from "@/workshop/editor/StoryBodyEditor";
 import { TOOL_TABS } from "@/workshop/analysis/ToolTabBar";
 import { useToolTabListKeyboard } from "@/workshop/analysis/useToolTabListKeyboard";
 import { useWorkshopToolHotkeys } from "@/workshop/analysis/useWorkshopToolHotkeys";
@@ -36,8 +36,8 @@ const WorkshopToolPanels = lazy(
   ),
 );
 import type { DraftMeta } from "@/workshop/library/library-meta";
-import type { PoemRecord } from "@/workshop/library/local-draft-library";
-import { usePoemWorkshopModel } from "./usePoemWorkshopModel";
+import type { StoryRecord } from "@/workshop/library/local-draft-library";
+import { useStoryWorkshopModel } from "./useStoryWorkshopModel";
 import { FORM_PRESETS } from "@/workshop/goals/types";
 import { loadLastAnalysis, loadIgnoredIssueIds } from "@/workshop/analysis/ai-analysis-storage";
 // Lazy-load the AI analysis panel — it pulls in the analyze/compare client,
@@ -51,7 +51,7 @@ import { useWritingStreakOnMount } from "@/workshop/shell/useWritingStreakOnMoun
 import { useVirtualKeyboardClass } from "@/workshop/shell/useVirtualKeyboardClass";
 import { AiSummaryPopover } from "@/workshop/analysis/AiSummaryPopover";
 import { AiLineRibbons } from "@/workshop/analysis/AiLineRibbons";
-import type { AnalysisIssue, PoemAnalysis, PoemComparison } from "@/workshop/analysis/ai-analyze";
+import type { AnalysisIssue, StoryAnalysis, StoryComparison } from "@/workshop/analysis/ai-analyze";
 import { STORAGE_KEY_AI_SCORING_ENABLED } from "@/shared/storage-keys";
 import type { LocalAnalysisContext } from "@/workshop/analysis/ai-analyze";
 import { FormatToolbar } from "@/workshop/editor/FormatToolbar";
@@ -103,19 +103,17 @@ import {
   useHoverHintBinder,
   useHoverHintsSettings,
 } from "@/workshop/hints/HoverHintsContext";
-import "./PoemWorkshop.css";
-import "./PoemWorkshop.meter.css";
-import "./PoemWorkshop.rhyme.css";
-import "./PoemWorkshop.snapshot.css";
+import "./StoryWorkshop.css";
+import "./StoryWorkshop.snapshot.css";
 import "@/workshop/vocabulary/WordLookupPopup.css";
 
-function deriveAiHighlights(poemId: string | undefined): {
+function deriveAiHighlights(storyId: string | undefined): {
   lines: Array<[number, number, string?]>;
   words: Array<{ words: string[]; lineStart: number; lineEnd: number; severity?: string }>;
 } {
-  const saved = loadLastAnalysis(poemId);
+  const saved = loadLastAnalysis(storyId);
   if (!saved) return { lines: [], words: [] };
-  const ignored = loadIgnoredIssueIds(poemId);
+  const ignored = loadIgnoredIssueIds(storyId);
   const issues = saved.issues.filter((i) => !ignored.has(i.id));
   return {
     lines: issues.map((iss) => [iss.line_start, iss.line_end, iss.severity] as [number, number, string?]),
@@ -130,7 +128,7 @@ const IS_TOUCH_DEVICE =
   typeof window.matchMedia === "function" &&
   window.matchMedia("(pointer: coarse)").matches;
 
-export function PoemWorkshop() {
+export function StoryWorkshop() {
   const [rhymeBreadth, setRhymeBreadth] = useState<RhymeBreadth>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY_RHYME_SCHEME_BREADTH);
@@ -142,7 +140,7 @@ export function PoemWorkshop() {
   const manualRhymeLinks = useManualRhymeLinks();
   const manualRhymeUnlinks = useManualRhymeUnlinks();
   const manualStress = useManualStressOverrides();
-  const m = usePoemWorkshopModel(
+  const m = useStoryWorkshopModel(
     rhymeBreadth,
     manualRhymeLinks.links,
     manualRhymeUnlinks.unlinks,
@@ -158,33 +156,33 @@ export function PoemWorkshop() {
 
   useWritingStreakOnMount(m.body);
 
-  const mainIdeaStorageKey = (poemId: string | undefined) =>
-    poemId ? `easy-poems:main-idea:${poemId}` : null;
-  const readMainIdea = (poemId: string | undefined) => {
-    const key = mainIdeaStorageKey(poemId);
+  const mainIdeaStorageKey = (storyId: string | undefined) =>
+    storyId ? `easy-stories:main-idea:${storyId}` : null;
+  const readMainIdea = (storyId: string | undefined) => {
+    const key = mainIdeaStorageKey(storyId);
     if (!key) return "";
     try {
       const scoped = localStorage.getItem(key);
       if (scoped != null) return scoped;
       // One-time migration: if a legacy global value exists and the active
-      // poem has no scoped value yet, claim it for this poem so the user
+      // story has no scoped value yet, claim it for this story so the user
       // doesn't lose what they typed before this fix.
-      const legacy = localStorage.getItem("easy-poems:main-idea");
+      const legacy = localStorage.getItem("easy-stories:main-idea");
       if (legacy) {
         localStorage.setItem(key, legacy);
-        localStorage.removeItem("easy-poems:main-idea");
+        localStorage.removeItem("easy-stories:main-idea");
         return legacy;
       }
     } catch { /* ignore */ }
     return "";
   };
-  const [mainIdea, setMainIdea] = useState(() => readMainIdea(m.activePoemId));
+  const [mainIdea, setMainIdea] = useState(() => readMainIdea(m.activeStoryId));
   useEffect(() => {
-    setMainIdea(readMainIdea(m.activePoemId));
-  }, [m.activePoemId]);
+    setMainIdea(readMainIdea(m.activeStoryId));
+  }, [m.activeStoryId]);
   const saveMainIdea = (v: string) => {
     setMainIdea(v);
-    const key = mainIdeaStorageKey(m.activePoemId);
+    const key = mainIdeaStorageKey(m.activeStoryId);
     if (!key) return;
     try {
       if (v.trim()) localStorage.setItem(key, v);
@@ -192,12 +190,12 @@ export function PoemWorkshop() {
     } catch { /* ignore */ }
   };
   const [mainIdeaOpen, setMainIdeaOpen] = useState(() => {
-    try { return localStorage.getItem("easy-poems:main-idea-open") !== "0"; } catch { return true; }
+    try { return localStorage.getItem("easy-stories:main-idea-open") !== "0"; } catch { return true; }
   });
   const toggleMainIdea = () => {
     setMainIdeaOpen((v) => {
       const next = !v;
-      try { localStorage.setItem("easy-poems:main-idea-open", next ? "1" : "0"); } catch { /* ignore */ }
+      try { localStorage.setItem("easy-stories:main-idea-open", next ? "1" : "0"); } catch { /* ignore */ }
       return next;
     });
   };
@@ -269,7 +267,7 @@ export function PoemWorkshop() {
   }, []);
   const exitDiffSnapshot = useCallback(() => setDiffSnapshot(null), []);
 
-  const [aiResult, setAiResult] = useState<PoemAnalysis | PoemComparison | null>(null);
+  const [aiResult, setAiResult] = useState<StoryAnalysis | StoryComparison | null>(null);
   const [aiVisibleIssues, setAiVisibleIssues] = useState<AnalysisIssue[]>([]);
   const [aiIgnoredIds, setAiIgnoredIds] = useState<Set<string>>(() => loadIgnoredIssueIds(undefined));
   const aiScoringEnabled = (() => {
@@ -285,10 +283,10 @@ export function PoemWorkshop() {
   // Restore highlights from saved analysis on first mount so reload doesn't
   // wipe the dots/line backgrounds that were visible before the refresh.
   const [persistentIssueHighlights, setPersistentIssueHighlights] = useState<Array<[number, number, string?]>>(
-    () => deriveAiHighlights(m.activePoemId).lines,
+    () => deriveAiHighlights(m.activeStoryId).lines,
   );
   const [wordHighlights, setWordHighlights] = useState<Array<{ words: string[]; lineStart: number; lineEnd: number; severity?: string }>>(
-    () => deriveAiHighlights(m.activePoemId).words,
+    () => deriveAiHighlights(m.activeStoryId).words,
   );
   const rhymeIgnored = useIgnoredRhymes();
   const [cursorLine, setCursorLine] = useState<number>(1);
@@ -311,7 +309,7 @@ export function PoemWorkshop() {
   const [selectionText, setSelectionText] = useState<string | null>(null);
   const [selectionRect, setSelectionRect] = useState<DOMRect | null>(null);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [sharedPoemView, setSharedPoemView] = useState(() => checkShareHash());
+  const [sharedStoryView, setSharedStoryView] = useState(() => checkShareHash());
 
   const localAnalysis = useMemo<LocalAnalysisContext>(() => {
     const prose = m.docStats.prose;
@@ -329,29 +327,29 @@ export function PoemWorkshop() {
         : undefined,
     };
   }, [m.clicheHits, m.repeated, m.docStats.prose, m.docStats.stanzaCount]);
-  const prevActivePoemIdRef = useRef(m.activePoemId);
+  const prevActivePoemIdRef = useRef(m.activeStoryId);
   useEffect(() => {
-    if (m.activePoemId !== prevActivePoemIdRef.current) {
-      prevActivePoemIdRef.current = m.activePoemId;
+    if (m.activeStoryId !== prevActivePoemIdRef.current) {
+      prevActivePoemIdRef.current = m.activeStoryId;
       setIssueHighlight(null);
-      const { lines, words } = deriveAiHighlights(m.activePoemId);
+      const { lines, words } = deriveAiHighlights(m.activeStoryId);
       setPersistentIssueHighlights(lines);
       setWordHighlights(words);
-      const saved = loadLastAnalysis(m.activePoemId);
+      const saved = loadLastAnalysis(m.activeStoryId);
       setAiResult(saved);
-      const ignored = loadIgnoredIssueIds(m.activePoemId);
+      const ignored = loadIgnoredIssueIds(m.activeStoryId);
       setAiIgnoredIds(ignored);
       setAiVisibleIssues(saved ? saved.issues.filter((i) => !ignored.has(i.id)) : []);
     }
-  }, [m.activePoemId]);
+  }, [m.activeStoryId]);
 
   // Initial mount: hydrate aiResult/visibleIssues from saved analysis so the
   // status strip + ribbons appear without waiting for a new analyse.
   useEffect(() => {
-    const saved = loadLastAnalysis(m.activePoemId);
+    const saved = loadLastAnalysis(m.activeStoryId);
     if (!saved) return;
     setAiResult(saved);
-    const ignored = loadIgnoredIssueIds(m.activePoemId);
+    const ignored = loadIgnoredIssueIds(m.activeStoryId);
     setAiIgnoredIds(ignored);
     setAiVisibleIssues(saved.issues.filter((i) => !ignored.has(i.id)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -375,9 +373,9 @@ export function PoemWorkshop() {
     setAiIgnoredIds((prev) => {
       const s = new Set(prev);
       s.add(iss.id);
-      const poemId = m.activePoemId;
-      if (poemId) {
-        try { localStorage.setItem("easy-poems:ai-ignored:" + poemId, JSON.stringify([...s])); } catch { /* ignore */ }
+      const storyId = m.activeStoryId;
+      if (storyId) {
+        try { localStorage.setItem("easy-stories:ai-ignored:" + storyId, JSON.stringify([...s])); } catch { /* ignore */ }
       }
       return s;
     });
@@ -388,14 +386,14 @@ export function PoemWorkshop() {
     setAiIgnoredIds((prev) => {
       const s = new Set(prev);
       s.add(id);
-      const poemId = m.activePoemId;
-      if (poemId) {
-        try { localStorage.setItem("easy-poems:ai-ignored:" + poemId, JSON.stringify([...s])); } catch { /* ignore */ }
+      const storyId = m.activeStoryId;
+      if (storyId) {
+        try { localStorage.setItem("easy-stories:ai-ignored:" + storyId, JSON.stringify([...s])); } catch { /* ignore */ }
       }
       return s;
     });
     setAiVisibleIssues((prev) => prev.filter((i) => i.id !== id));
-  }, [m.activePoemId]);
+  }, [m.activeStoryId]);
 
   // Alt+Enter: apply the rewrite for the issue covering the cursor's line.
   const handleApplyRewriteAtCursor = useCallback((line: number): boolean => {
@@ -764,8 +762,8 @@ export function PoemWorkshop() {
     return () => document.removeEventListener("mousedown", onDown);
   }, [isStatsOpen]);
 
-  const focusPoemTitle = () => {
-    document.getElementById("poem-title")?.focus();
+  const focusStoryTitle = () => {
+    document.getElementById("story-title")?.focus();
   };
 
   const printPoemText = useMemo(() => {
@@ -796,31 +794,31 @@ export function PoemWorkshop() {
 
   const libraryListRows = useMemo(() => {
     const q = libraryQuery.trim().toLowerCase();
-    const labelFor = (p: PoemRecord) =>
+    const labelFor = (p: StoryRecord) =>
       m.draftMeta[p.id]?.label?.trim() || p.title.trim() || "Untitled";
     type Row = {
       id: string;
       label: string;
-      poem: PoemRecord;
+      story: StoryRecord;
       meta: DraftMeta;
     };
-    const rows: Row[] = m.library.poems.map((poem) => ({
-      id: poem.id,
-      label: labelFor(poem),
-      poem,
-      meta: m.draftMeta[poem.id] ?? {},
+    const rows: Row[] = m.library.stories.map((story) => ({
+      id: story.id,
+      label: labelFor(story),
+      story,
+      meta: m.draftMeta[story.id] ?? {},
     }));
     const filtered = rows.filter((r) => {
       if (
         !libraryShowArchived &&
         r.meta.archived &&
-        r.id !== m.activePoemId
+        r.id !== m.activeStoryId
       ) {
         return false;
       }
       if (!q) return true;
       const tags = (r.meta.tags ?? []).join(" ").toLowerCase();
-      const hay = `${r.label} ${r.poem.title} ${tags}`.toLowerCase();
+      const hay = `${r.label} ${r.story.title} ${tags}`.toLowerCase();
       return hay.includes(q);
     });
     const sorted = filtered.slice();
@@ -835,8 +833,8 @@ export function PoemWorkshop() {
       }
       if (librarySort === "updated") {
         return (
-          new Date(b.poem.updatedAt).getTime() -
-          new Date(a.poem.updatedAt).getTime()
+          new Date(b.story.updatedAt).getTime() -
+          new Date(a.story.updatedAt).getTime()
         );
       }
       const oa = a.meta.lastOpenedAt
@@ -847,15 +845,15 @@ export function PoemWorkshop() {
         : 0;
       if (oa !== ob) return ob - oa;
       return (
-        new Date(b.poem.updatedAt).getTime() -
-        new Date(a.poem.updatedAt).getTime()
+        new Date(b.story.updatedAt).getTime() -
+        new Date(a.story.updatedAt).getTime()
       );
     });
     return sorted;
   }, [
-    m.library.poems,
+    m.library.stories,
     m.draftMeta,
-    m.activePoemId,
+    m.activeStoryId,
     libraryQuery,
     libraryShowArchived,
     librarySort,
@@ -898,7 +896,7 @@ export function PoemWorkshop() {
         const row = libraryListRows[libraryActiveIdx];
         if (!row) return;
         e.preventDefault();
-        m.selectPoem(row.id);
+        m.selectStory(row.id);
         setIsLibraryOpen(false);
       }
     };
@@ -947,13 +945,13 @@ export function PoemWorkshop() {
       {
         id: "library",
         title: "Open Library",
-        keywords: "draft poem library",
+        keywords: "draft story library",
         run: () => setIsLibraryOpen(true),
       },
       {
         id: "appearance",
         title: "Fonts",
-        keywords: "font typography typeface poem ui interface",
+        keywords: "font typography typeface story ui interface",
         run: () => setIsAppearanceOpen(true),
       },
       {
@@ -978,20 +976,20 @@ export function PoemWorkshop() {
       {
         id: "new",
         title: "New draft",
-        keywords: "new poem draft",
-        run: () => m.newPoem(),
+        keywords: "new story draft",
+        run: () => m.newStory(),
       },
       {
         id: "duplicate",
         title: "Duplicate draft",
-        keywords: "copy duplicate poem draft",
-        run: () => m.duplicatePoem(),
+        keywords: "copy duplicate story draft",
+        run: () => m.duplicateStory(),
       },
       {
         id: "delete",
         title: "Delete current draft",
-        keywords: "delete remove poem draft",
-        run: () => m.deleteCurrentPoem(),
+        keywords: "delete remove story draft",
+        run: () => m.deleteCurrentStory(),
       },
       {
         id: "snapshot",
@@ -1003,7 +1001,7 @@ export function PoemWorkshop() {
         id: "revision-pass",
         title: "Revision pass (open export checklist)",
         keywords: "revision pass polish review spelling repeats checklist",
-        hint: "Shortcuts to spelling, rhyme, repeats, lines, meter",
+        hint: "Shortcuts to spelling, repeats, lines, goals",
         run: () => setIsExportOpen(true),
       },
       {
@@ -1017,11 +1015,11 @@ export function PoemWorkshop() {
         id: "title",
         title: "Focus title",
         keywords: "title heading",
-        run: () => focusPoemTitle(),
+        run: () => focusStoryTitle(),
       },
       {
         id: "find",
-        title: "Find in poem",
+        title: "Find in story",
         keywords: "find search",
         run: () => {
           setFindMode("find");
@@ -1030,7 +1028,7 @@ export function PoemWorkshop() {
       },
       {
         id: "replace",
-        title: "Replace in poem",
+        title: "Replace in story",
         keywords: "replace search",
         run: () => {
           setFindMode("replace");
@@ -1050,22 +1048,22 @@ export function PoemWorkshop() {
       },
       {
         id: "templates",
-        title: "Form templates",
-        keywords: "template haiku sonnet villanelle limerick form",
+        title: "Story starters",
+        keywords: "template starter opening dialogue action sensory memory mystery character",
         run: () => setIsTemplatesOpen(true),
       },
       {
         id: "reading-mode",
         title: "Reading view",
-        keywords: "reading view clean fullscreen poem display",
+        keywords: "reading view clean fullscreen story display",
         run: () => setIsReadingMode(true),
       },
     ];
-  }, [focusPoemTitle, hoverHintsEnabled, isFocusMode, m, setHoverHintsEnabled]);
+  }, [focusStoryTitle, hoverHintsEnabled, isFocusMode, m, setHoverHintsEnabled]);
 
   return (
     <div
-      className={`poem-workshop ${isFocusMode ? "is-focus-mode" : ""}`}
+      className={`story-workshop ${isFocusMode ? "is-focus-mode" : ""}`}
       data-tool-tab={m.toolTab}
     >
       {isFocusMode && (
@@ -1124,14 +1122,14 @@ export function PoemWorkshop() {
         onSuggest={() => m.setToolTab("suggest")}
       />
 
-      {m.samplePoemActive && (
-        <SamplePoemBanner
+      {m.sampleStoryActive && (
+        <SampleStoryBanner
           onClear={m.clearSamplePoem}
           onKeep={m.keepSamplePoem}
         />
       )}
 
-      <RhymeTooltip sampleActive={m.samplePoemActive} />
+      <RhymeTooltip sampleActive={m.sampleStoryActive} />
 
       <WorkshopBanners m={m} />
 
@@ -1167,7 +1165,7 @@ export function PoemWorkshop() {
         checklistOpenCount={checklistOpenCount}
         onJumpFromChecklist={(item) => {
           setIsExportOpen(false);
-          if (item.focusTitleField) focusPoemTitle();
+          if (item.focusTitleField) focusStoryTitle();
           else if (item.openToolTab) m.setToolTab(item.openToolTab);
         }}
       />
@@ -1197,7 +1195,7 @@ export function PoemWorkshop() {
             <div className="modal-head">
               <div className="style-modal-head-text">
                 <h2 id="style-modal-title" className="modal-title">Fonts &amp; Typography</h2>
-                <p className="style-modal-subtitle">Pick how your poem and the app look.</p>
+                <p className="style-modal-subtitle">Pick how your story and the app look.</p>
               </div>
               <button type="button" className="small-btn" onClick={() => setIsStyleOpen(false)}>
                 Close
@@ -1446,7 +1444,7 @@ export function PoemWorkshop() {
             onClick={() => setIsExportOpen(true)}
             aria-haspopup="dialog"
             aria-expanded={isExportOpen}
-            {...hint("Export — copy or download the poem and backups")}
+            {...hint("Export — copy or download the story and backups")}
           >
             <RailIcon>
               <svg viewBox="0 0 24 24" aria-hidden focusable="false">
@@ -1514,7 +1512,7 @@ export function PoemWorkshop() {
             onClick={() => setIsGuideOpen(true)}
             aria-haspopup="dialog"
             aria-expanded={isGuideOpen}
-            {...hint("Guide — how to use easywriting-poem")}
+            {...hint("Guide — how to use easywriting-story")}
           >
             <RailIcon>
               <svg viewBox="0 0 24 24" aria-hidden focusable="false">
@@ -1530,9 +1528,9 @@ export function PoemWorkshop() {
         <section
           ref={editorPanelRef}
           className="editor-panel"
-          aria-label="Poem editor"
-          id="poem-draft"
-          data-tour-id="poem-editor"
+          aria-label="Story editor"
+          id="story-draft"
+          data-tour-id="story-editor"
         >
           <div className="editor-print-hide">
             <div className="editor-stack">
@@ -1554,7 +1552,7 @@ export function PoemWorkshop() {
                     type="button"
                     className="editor-meta-collapsed"
                     onClick={() => setMetaOpen(true)}
-                    onContextMenu={(e) => { e.preventDefault(); setMetaOpen(true); document.getElementById("poem-title")?.focus(); }}
+                    onContextMenu={(e) => { e.preventDefault(); setMetaOpen(true); document.getElementById("story-title")?.focus(); }}
                     aria-label="Edit title and form"
                   >
                     <span className="editor-meta-collapsed-title">
@@ -1590,9 +1588,9 @@ export function PoemWorkshop() {
               )}
               <div className={`editor-meta-grid${metaOpen ? "" : " editor-meta-grid-hidden"}${mainIdeaOpen ? "" : " editor-meta-grid-solo"}`} aria-label="Draft metadata">
                 <div className="row title-row">
-                  <label htmlFor="poem-title">Title</label>
+                  <label htmlFor="story-title">Title</label>
                   <input
-                    id="poem-title"
+                    id="story-title"
                     type="text"
                     value={m.title}
                     onChange={(e) => m.setTitle(e.target.value)}
@@ -1603,7 +1601,7 @@ export function PoemWorkshop() {
                   />
                 </div>
                 <div className={`row title-row${mainIdeaOpen ? "" : " editor-main-idea-hidden"}`}>
-                  <label htmlFor="poem-main-idea">
+                  <label htmlFor="story-main-idea">
                     <button
                       type="button"
                       className="editor-main-idea-toggle"
@@ -1616,7 +1614,7 @@ export function PoemWorkshop() {
                     </button>
                   </label>
                   <input
-                    id="poem-main-idea"
+                    id="story-main-idea"
                     type="text"
                     value={mainIdea}
                     onChange={(e) => saveMainIdea(e.target.value)}
@@ -1635,8 +1633,8 @@ export function PoemWorkshop() {
               />
               <div className="row body-row">
                 <div className="body-label-row">
-                  <label id="poem-body-label" htmlFor="poem-body">
-                    Poem
+                  <label id="story-body-label" htmlFor="story-body">
+                    Story
                   </label>
                   {/* Mobile: Aa toggle to show/hide toolbar */}
                   <button
@@ -1654,9 +1652,9 @@ export function PoemWorkshop() {
                   >
                   <FormatToolbar
                     editorViewRef={m.editorViewRef}
-                    poemSize={appearance.poemSize}
+                    storySize={appearance.storySize}
                     onSizeChange={(size) =>
-                      setAppearance((prev) => ({ ...prev, poemSize: size }))
+                      setAppearance((prev) => ({ ...prev, storySize: size }))
                     }
                     onReadingMode={() => setIsReadingMode(true)}
                     showLineSyllables={showLineSyllables}
@@ -1668,28 +1666,28 @@ export function PoemWorkshop() {
                   />
                   </div>{/* /format-toolbar tour target */}
                 </div>
-                <div className="poem-editor-with-scheme">
-                  <div className="poem-editor-shell" style={{ display: "flex", flexDirection: "column" }}>
+                <div className="story-editor-with-scheme">
+                  <div className="story-editor-shell" style={{ display: "flex", flexDirection: "column" }}>
                     {diffSnapshot && (
-                      <div className="poem-diff-bar" role="status" aria-live="polite">
-                        <span className="poem-diff-bar-label">
+                      <div className="story-diff-bar" role="status" aria-live="polite">
+                        <span className="story-diff-bar-label">
                           Diff vs.&nbsp;
-                          <span className="poem-diff-bar-snapshot">
+                          <span className="story-diff-bar-snapshot">
                             {diffSnapshot.label || formatRelativeSnapshotWhen(diffSnapshot.createdAt)}
                           </span>
                         </span>
                         <button
                           type="button"
-                          className="poem-diff-bar-exit"
+                          className="story-diff-bar-exit"
                           onClick={exitDiffSnapshot}
                           title="Exit diff overlay"
                         >Exit diff</button>
                       </div>
                     )}
-                    <div className="poem-editor-body-wrap" style={{ position: "relative" }} onClick={handleEditorClickForRhyme}>
-                    <PoemBodyEditor
-                      id="poem-body"
-                      aria-describedby="poem-body-hint"
+                    <div className="story-editor-body-wrap" style={{ position: "relative" }} onClick={handleEditorClickForRhyme}>
+                    <StoryBodyEditor
+                      id="story-body"
+                      aria-describedby="story-body-hint"
                       value={m.body}
                       bodySyncNonce={m.bodySyncNonce}
                       onLiveBody={m.onEditorBody}
@@ -1743,8 +1741,8 @@ export function PoemWorkshop() {
                         key={selectionText}
                         anchorRect={selectionRect}
                         selectedText={selectionText}
-                        poemTitle={m.title}
-                        poemLines={m.lines}
+                        storyTitle={m.title}
+                        storyLines={m.lines}
                         wordLookupEnabled={wordLookupEnabled}
                         aiIssues={aiVisibleIssues}
                         onApplyLine={m.applyLineRewrite}
@@ -1774,15 +1772,15 @@ export function PoemWorkshop() {
                   ) : null}
                 </div>
                 <div
-                  className={`poem-editor-copy-box ${m.quickCopyFlash ? "is-copied" : ""}`}
+                  className={`story-editor-copy-box ${m.quickCopyFlash ? "is-copied" : ""}`}
                 >
-                  <div className="poem-editor-copy-slot-inner">
+                  <div className="story-editor-copy-slot-inner">
                     <button
                       type="button"
                       className="quick-copy-face quick-copy-face-icon"
                       onClick={() => void m.onQuickCopyPlain()}
-                      {...hint("Copy poem body as plain text (no title or form)")}
-                      aria-label="Copy poem body as plain text"
+                      {...hint("Copy story body as plain text (no title or form)")}
+                      aria-label="Copy story body as plain text"
                       tabIndex={m.quickCopyFlash ? -1 : 0}
                       aria-hidden={m.quickCopyFlash}
                     >
@@ -1835,7 +1833,7 @@ export function PoemWorkshop() {
               )}
             </div>
           </div>
-          <pre className="poem-print-fallback" aria-hidden="true">
+          <pre className="story-print-fallback" aria-hidden="true">
             {printPoemText}
           </pre>
 
@@ -1931,7 +1929,7 @@ export function PoemWorkshop() {
                     });
                   }
                 }}
-                {...hint("Run AI analysis on this poem")}
+                {...hint("Run AI analysis on this story")}
               >
                 ✦ Analyse
               </button>
@@ -2077,13 +2075,13 @@ export function PoemWorkshop() {
             compareRightBody={m.compareRightBody}
             compareDiffRows={m.compareDiffRows}
             onOpenToolTab={m.setToolTab}
-            focusPoemTitle={focusPoemTitle}
+            focusStoryTitle={focusStoryTitle}
             stressLexiconReady={m.stressLexiconReady}
             stressLexiconErr={m.stressLexiconErr}
             heavyToolsStale={m.heavyToolsStale}
             clicheHits={m.clicheHits}
-            poemTitle={m.title}
-            poemLines={m.lines}
+            storyTitle={m.title}
+            storyLines={m.lines}
             onInsertSuggestion={m.insertTextAtEnd}
             onInsertSuggestionAtCursor={m.insertTextAtCursor}
             selectedText={selectionText}
@@ -2107,15 +2105,15 @@ export function PoemWorkshop() {
           />
           </Suspense>
 
-          {/* Mobile-only hint when the poem is blank and the user has just opened Tools */}
+          {/* Mobile-only hint when the story is blank and the user has just opened Tools */}
           {mobileToolsExpanded && !m.lines.some((l) => l.trim()) && (
             <div className="tools-empty-hint">
               <p className="tools-empty-hint-msg">
-                Write a few lines first — the tools will light up with rhyme suggestions, syllable counts, cliché flags, and more.
+                Write a few sentences first — the tools will light up with word counts, reading grade, dialogue %, cliché flags, and more.
               </p>
               <ul className="tools-empty-hint-list" aria-hidden>
-                <li>🔤 Rhyme &amp; sound</li>
-                <li>∿ Meter &amp; syllables</li>
+                <li>¶ Word count &amp; targets</li>
+                <li>∿ Sentence variety</li>
                 <li>✦ AI analysis</li>
                 <li>📚 Word lookup</li>
               </ul>
@@ -2147,8 +2145,8 @@ export function PoemWorkshop() {
       {/* AI Analysis — full-width section below the grid on desktop; hidden on mobile (results flow into the Issues tab) */}
       <Suspense fallback={null}>
         <AiAnalysis
-          key={m.activePoemId}
-          poemId={m.activePoemId}
+          key={m.activeStoryId}
+          storyId={m.activeStoryId}
           title={m.title}
           lines={m.lines}
           mainIdea={mainIdea}
@@ -2225,8 +2223,8 @@ export function PoemWorkshop() {
             <div className="mobile-ai-sheet-body">
               <Suspense fallback={<p className="muted small" style={{ padding: "1rem" }}>Loading…</p>}>
                 <AiAnalysis
-                  key={`mobile-ai-${m.activePoemId}`}
-                  poemId={m.activePoemId}
+                  key={`mobile-ai-${m.activeStoryId}`}
+                  storyId={m.activeStoryId}
                   title={m.title}
                   lines={m.lines}
                   mainIdea={mainIdea}
@@ -2264,12 +2262,12 @@ export function PoemWorkshop() {
         body={m.body}
         isShareOpen={isShareOpen}
         onCloseShare={() => setIsShareOpen(false)}
-        sharedPoemView={sharedPoemView}
-        onDismissSharedPoem={() => { setSharedPoemView(null); window.location.hash = ""; }}
-        onAddSharedPoemToDrafts={(poem) => {
-          m.newPoem();
-          setTimeout(() => { m.setTitle(poem.title); m.setBody(poem.body); }, 50);
-          setSharedPoemView(null);
+        sharedStoryView={sharedStoryView}
+        onDismissSharedStory={() => { setSharedStoryView(null); window.location.hash = ""; }}
+        onAddSharedStoryToDrafts={(story) => {
+          m.newStory();
+          setTimeout(() => { m.setTitle(story.title); m.setBody(story.body); }, 50);
+          setSharedStoryView(null);
           window.location.hash = "";
         }}
       />
@@ -2287,7 +2285,7 @@ export function PoemWorkshop() {
               sent to a server during normal editing.
             </p>
             <p>
-              If you use the optional AI analysis feature, the poem text is sent to the
+              If you use the optional AI analysis feature, the story text is sent to the
               configured AI provider for that request only. Exporting or copying sends
               text wherever you direct it — check that destination's terms.
             </p>

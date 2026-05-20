@@ -2,32 +2,32 @@
 @import "./WorkshopDrawer.css";
 @import "./WorkshopLayout.css";
 
-.poem-workshop {
+.story-workshop {
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
 }
 
 @media (min-width: 900px) {
-  .poem-workshop {
+  .story-workshop {
     padding: 0.75rem 0.75rem 0.75rem;
   }
 }
 
 @media (max-width: 899px) {
-  .poem-workshop {
+  .story-workshop {
     height: 100%;
     gap: 0;
     overflow: hidden;
   }
 
   /* Footer is unreachable in the pinned layout — hide it on mobile */
-  .poem-workshop .privacy {
+  .story-workshop .privacy {
     display: none;
   }
 }
 
-.poem-workshop.is-focus-mode {
+.story-workshop.is-focus-mode {
   gap: 1.15rem;
 }
 
@@ -64,19 +64,19 @@
   }
 }
 
-.poem-workshop > .topbar {
+.story-workshop > .topbar {
   animation: workshop-enter 0.58s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   position: relative;
   z-index: 65; /* below overlay (z-index: 66) so modals cover the topbar */
 }
 
-.poem-workshop > .workshop-grid {
+.story-workshop > .workshop-grid {
   animation: workshop-enter-subtle 0.62s cubic-bezier(0.22, 1, 0.36, 1) 0.12s
     backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .poem-workshop > .workshop-grid,
+  .story-workshop > .workshop-grid,
   .tool-tab-panel {
     animation: none !important;
     opacity: 1;
@@ -126,7 +126,7 @@
   }
 }
 
-#poem-draft,
+#story-draft,
 #export-area,
 #revision-compare,
 #writing-tools {
@@ -157,7 +157,7 @@
 
 /* ---- Mobile: safe area + touch target fixes ---- */
 @media (max-width: 899px) {
-  .poem-workshop {
+  .story-workshop {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
@@ -314,11 +314,11 @@
   }
 
   /* ── Copy button — full-width on mobile ── */
-  .poem-editor-copy-box {
+  .story-editor-copy-box {
     margin-top: 0.75rem;
   }
 
-  .poem-editor-copy-slot-inner {
+  .story-editor-copy-slot-inner {
     width: 100%;
   }
 
@@ -2896,7 +2896,7 @@
 }
 
 /* ── Writing prompt overlay ── */
-.poem-editor-body-wrap {
+.story-editor-body-wrap {
   position: relative;
 }
 
@@ -2932,7 +2932,7 @@
   color: var(--muted);
 }
 
-.poem-body-input {
+.story-body-input {
   font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
   line-height: 1.45;
 }
@@ -3403,7 +3403,7 @@
   border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
 }
 
-#poem-title {
+#story-title {
   font-family: var(--font-poem);
   font-size: 1.15rem;
   font-weight: 500;
@@ -6041,7 +6041,7 @@
 }
 
 /* ---- Print: poem only ---- */
-.poem-print-fallback {
+.story-print-fallback {
   display: none;
 }
 
@@ -6060,23 +6060,23 @@
     display: none !important;
   }
 
-  .poem-workshop .persistence-banner,
-  .poem-workshop .tools-panel,
-  .poem-workshop .privacy,
-  .poem-workshop .topbar,
-  .poem-workshop .overlay,
-  .poem-workshop .cmdk-overlay,
-  .poem-workshop .mobile-actionbar,
-  .poem-workshop .tools-reopen-fab,
-  .poem-workshop .editor-print-hide {
+  .story-workshop .persistence-banner,
+  .story-workshop .tools-panel,
+  .story-workshop .privacy,
+  .story-workshop .topbar,
+  .story-workshop .overlay,
+  .story-workshop .cmdk-overlay,
+  .story-workshop .mobile-actionbar,
+  .story-workshop .tools-reopen-fab,
+  .story-workshop .editor-print-hide {
     display: none !important;
   }
 
-  .poem-workshop .workshop-grid {
+  .story-workshop .workshop-grid {
     display: block;
   }
 
-  .poem-workshop .editor-panel {
+  .story-workshop .editor-panel {
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
@@ -6085,7 +6085,7 @@
     -webkit-backdrop-filter: none !important;
   }
 
-  .poem-print-fallback {
+  .story-print-fallback {
     display: block !important;
     white-space: pre-wrap;
     font-family: var(--font-poem), Georgia, "Times New Roman", serif;

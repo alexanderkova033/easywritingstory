@@ -1,4 +1,4 @@
-export const POEM_FONT_OPTIONS = [
+export const STORY_FONT_OPTIONS = [
   { id: "literata",          label: "Literata",           fontFamily: '"Literata", Georgia, serif' },
   { id: "spectral",          label: "Spectral",           fontFamily: '"Spectral", Georgia, serif' },
   { id: "lora",              label: "Lora",               fontFamily: '"Lora", Georgia, serif' },
@@ -21,7 +21,7 @@ export const UI_FONT_OPTIONS = [
   { id: "system",      label: "System UI",     fontFamily: 'system-ui, "Segoe UI", sans-serif' },
 ] as const;
 
-export const POEM_SIZE_OPTIONS = [
+export const STORY_SIZE_OPTIONS = [
   { id: "xs", label: "Extra Small" },
   { id: "sm", label: "Small" },
   { id: "md", label: "Medium" },
@@ -29,19 +29,19 @@ export const POEM_SIZE_OPTIONS = [
   { id: "xl", label: "Extra Large" },
 ] as const;
 
-export const POEM_WEIGHT_OPTIONS = [
+export const STORY_WEIGHT_OPTIONS = [
   { id: "normal", label: "Regular" },
   { id: "medium", label: "Medium" },
   { id: "bold",   label: "Bold" },
 ] as const;
 
-export const POEM_DECORATION_OPTIONS = [
+export const STORY_DECORATION_OPTIONS = [
   { id: "none",      label: "None" },
   { id: "underline", label: "Underline" },
 ] as const;
 
-export type PoemFontId      = (typeof POEM_FONT_OPTIONS)[number]["id"];
-export type UiFontId        = (typeof UI_FONT_OPTIONS)[number]["id"];
-export type PoemSizeId      = (typeof POEM_SIZE_OPTIONS)[number]["id"];
-export type PoemWeightId    = (typeof POEM_WEIGHT_OPTIONS)[number]["id"];
-export type PoemDecorationId = (typeof POEM_DECORATION_OPTIONS)[number]["id"];
+export type StoryFontId       = (typeof STORY_FONT_OPTIONS)[number]["id"];
+export type UiFontId          = (typeof UI_FONT_OPTIONS)[number]["id"];
+export type StorySizeId       = (typeof STORY_SIZE_OPTIONS)[number]["id"];
+export type StoryWeightId     = (typeof STORY_WEIGHT_OPTIONS)[number]["id"];
+export type StoryDecorationId = (typeof STORY_DECORATION_OPTIONS)[number]["id"];

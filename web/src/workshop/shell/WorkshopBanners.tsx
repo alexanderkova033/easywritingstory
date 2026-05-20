@@ -1,7 +1,7 @@
-import type { usePoemWorkshopModel } from "./usePoemWorkshopModel";
+import type { useStoryWorkshopModel } from "./useStoryWorkshopModel";
 import { AiBudgetBanner } from "@/workshop/ai-cost/AiBudgetBanner";
 
-type Model = ReturnType<typeof usePoemWorkshopModel>;
+type Model = ReturnType<typeof useStoryWorkshopModel>;
 
 export function WorkshopBanners({ m }: { m: Model }) {
   return (

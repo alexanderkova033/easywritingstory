@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState, type ChangeEvent, type MutableRefObject } from "react";
 import {
-  buildMarkdownPoem,
+  buildMarkdownStory,
   buildPlainTextTitleBody,
   copyTextToClipboard,
   downloadDocxFile,
@@ -11,17 +11,17 @@ import {
   exportFilename,
   isDirectoryPickerSupported,
   pickExportDirectory,
-  savePoemToDirectory,
+  saveStoryToDirectory,
   writeTextToDirectory,
   type FolderSaveFormats,
-} from "@/workshop/library/export-poem";
+} from "@/workshop/library/export-story";
 import { stripFormatMarkers } from "@/workshop/editor/format-marks";
 import {
   buildWorkshopExportJson,
   loadOrCreateLibrary as _loadOrCreateLibrary,
-  mergeImportedPoems,
+  mergeImportedStories,
   saveLibrary,
-  upsertActivePoem,
+  upsertActiveStory,
   type DraftLibrary,
 } from "@/workshop/library/local-draft-library";
 import { loadRevisions } from "@/workshop/library/revision-snapshots";
@@ -54,7 +54,7 @@ export interface ExportActionsInput {
   setPersistenceError: (msg: string | null) => void;
   setImportNotice: (msg: string | null) => void;
   setImportNoticeKind: (kind: "success" | "error") => void;
-  applyLoadedPoem: (lib: DraftLibrary) => void;
+  applyLoadedStory: (lib: DraftLibrary) => void;
   setShowExportReminder: (v: boolean) => void;
 }
 
@@ -69,7 +69,7 @@ export function useExportActions(input: ExportActionsInput) {
     setPersistenceError,
     setImportNotice,
     setImportNoticeKind,
-    applyLoadedPoem,
+    applyLoadedStory,
     setShowExportReminder,
   } = input;
 
@@ -93,7 +93,7 @@ export function useExportActions(input: ExportActionsInput) {
 
   const onDownloadMd = useCallback(() => {
     const cleanBody = bodyLiveRef.current.replace(/__(.+?)__/g, "$1");
-    const text = buildMarkdownPoem(
+    const text = buildMarkdownStory(
       title,
       formNote.trim() || undefined,
       cleanBody,
@@ -104,7 +104,7 @@ export function useExportActions(input: ExportActionsInput) {
 
   const onCopyMarkdown = useCallback(async () => {
     const cleanBody = bodyLiveRef.current.replace(/__(.+?)__/g, "$1");
-    const text = buildMarkdownPoem(
+    const text = buildMarkdownStory(
       title,
       formNote.trim() || undefined,
       cleanBody,
@@ -227,7 +227,7 @@ export function useExportActions(input: ExportActionsInput) {
       if (!dir) return;
       try {
         const cleanBody = stripFormatMarkers(bodyLiveRef.current);
-        const written = await savePoemToDirectory(dir, {
+        const written = await saveStoryToDirectory(dir, {
           title,
           formNote: formNote.trim() || undefined,
           body: cleanBody,
@@ -263,16 +263,16 @@ export function useExportActions(input: ExportActionsInput) {
       if (!dir) return;
       try {
         const state = workshopStateRef.current;
-        const flushed = upsertActivePoem(state.library, {
+        const flushed = upsertActiveStory(state.library, {
           title: state.title,
           body: state.body,
           form: state.formNote,
           spellMode: state.spellMode,
         });
         let totalFiles = 0;
-        for (const poem of flushed.poems) {
+        for (const poem of flushed.stories) {
           const cleanBody = stripFormatMarkers(poem.body);
-          const written = await savePoemToDirectory(dir, {
+          const written = await saveStoryToDirectory(dir, {
             title: poem.title,
             formNote: poem.form?.trim() || undefined,
             body: cleanBody,
@@ -282,21 +282,21 @@ export function useExportActions(input: ExportActionsInput) {
         }
         if (formats.json) {
           const json = buildWorkshopExportJson({
-            poems: flushed.poems,
-            revisionsForPoem: loadRevisions,
+            stories: flushed.stories,
+            revisionsForStory: loadRevisions,
           });
           const stamp = new Date().toISOString().slice(0, 10);
           await writeTextToDirectory(
             dir,
-            `easy-poems-backup-${stamp}.json`,
+            `easywriting-story-backup-${stamp}.json`,
             json,
           );
           totalFiles += 1;
         }
         recordExportAt();
         flashFolderSave(
-          `Saved ${totalFiles} file${totalFiles === 1 ? "" : "s"} (${flushed.poems.length} poem${
-            flushed.poems.length === 1 ? "" : "s"
+          `Saved ${totalFiles} file${totalFiles === 1 ? "" : "s"} (${flushed.stories.length} stor${
+            flushed.stories.length === 1 ? "y" : "ies"
           }) to ${dir.name} ✓`,
         );
       } catch (e) {
@@ -312,14 +312,14 @@ export function useExportActions(input: ExportActionsInput) {
 
   const exportWorkshopBackup = useCallback(() => {
     const json = buildWorkshopExportJson({
-      poems: library.poems,
-      revisionsForPoem: loadRevisions,
+      stories: library.stories,
+      revisionsForStory: loadRevisions,
     });
     const stamp = new Date().toISOString().slice(0, 10);
-    downloadTextFile(`easy-poems-backup-${stamp}.json`, json);
+    downloadTextFile(`easywriting-story-backup-${stamp}.json`, json);
     recordExportAt();
     setShowExportReminder(false);
-  }, [library.poems, setShowExportReminder]);
+  }, [library.stories, setShowExportReminder]);
 
   const triggerImportBackup = useCallback(() => {
     importInputRef.current?.click();
@@ -335,7 +335,7 @@ export function useExportActions(input: ExportActionsInput) {
         const text = typeof reader.result === "string" ? reader.result : "";
         const { title: t, body: b, formNote: f, spellMode: sm, library: lib } =
           workshopStateRef.current;
-        const flushed = upsertActivePoem(lib, {
+        const flushed = upsertActiveStory(lib, {
           title: t,
           body: b,
           form: f,
@@ -345,7 +345,7 @@ export function useExportActions(input: ExportActionsInput) {
           setPersistenceError(DRAFT_STORAGE_MSG);
           return;
         }
-        const merged = mergeImportedPoems(flushed, text);
+        const merged = mergeImportedStories(flushed, text);
         if ("error" in merged) {
           setImportNoticeKind("error");
           setImportNotice(merged.error);
@@ -358,7 +358,7 @@ export function useExportActions(input: ExportActionsInput) {
         setImportNoticeKind("success");
         setImportNotice(`Imported ${merged.added} poem(s).`);
         setLibrary(merged.lib);
-        applyLoadedPoem(merged.lib);
+        applyLoadedStory(merged.lib);
       };
       reader.onerror = () => {
         setImportNoticeKind("error");
@@ -370,7 +370,7 @@ export function useExportActions(input: ExportActionsInput) {
       };
       reader.readAsText(file, "utf-8");
     },
-    [applyLoadedPoem, workshopStateRef, setLibrary, setPersistenceError, setImportNotice, setImportNoticeKind],
+    [applyLoadedStory, workshopStateRef, setLibrary, setPersistenceError, setImportNotice, setImportNoticeKind],
   );
 
   return {

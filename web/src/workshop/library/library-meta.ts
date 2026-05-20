@@ -41,10 +41,10 @@ export function saveDraftMetaMap(map: DraftMetaMap): boolean {
 
 export function upsertDraftMeta(
   map: DraftMetaMap,
-  poemId: string,
+  storyId: string,
   patch: DraftMeta,
 ): DraftMetaMap {
-  const prev = map[poemId] ?? {};
+  const prev = map[storyId] ?? {};
   const next: DraftMeta = { ...prev, ...patch };
   // Normalize tags
   if (next.tags) {
@@ -55,6 +55,6 @@ export function upsertDraftMeta(
     if (next.tags.length === 0) delete next.tags;
   }
   if (next.label !== undefined && !next.label.trim()) delete next.label;
-  return { ...map, [poemId]: next };
+  return { ...map, [storyId]: next };
 }
 

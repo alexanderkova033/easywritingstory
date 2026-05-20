@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { PoemAnalysis, PoemComparison } from "@/workshop/analysis/ai-analyze";
+import type { StoryAnalysis, StoryComparison } from "@/workshop/analysis/ai-analyze";
 import { parseAiErrorAndNotify } from "@/workshop/ai-cost/aiBudgetBus";
 import { loadChat, saveChat } from "./ai-analysis-helpers";
 
@@ -13,29 +13,29 @@ export function AiChat({
   lines,
   result,
   model,
-  poemId,
+  storyId,
 }: {
   title: string;
   lines: string[];
-  result: PoemAnalysis | PoemComparison;
+  result: StoryAnalysis | StoryComparison;
   model: string;
-  poemId?: string;
+  storyId?: string;
 }) {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => loadChat(poemId));
+  const [messages, setMessages] = useState<ChatMessage[]>(() => loadChat(storyId));
   const [input, setInput] = useState("");
   const [chatStatus, setChatStatus] = useState<"idle" | "loading" | "error">("idle");
   const [chatError, setChatError] = useState("");
 
   // Persist chat per poem.
-  useEffect(() => { saveChat(poemId, messages); }, [poemId, messages]);
-  // When poemId changes, reload that poem's saved messages.
-  const lastPoemRef = useRef(poemId);
+  useEffect(() => { saveChat(storyId, messages); }, [storyId, messages]);
+  // When storyId changes, reload that poem's saved messages.
+  const lastPoemRef = useRef(storyId);
   useEffect(() => {
-    if (lastPoemRef.current !== poemId) {
-      lastPoemRef.current = poemId;
-      setMessages(loadChat(poemId));
+    if (lastPoemRef.current !== storyId) {
+      lastPoemRef.current = storyId;
+      setMessages(loadChat(storyId));
     }
-  }, [poemId]);
+  }, [storyId]);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 

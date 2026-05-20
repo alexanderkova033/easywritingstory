@@ -11,15 +11,15 @@ import {
 import { isLocalStorageNearlyFull } from "@/shared/platform/browser-storage";
 import { diffPoemLines } from "@/workshop/library/diff-lines";
 import {
-  duplicateActivePoem,
-  duplicatePoemById as duplicatePoemByIdInLib,
+  duplicateActiveStory,
+  duplicateStoryById as duplicateStoryByIdInLib,
   loadOrCreateLibrary,
-  newBlankPoemAfter,
-  poemById,
-  removePoem,
+  newBlankStoryAfter,
+  storyById,
+  removeStory,
   saveLibrary,
-  setActivePoem,
-  upsertActivePoem,
+  setActiveStory,
+  upsertActiveStory,
   type DraftLibrary,
 } from "@/workshop/library/local-draft-library";
 import {
@@ -36,7 +36,7 @@ import {
   loadRevisions,
   removeDuplicateRevisions,
   removeRevision,
-  removeRevisionsForPoem,
+  removeRevisionsForStory,
   type RevisionSnapshot,
 } from "@/workshop/library/revision-snapshots";
 import {
@@ -95,8 +95,8 @@ import { useGoalsState } from "./hooks/useGoalsState";
 import { useDraftMeta } from "./hooks/useDraftMeta";
 import { useExportActions } from "./hooks/useExportActions";
 
-export const SAMPLE_POEM_TITLE = "The Last Bus";
-export const SAMPLE_POEM_BODY =
+export const SAMPLE_STORY_TITLE = "The Last Bus";
+export const SAMPLE_STORY_BODY =
   `The platform sign blinked once and went dark. Maya pulled her sleeves over her hands and counted the people left waiting: three. An old man with a folded newspaper. A girl in a school blazer too thin for the rain. And the man by the timetable, who had not looked up since she arrived.\n\nShe told herself it was only a delay. It was always only a delay. The 11:48 was late twice a week — her father had said so, and her father had been a driver on the night route for fifteen years before the company closed the depot.\n\n"Excuse me," the girl in the blazer said. Her voice was small and apologetic, as though she were sorry for the question before she had asked it. "Do you know when the next one is?"\n\nMaya glanced up at the dead sign. She wanted to say something certain. She wanted to be the sort of person who knew.\n\n"Soon," she said instead. "It has to be soon."`;
 
 function isSampleDismissed(): boolean {
@@ -116,7 +116,7 @@ function readLastExportAt(): string | null {
 }
 
 function checkExportReminderDue(lib: DraftLibrary): boolean {
-  const hasContent = lib.poems.some(
+  const hasContent = lib.stories.some(
     (p) => p.body.trim().length > 0 || p.title.trim().length > 0,
   );
   if (!hasContent) return false;
@@ -154,7 +154,7 @@ const SNAPSHOT_SAVE_MSG =
 const SNAPSHOT_DELETE_MSG =
   "Could not update snapshots in browser storage.";
 
-export function usePoemWorkshopModel(
+export function useStoryWorkshopModel(
   rhymeBreadth: RhymeBreadth = "near",
   manualRhymeLinks: string[] = [],
   manualRhymeUnlinks: string[] = [],
@@ -168,7 +168,7 @@ export function usePoemWorkshopModel(
   const [formNote, setFormNote] = useState("");
   const [body, setBody] = useState("");
   const [bodySyncNonce, setBodySyncNonce] = useState(0);
-  const [samplePoemActive, setSamplePoemActive] = useState(false);
+  const [sampleStoryActive, setSamplePoemActive] = useState(false);
   const bodyLiveRef = useRef("");
   const bodyToReactTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [heavyBody, setHeavyBody] = useState("");
@@ -209,7 +209,7 @@ export function usePoemWorkshopModel(
     }
   }, []);
 
-  const activePoemId = library.activeId;
+  const activeStoryId = library.activeId;
 
   // === Extracted hooks ===
   const { wordlist, wordlistErr, retryWordlist, stressLexicon, stressLexiconErr } =
@@ -234,7 +234,7 @@ export function usePoemWorkshopModel(
   const {
     meta,
     setMeta,
-    poemOptions,
+    storyOptions,
     setDraftLabel,
     togglePinned,
     setDraftTags,
@@ -260,7 +260,7 @@ export function usePoemWorkshopModel(
   useLayoutEffect(() => {
     if (initialHydrateRef.current) return;
     initialHydrateRef.current = true;
-    const p = poemById(library, library.activeId);
+    const p = storyById(library, library.activeId);
     if (!p) return;
     if (bodyToReactTimer.current) {
       clearTimeout(bodyToReactTimer.current);
@@ -325,7 +325,7 @@ export function usePoemWorkshopModel(
 
   const persistActiveDraft = useCallback(() => {
     setLibrary((prev) => {
-      const next = upsertActivePoem(prev, {
+      const next = upsertActiveStory(prev, {
         title,
         body: bodyLiveRef.current,
         form: formNote,
@@ -358,7 +358,7 @@ export function usePoemWorkshopModel(
   useEffect(() => {
     const t = setTimeout(() => persistRef.current(), 1500);
     return () => clearTimeout(t);
-  }, [title, body, formNote, spellMode, activePoemId]);
+  }, [title, body, formNote, spellMode, activeStoryId]);
 
   useEffect(() => {
     const flush = () => persistRef.current();
@@ -598,8 +598,8 @@ export function usePoemWorkshopModel(
     setSpellBump((n) => n + 1);
   }, []);
 
-  const applyLoadedPoem = useCallback((lib: DraftLibrary) => {
-    const p = poemById(lib, lib.activeId);
+  const applyLoadedStory = useCallback((lib: DraftLibrary) => {
+    const p = storyById(lib, lib.activeId);
     if (!p) return;
     if (bodyToReactTimer.current) {
       clearTimeout(bodyToReactTimer.current);
@@ -616,18 +616,18 @@ export function usePoemWorkshopModel(
 
     if (!readFirstVisitHintDismissed() && !isSampleDismissed() && !p.body.trim()) {
       setSamplePoemActive(true);
-      setTitle(SAMPLE_POEM_TITLE);
-      setBody(SAMPLE_POEM_BODY);
-      bodyLiveRef.current = SAMPLE_POEM_BODY;
-      setHeavyBody(SAMPLE_POEM_BODY);
+      setTitle(SAMPLE_STORY_TITLE);
+      setBody(SAMPLE_STORY_BODY);
+      bodyLiveRef.current = SAMPLE_STORY_BODY;
+      setHeavyBody(SAMPLE_STORY_BODY);
       setBodySyncNonce((n) => n + 1);
     }
   }, []);
 
-  const selectPoem = useCallback(
-    (poemId: string) => {
-      if (poemId === activePoemId) return;
-      const flushed = upsertActivePoem(library, {
+  const selectStory = useCallback(
+    (storyId: string) => {
+      if (storyId === activeStoryId) return;
+      const flushed = upsertActiveStory(library, {
         title,
         body: bodyLiveRef.current,
         form: formNote,
@@ -637,7 +637,7 @@ export function usePoemWorkshopModel(
         setPersistenceError(DRAFT_STORAGE_MSG);
         return;
       }
-      const next = setActivePoem(flushed, poemId);
+      const next = setActiveStory(flushed, storyId);
       if (!next) return;
       if (!saveLibrary(next)) {
         setPersistenceError(DRAFT_STORAGE_MSG);
@@ -645,19 +645,19 @@ export function usePoemWorkshopModel(
       }
       setLibrary(next);
       setMeta((prev) => {
-        const patched = upsertDraftMeta(prev, poemId, {
+        const patched = upsertDraftMeta(prev, storyId, {
           lastOpenedAt: new Date().toISOString(),
         });
         void saveDraftMetaMap(patched);
         return patched;
       });
-      applyLoadedPoem(next);
+      applyLoadedStory(next);
     },
-    [activePoemId, library, title, formNote, spellMode, applyLoadedPoem, setMeta],
+    [activeStoryId, library, title, formNote, spellMode, applyLoadedStory, setMeta],
   );
 
-  const newPoem = useCallback(() => {
-    const flushed = upsertActivePoem(library, {
+  const newStory = useCallback(() => {
+    const flushed = upsertActiveStory(library, {
       title,
       body: bodyLiveRef.current,
       form: formNote,
@@ -667,17 +667,17 @@ export function usePoemWorkshopModel(
       setPersistenceError(DRAFT_STORAGE_MSG);
       return;
     }
-    const next = newBlankPoemAfter(flushed);
+    const next = newBlankStoryAfter(flushed);
     if (!saveLibrary(next)) {
       setPersistenceError(DRAFT_STORAGE_MSG);
       return;
     }
     setLibrary(next);
-    applyLoadedPoem(next);
-  }, [library, title, formNote, spellMode, applyLoadedPoem]);
+    applyLoadedStory(next);
+  }, [library, title, formNote, spellMode, applyLoadedStory]);
 
-  const duplicatePoem = useCallback(() => {
-    const flushed = upsertActivePoem(library, {
+  const duplicateStory = useCallback(() => {
+    const flushed = upsertActiveStory(library, {
       title,
       body: bodyLiveRef.current,
       form: formNote,
@@ -687,18 +687,18 @@ export function usePoemWorkshopModel(
       setPersistenceError(DRAFT_STORAGE_MSG);
       return;
     }
-    const next = duplicateActivePoem(flushed);
+    const next = duplicateActiveStory(flushed);
     if (!next || !saveLibrary(next)) {
       setPersistenceError(DRAFT_STORAGE_MSG);
       return;
     }
     setLibrary(next);
-    applyLoadedPoem(next);
-  }, [library, title, formNote, spellMode, applyLoadedPoem]);
+    applyLoadedStory(next);
+  }, [library, title, formNote, spellMode, applyLoadedStory]);
 
-  const duplicatePoemById = useCallback(
-    (poemId: string) => {
-      const flushed = upsertActivePoem(library, {
+  const duplicateStoryById = useCallback(
+    (storyId: string) => {
+      const flushed = upsertActiveStory(library, {
         title,
         body: bodyLiveRef.current,
         form: formNote,
@@ -708,19 +708,19 @@ export function usePoemWorkshopModel(
         setPersistenceError(DRAFT_STORAGE_MSG);
         return;
       }
-      const next = duplicatePoemByIdInLib(flushed, poemId);
+      const next = duplicateStoryByIdInLib(flushed, storyId);
       if (!next || !saveLibrary(next)) {
         setPersistenceError(DRAFT_STORAGE_MSG);
         return;
       }
       setLibrary(next);
-      applyLoadedPoem(next);
+      applyLoadedStory(next);
     },
-    [library, title, formNote, spellMode, applyLoadedPoem],
+    [library, title, formNote, spellMode, applyLoadedStory],
   );
 
-  const deleteCurrentPoem = useCallback(() => {
-    if (library.poems.length <= 1) {
+  const deleteCurrentStory = useCallback(() => {
+    if (library.stories.length <= 1) {
       window.alert("You only have one draft; add another before deleting this one.");
       return;
     }
@@ -731,29 +731,29 @@ export function usePoemWorkshopModel(
     ) {
       return;
     }
-    const id = activePoemId;
-    removeRevisionsForPoem(id);
-    const flushed = upsertActivePoem(library, {
+    const id = activeStoryId;
+    removeRevisionsForStory(id);
+    const flushed = upsertActiveStory(library, {
       title,
       body: bodyLiveRef.current,
       form: formNote,
       spellMode,
     });
-    const without = removePoem(flushed, id);
+    const without = removeStory(flushed, id);
     if (!saveLibrary(without)) {
       setPersistenceError(DRAFT_STORAGE_MSG);
       return;
     }
     setLibrary(without);
-    applyLoadedPoem(without);
+    applyLoadedStory(without);
   }, [
     library,
-    library.poems.length,
-    activePoemId,
+    library.stories.length,
+    activeStoryId,
     title,
     formNote,
     spellMode,
-    applyLoadedPoem,
+    applyLoadedStory,
   ]);
 
   const dismissImportNotice = useCallback(() => {
@@ -807,12 +807,12 @@ export function usePoemWorkshopModel(
     setPersistenceError,
     setImportNotice,
     setImportNoticeKind,
-    applyLoadedPoem,
+    applyLoadedStory,
     setShowExportReminder,
   });
 
   const saveSnapshot = useCallback(() => {
-    const result = addRevision(activePoemId, revisions, {
+    const result = addRevision(activeStoryId, revisions, {
       title,
       body: bodyLiveRef.current,
       form: formNote.trim() || undefined,
@@ -845,18 +845,18 @@ export function usePoemWorkshopModel(
       if (right && next.some((s) => s.id === right)) return right;
       return next[0]?.id ?? COMPARE_CURRENT_ID;
     });
-  }, [activePoemId, revisions, title, formNote, snapshotLabel, lastAiScore]);
+  }, [activeStoryId, revisions, title, formNote, snapshotLabel, lastAiScore]);
 
   const lastAutoSnapshotBodyRef = useRef<string>("");
   useEffect(() => {
     const AUTO_INTERVAL_MS = 10 * 60 * 1000;
     const id = setInterval(() => {
       const { title: t, body: b, formNote: f, library: lib } = workshopStateRef.current;
-      const poemId = lib.activeId;
+      const storyId = lib.activeId;
       if (!b.trim()) return;
       if (b === lastAutoSnapshotBodyRef.current) return;
-      const current = loadRevisions(poemId);
-      const result = addRevision(poemId, current, {
+      const current = loadRevisions(storyId);
+      const result = addRevision(storyId, current, {
         title: t,
         body: b,
         form: f.trim() || undefined,
@@ -982,7 +982,7 @@ export function usePoemWorkshopModel(
 
   const deleteRevision = useCallback(
     (id: string) => {
-      const result = removeRevision(activePoemId, revisions, id);
+      const result = removeRevision(activeStoryId, revisions, id);
       if (!result.ok) {
         setPersistenceError(SNAPSHOT_DELETE_MSG);
         return;
@@ -1014,11 +1014,11 @@ export function usePoemWorkshopModel(
       setCompareLeftId(newLeft);
       setCompareRightId(newRight);
     },
-    [activePoemId, revisions, compareLeftId, compareRightId],
+    [activeStoryId, revisions, compareLeftId, compareRightId],
   );
 
   const deleteDuplicateRevisions = useCallback(() => {
-    const result = removeDuplicateRevisions(activePoemId, revisions);
+    const result = removeDuplicateRevisions(activeStoryId, revisions);
     if (!result.ok) {
       setPersistenceError(SNAPSHOT_DELETE_MSG);
       return;
@@ -1053,7 +1053,7 @@ export function usePoemWorkshopModel(
     }
     setCompareLeftId(newLeft);
     setCompareRightId(newRight);
-  }, [activePoemId, revisions, compareLeftId, compareRightId]);
+  }, [activeStoryId, revisions, compareLeftId, compareRightId]);
 
   const duplicateRevisionCount = useMemo(
     () => countDuplicateRevisions(revisions),
@@ -1088,7 +1088,7 @@ export function usePoemWorkshopModel(
     bodySyncNonce,
     onEditorBody,
     setBody,
-    samplePoemActive,
+    sampleStoryActive,
     clearSamplePoem,
     keepSamplePoem,
     spellMode,
@@ -1183,19 +1183,19 @@ export function usePoemWorkshopModel(
     onSpellPersistenceError,
     jumpLine,
     jumpBump,
-    activePoemId,
+    activeStoryId,
     library,
-    poemOptions,
+    storyOptions,
     draftMeta: meta,
     setDraftLabel,
     togglePinned,
     setDraftTags,
     setDraftArchived,
-    selectPoem,
-    newPoem,
-    duplicatePoem,
-    duplicatePoemById,
-    deleteCurrentPoem,
+    selectStory,
+    newStory,
+    duplicateStory,
+    duplicateStoryById,
+    deleteCurrentStory,
     exportWorkshopBackup,
     triggerImportBackup,
     onImportBackupFile,

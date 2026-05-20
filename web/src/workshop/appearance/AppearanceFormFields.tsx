@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  POEM_FONT_OPTIONS,
+  STORY_FONT_OPTIONS,
   UI_FONT_OPTIONS,
   type AppearanceSettings,
   defaultAppearance,
-  type PoemFontId,
+  type StoryFontId,
   type UiFontId,
 } from "./appearance";
 import "./FontSelect.css";
@@ -115,18 +115,18 @@ export function AppearanceFormFields(props: {
   onChange: (next: AppearanceSettings) => void;
 }) {
   const { appearance, onChange } = props;
-  const poemSel = POEM_FONT_OPTIONS.find((o) => o.id === appearance.poemFont) ?? POEM_FONT_OPTIONS[0]!;
+  const poemSel = STORY_FONT_OPTIONS.find((o) => o.id === appearance.storyFont) ?? STORY_FONT_OPTIONS[0]!;
   const uiSel = UI_FONT_OPTIONS.find((o) => o.id === appearance.uiFont) ?? UI_FONT_OPTIONS[0]!;
 
   return (
     <div className="appearance-fields" aria-label="Font options">
       <label className="appearance-field">
         <span className="appearance-field-label">Story font</span>
-        <FontSelect<PoemFontId>
-          id="poem-font-select"
-          value={appearance.poemFont}
-          options={POEM_FONT_OPTIONS}
-          onChange={(v) => onChange({ ...appearance, poemFont: v })}
+        <FontSelect<StoryFontId>
+          id="story-font-select"
+          value={appearance.storyFont}
+          options={STORY_FONT_OPTIONS}
+          onChange={(v) => onChange({ ...appearance, storyFont: v })}
         />
       </label>
 

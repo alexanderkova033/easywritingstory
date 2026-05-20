@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import type { AnalysisIssue, PoemAnalysis, PoemComparison } from "@/workshop/analysis/ai-analyze";
+import type { AnalysisIssue, StoryAnalysis, StoryComparison } from "@/workshop/analysis/ai-analyze";
 import { STORAGE_KEY_AI_MODEL, STORAGE_KEY_AI_SCORING_ENABLED } from "@/shared/storage-keys";
 
 export const LS_KEY_MODEL = STORAGE_KEY_AI_MODEL;
@@ -53,15 +53,15 @@ export function hashInput(input: string): string {
   return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
 }
 
-export function loadLastHash(poemId?: string): string | null {
-  if (!poemId) return null;
-  try { return localStorage.getItem(LS_LAST_HASH_PREFIX + poemId); }
+export function loadLastHash(storyId?: string): string | null {
+  if (!storyId) return null;
+  try { return localStorage.getItem(LS_LAST_HASH_PREFIX + storyId); }
   catch { return null; }
 }
 
-export function saveLastHash(poemId: string | undefined, hash: string) {
-  if (!poemId) return;
-  try { localStorage.setItem(LS_LAST_HASH_PREFIX + poemId, hash); } catch { /* ignore */ }
+export function saveLastHash(storyId: string | undefined, hash: string) {
+  if (!storyId) return;
+  try { localStorage.setItem(LS_LAST_HASH_PREFIX + storyId, hash); } catch { /* ignore */ }
 }
 
 export interface AnalysisSnapshot {
@@ -70,13 +70,13 @@ export interface AnalysisSnapshot {
   summary?: string;
   issuesCount: number;
   /** Full result for restoration. */
-  result: PoemAnalysis | PoemComparison;
+  result: StoryAnalysis | StoryComparison;
 }
 
-export function loadSnapshots(poemId?: string): AnalysisSnapshot[] {
-  if (!poemId) return [];
+export function loadSnapshots(storyId?: string): AnalysisSnapshot[] {
+  if (!storyId) return [];
   try {
-    const raw = localStorage.getItem(LS_SNAPSHOTS_PREFIX + poemId);
+    const raw = localStorage.getItem(LS_SNAPSHOTS_PREFIX + storyId);
     if (!raw) return [];
     const arr = JSON.parse(raw) as unknown;
     if (!Array.isArray(arr)) return [];
@@ -84,9 +84,9 @@ export function loadSnapshots(poemId?: string): AnalysisSnapshot[] {
   } catch { return []; }
 }
 
-export function pushSnapshot(poemId: string | undefined, result: PoemAnalysis | PoemComparison) {
-  if (!poemId) return;
-  const existing = loadSnapshots(poemId);
+export function pushSnapshot(storyId: string | undefined, result: StoryAnalysis | StoryComparison) {
+  if (!storyId) return;
+  const existing = loadSnapshots(storyId);
   const snap: AnalysisSnapshot = {
     analyzedAt: result.meta.analyzedAt,
     overall_score: result.overall_score,
@@ -95,15 +95,15 @@ export function pushSnapshot(poemId: string | undefined, result: PoemAnalysis | 
     result,
   };
   const next = [snap, ...existing.filter((s) => s.analyzedAt !== snap.analyzedAt)].slice(0, MAX_SNAPSHOTS);
-  try { localStorage.setItem(LS_SNAPSHOTS_PREFIX + poemId, JSON.stringify(next)); } catch { /* ignore */ }
+  try { localStorage.setItem(LS_SNAPSHOTS_PREFIX + storyId, JSON.stringify(next)); } catch { /* ignore */ }
 }
 
 export interface StoredChatMessage { role: "user" | "assistant"; text: string; }
 
-export function loadChat(poemId?: string): StoredChatMessage[] {
-  if (!poemId) return [];
+export function loadChat(storyId?: string): StoredChatMessage[] {
+  if (!storyId) return [];
   try {
-    const raw = localStorage.getItem(LS_CHAT_PREFIX + poemId);
+    const raw = localStorage.getItem(LS_CHAT_PREFIX + storyId);
     if (!raw) return [];
     const arr = JSON.parse(raw) as unknown;
     if (!Array.isArray(arr)) return [];
@@ -113,28 +113,28 @@ export function loadChat(poemId?: string): StoredChatMessage[] {
   } catch { return []; }
 }
 
-export function saveChat(poemId: string | undefined, msgs: StoredChatMessage[]) {
-  if (!poemId) return;
+export function saveChat(storyId: string | undefined, msgs: StoredChatMessage[]) {
+  if (!storyId) return;
   try {
-    if (msgs.length === 0) localStorage.removeItem(LS_CHAT_PREFIX + poemId);
-    else localStorage.setItem(LS_CHAT_PREFIX + poemId, JSON.stringify(msgs));
+    if (msgs.length === 0) localStorage.removeItem(LS_CHAT_PREFIX + storyId);
+    else localStorage.setItem(LS_CHAT_PREFIX + storyId, JSON.stringify(msgs));
   } catch { /* ignore */ }
 }
 
-export function loadScoreHistory(poemId?: string): number[] {
-  if (!poemId) return [];
+export function loadScoreHistory(storyId?: string): number[] {
+  if (!storyId) return [];
   try {
-    const raw = localStorage.getItem(LS_SCORE_HISTORY_PREFIX + poemId);
+    const raw = localStorage.getItem(LS_SCORE_HISTORY_PREFIX + storyId);
     if (!raw) return [];
     return JSON.parse(raw) as number[];
   } catch { return []; }
 }
 
-export function appendScoreHistory(poemId: string | undefined, score: number): number[] {
-  const history = loadScoreHistory(poemId);
+export function appendScoreHistory(storyId: string | undefined, score: number): number[] {
+  const history = loadScoreHistory(storyId);
   const next = [...history, score].slice(-MAX_SCORE_HISTORY);
-  if (!poemId) return next;
-  try { localStorage.setItem(LS_SCORE_HISTORY_PREFIX + poemId, JSON.stringify(next)); } catch { /* ignore */ }
+  if (!storyId) return next;
+  try { localStorage.setItem(LS_SCORE_HISTORY_PREFIX + storyId, JSON.stringify(next)); } catch { /* ignore */ }
   return next;
 }
 

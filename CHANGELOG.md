@@ -1,13 +1,69 @@
 # Changelog
 
-All notable user-visible changes to easywriting-poem.
+All notable user-visible changes to easywriting-story.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/) once a first tagged release exists.
 
 ---
 
-## Unreleased
+## Unreleased — Story pivot
+
+This project began life as **easywriting-poem**, a poetry workshop with rhyme, meter, syllable, and form-specific tools. It has been pivoted to **easywriting-story**, a short-story workshop aimed at IGCSE creative-writing coursework and stories under 2,000 words.
+
+### Removed (poetry-only)
+- Deleted `web/src/workshop/rhyme/` (rhyme finder, datamuse cache, scheme detection, internal rhymes, rhyme tooltip, manual rhyme links/unlinks storage).
+- Deleted `web/src/workshop/meter/` (CMU stress lexicon loader, meter hints, stress-source helpers, manual stress overrides storage).
+- Deleted `web/public/cmu-stress.txt` (670 KB CMU pronouncing dictionary) and the `generate-cmu-stress.mjs` / `check-cmu-stress-fresh.mjs` build scripts.
+- Deleted `MeterPanel.tsx`, `RhymePanel.tsx`, and their tests.
+- Dropped the `cmu-pronouncing-dictionary` npm dependency and the `check:cmu-stress` build step.
+- Removed the `Meter` and `Rhyme` tool tabs from `ToolTabBar` and the matching tab values from the `ToolTab` union.
+- Removed the `FormCoach` UI (haiku/sonnet line-syllable validator).
+
+### Added (prose-specific)
+- New `web/src/workshop/text/` folder for generic word/syllable utilities (kept because they're still needed for spell-check and Flesch-Kincaid).
+- New `DocumentStats.prose` field: sentences[] with line attribution, `avgWordsPerSentence`, `sentenceLengthStdDev`, `longestSentence`, `dialogueFraction`, `readingGrade` (Flesch-Kincaid).
+- New prose-stats strip at the top of the **Lines** panel showing reading grade, average words per sentence, sentence count, dialogue %, and longest sentence.
+- `SILENT_READING_WPM = 250` replacing the old `POETRY_READING_WPM = 130`.
+- Story-length form presets: Flash 500 / Short 1,000 / **IGCSE 1,500** / Long 2,000, replacing haiku / limerick / sonnet / villanelle.
+- 8 story-starter templates (dialogue / action / sensory place / memory hook / mystery / character gesture / three-beat / blank) replacing the poetry forms in the Templates modal.
+- `EditorView.lineWrapping` enabled: long sentences flow to the next visual row instead of shrinking the font.
+
+### Changed (AI)
+- All four AI endpoints rewritten for prose: `/api/analyze`, `/api/compare`, `/api/suggest`, `/api/chat`.
+- New persona set on `/api/analyze`: gentle reader / friend / workshop peer / fiction editor / **senior IGCSE creative-writing examiner**.
+- `/api/suggest` dropped the `rhyme` mode; `idea`/`continue`/`words`/`spark`/`line` reworded for stories. `syllableTarget`/`syllableTolerance` accepted as backward-compat aliases for `wordTarget`/`wordTolerance`.
+- `localAnalysis` context shape rewired to send prose metrics (FK grade, sentence stats, dialogue %, paragraphs, repeated words) instead of rhyme scheme + syllables-per-line.
+- StuckHelper's `Rhyme` mode replaced with a `Words` mode that calls the existing `words` suggest type.
+- Daily writing prompts rewritten as story-oriented prompts.
+
+### Changed (cost discipline)
+- Per-IP monthly cap lowered: $5 → **$3**.
+- Global daily kill-switch cap lowered: $5 → **$3**.
+- Analyze cooldown lengthened: nano 60 s → **90 s**, mini 120 s → 180 s, gpt-5 180 s → 240 s.
+- Default fallback cooldown: 120 s → 180 s.
+- Max story length on every AI endpoint reduced: 20,000 chars → **15,000 chars** (~2,500 words).
+
+### Changed (branding)
+- Top-level package names renamed `easy-poems*` → `easywritingstory*` across the three `package.json` files.
+- `web/index.html` title, meta description, OG tags, Twitter card, and noscript fallback rewritten.
+- Sitemap + robots.txt URLs swapped for `easywritingstory.vercel.app`.
+- Sample workshop content swapped from "The Candle" (poem) to "The Last Bus" (story opening).
+- Landing page hero, sub, demo content, concept cards, footer CTA all rewritten. Demo now shows word counts + reading grade instead of rhyme badges + syllables.
+- Topbar brand badge: `poem` → `story`. Logo SVG updated to an open-book icon.
+- Workshop UI strings updated throughout: "Ask about your story", "Story font", "Paragraphs" goal label, story-aware tour copy, prose-flavoured sample suggestions.
+- README rewritten with IGCSE positioning.
+- `docs/FEATURES.md`, `docs/AI_INTEGRATION.md`, `docs/ARCHITECTURE.md`, `docs/REQUIREMENTS.md`, `docs/PRIORITIES.md` rewritten for the story workshop.
+
+### Deferred (no functional impact)
+- File renames (`PoemWorkshop.tsx` → `StoryWorkshop.tsx`, `PoemBodyEditor.tsx` → `StoryBodyEditor.tsx`, `usePoemWorkshopModel.ts` → `useStoryWorkshopModel.ts`, etc.).
+- Internal identifier sweep (`Poem` → `Story` types, `.poem-*` CSS class names).
+- `easy-poems:*` → `easy-stories:*` localStorage key migration.
+- Removal of deprecated rhyme/stanza/syllable fields in `WorkshopGoals` (kept on the type until callers stop reading them).
+
+---
+
+## Pre-pivot history (poetry workshop)
 
 ### Network / first-load
 - `<link rel="dns-prefetch">` for Datamuse, dictionaryapi.dev, Vercel analytics and insights origins — warms DNS/TLS before the first AI or rhyme/define call.

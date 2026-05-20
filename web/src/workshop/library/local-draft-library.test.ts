@@ -1,14 +1,14 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { attachMockLocalStorage } from "@/shared/test/mock-local-storage";
 import {
-  duplicatePoemById,
+  duplicateStoryById,
   loadOrCreateLibrary,
-  mergeImportedPoems,
-  newBlankPoemAfter,
-  poemById,
-  removePoem,
-  setActivePoem,
-  upsertActivePoem,
+  mergeImportedStories,
+  newBlankStoryAfter,
+  storyById,
+  removeStory,
+  setActiveStory,
+  upsertActiveStory,
 } from "./local-draft-library";
 
 describe("local-draft-library", () => {
@@ -24,19 +24,19 @@ describe("local-draft-library", () => {
 
   it("creates one poem when storage is empty", () => {
     const lib = loadOrCreateLibrary();
-    expect(lib.poems).toHaveLength(1);
-    expect(lib.activeId).toBe(lib.poems[0]!.id);
+    expect(lib.stories).toHaveLength(1);
+    expect(lib.activeId).toBe(lib.stories[0]!.id);
   });
 
   it("upserts title and body on the active poem", () => {
     const lib = loadOrCreateLibrary();
-    const next = upsertActivePoem(lib, {
+    const next = upsertActiveStory(lib, {
       title: "Sea",
       body: "one\n",
       form: "haiku",
       spellMode: "strict",
     });
-    const p = poemById(next, next.activeId);
+    const p = storyById(next, next.activeId);
     expect(p?.title).toBe("Sea");
     expect(p?.body).toBe("one\n");
     expect(p?.form).toBe("haiku");
@@ -45,21 +45,21 @@ describe("local-draft-library", () => {
 
   it("clears form when empty string passed", () => {
     let lib = loadOrCreateLibrary();
-    lib = upsertActivePoem(lib, {
+    lib = upsertActiveStory(lib, {
       title: "",
       body: "",
       form: "note",
     });
-    expect(poemById(lib, lib.activeId)?.form).toBe("note");
-    lib = upsertActivePoem(lib, {
+    expect(storyById(lib, lib.activeId)?.form).toBe("note");
+    lib = upsertActiveStory(lib, {
       title: "",
       body: "",
       form: "",
     });
-    expect(poemById(lib, lib.activeId)?.form).toBeUndefined();
+    expect(storyById(lib, lib.activeId)?.form).toBeUndefined();
   });
 
-  it("mergeImportedPoems appends poems from backup JSON", () => {
+  it("mergeImportedStories appends poems from backup JSON", () => {
     const lib = loadOrCreateLibrary();
     const raw = JSON.stringify({
       easyPoemsWorkshopExport: true,
@@ -67,36 +67,36 @@ describe("local-draft-library", () => {
       exportedAt: "2026-01-01T00:00:00.000Z",
       poems: [{ title: "Imported", body: "a\nb\n" }],
     });
-    const merged = mergeImportedPoems(lib, raw);
+    const merged = mergeImportedStories(lib, raw);
     expect("error" in merged).toBe(false);
     if ("error" in merged) return;
     expect(merged.added).toBe(1);
-    expect(merged.lib.poems.length).toBe(lib.poems.length + 1);
-    const active = poemById(merged.lib, merged.lib.activeId);
+    expect(merged.lib.stories.length).toBe(lib.stories.length + 1);
+    const active = storyById(merged.lib, merged.lib.activeId);
     expect(active?.title).toBe("Imported");
   });
 
-  it("removePoem keeps at least one blank poem", () => {
+  it("removeStory keeps at least one blank poem", () => {
     let lib = loadOrCreateLibrary();
-    const onlyId = lib.poems[0]!.id;
-    lib = removePoem(lib, onlyId);
-    expect(lib.poems).toHaveLength(1);
-    expect(lib.poems[0]!.body).toBe("");
+    const onlyId = lib.stories[0]!.id;
+    lib = removeStory(lib, onlyId);
+    expect(lib.stories).toHaveLength(1);
+    expect(lib.stories[0]!.body).toBe("");
   });
 
-  it("duplicatePoemById copies a chosen draft and activates the copy", () => {
+  it("duplicateStoryById copies a chosen draft and activates the copy", () => {
     let lib = loadOrCreateLibrary();
-    lib = upsertActivePoem(lib, { title: "Source", body: "alpha\n" });
+    lib = upsertActiveStory(lib, { title: "Source", body: "alpha\n" });
     const sourceId = lib.activeId;
-    lib = newBlankPoemAfter(lib);
+    lib = newBlankStoryAfter(lib);
     expect(lib.activeId).not.toBe(sourceId);
-    const back = setActivePoem(lib, sourceId);
+    const back = setActiveStory(lib, sourceId);
     expect(back).not.toBeNull();
     lib = back!;
     expect(lib.activeId).toBe(sourceId);
-    const dupLib = duplicatePoemById(lib, sourceId);
+    const dupLib = duplicateStoryById(lib, sourceId);
     expect(dupLib).not.toBeNull();
-    const copy = poemById(dupLib!, dupLib!.activeId);
+    const copy = storyById(dupLib!, dupLib!.activeId);
     expect(copy?.body).toBe("alpha\n");
     expect(copy?.title).toContain("copy");
   });

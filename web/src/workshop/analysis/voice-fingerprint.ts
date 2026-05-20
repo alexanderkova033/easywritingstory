@@ -6,7 +6,7 @@
  * Used as a subtle "Your voice often: …" hint in the AI Overview tab.
  */
 
-import { loadOrCreateLibrary, type PoemRecord } from "@/workshop/library/local-draft-library";
+import { loadOrCreateLibrary, type StoryRecord } from "@/workshop/library/local-draft-library";
 import { countSyllablesInLine } from "@/workshop/text/syllables";
 
 const IMAGERY_BUCKETS: Array<{ label: string; words: string[] }> = [
@@ -22,7 +22,7 @@ const IMAGERY_BUCKETS: Array<{ label: string; words: string[] }> = [
 const STOP_PUNCT = /[.!?,:;—–]\s*"?$/;
 
 export interface VoiceFingerprint {
-  poemCount: number;
+  storyCount: number;
   tags: string[];
 }
 
@@ -30,9 +30,9 @@ function tokenize(text: string): string[] {
   return text.toLowerCase().match(/[a-z']+/g) ?? [];
 }
 
-function tally(records: PoemRecord[]): VoiceFingerprint {
+function tally(records: StoryRecord[]): VoiceFingerprint {
   const tags: string[] = [];
-  if (records.length === 0) return { poemCount: 0, tags };
+  if (records.length === 0) return { storyCount: 0, tags };
 
   // Bucket counts.
   const bucketCounts = new Array<number>(IMAGERY_BUCKETS.length).fill(0);
@@ -93,14 +93,14 @@ function tally(records: PoemRecord[]): VoiceFingerprint {
     else if (stopRatio <= 0.25) tags.push("enjambed lines");
   }
 
-  return { poemCount: records.length, tags: tags.slice(0, 3) };
+  return { storyCount: records.length, tags: tags.slice(0, 3) };
 }
 
 /** Top-level: read library and compute. Returns null if not enough data. */
 export function computeVoiceFingerprint(): VoiceFingerprint | null {
   try {
     const lib = loadOrCreateLibrary();
-    const meaningful = lib.poems.filter((p) => (p.body ?? "").trim().split(/\s+/).length >= 5);
+    const meaningful = lib.stories.filter((p) => (p.body ?? "").trim().split(/\s+/).length >= 5);
     if (meaningful.length < 3) return null;
     const fp = tally(meaningful);
     if (fp.tags.length === 0) return null;

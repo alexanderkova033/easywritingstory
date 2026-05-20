@@ -3,7 +3,7 @@ import { attachMockLocalStorage } from "@/shared/test/mock-local-storage";
 import {
   addRevision,
   loadRevisions,
-  migrateLegacyRevisionsV1ToPoem,
+  migrateLegacyRevisionsV1ToStory,
   removeRevision,
 } from "./revision-snapshots";
 
@@ -43,9 +43,9 @@ describe("revision-snapshots (per poem)", () => {
         body: "z",
       },
     ];
-    globalThis.localStorage.setItem("easy-poems:revisions:v1", JSON.stringify(legacy));
-    migrateLegacyRevisionsV1ToPoem("first-poem");
-    expect(globalThis.localStorage.getItem("easy-poems:revisions:v1")).toBeNull();
+    globalThis.localStorage.setItem("easy-stories:revisions:v1", JSON.stringify(legacy));
+    migrateLegacyRevisionsV1ToStory("first-poem");
+    expect(globalThis.localStorage.getItem("easy-stories:revisions:v1")).toBeNull();
     const snaps = loadRevisions("first-poem");
     expect(snaps).toHaveLength(1);
     expect(snaps[0]!.title).toBe("Old");

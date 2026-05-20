@@ -466,7 +466,7 @@
   gap: 0.45rem;
 }
 
-.landing-hero-feather {
+.landing-hero-logo {
   flex-shrink: 0;
 }
 
@@ -1425,7 +1425,7 @@
   gap: 0;
 }
 
-.lp-poem-row {
+.lp-story-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1442,7 +1442,7 @@
   flex-shrink: 0;
 }
 
-.lp-poem-text {
+.lp-story-text {
   flex: 1;
   font-family: var(--font-poem, serif);
   font-size: 0.8rem;
@@ -2250,58 +2250,58 @@
 .landing-preview[data-revealed="true"] .lp-ai     { opacity: 1; transform: none; transition-delay: 0.9s; }
 
 /* Poem rows type in one by one once editor visible */
-.landing-preview .lp-poem-body .lp-poem-row {
+.landing-preview .lp-story-body .lp-story-row {
   opacity: 0;
   transform: translateX(-6px);
 }
 
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row {
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row {
   animation: lp-row-in 0.45s ease forwards;
 }
 
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(1) { animation-delay: 1.0s; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(2) { animation-delay: 1.15s; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(3) { animation-delay: 1.3s; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(4) { animation-delay: 1.45s; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(5) { animation-delay: 1.6s; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(6) { animation-delay: 1.75s; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(7) { animation-delay: 1.9s; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(1) { animation-delay: 1.0s; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(2) { animation-delay: 1.15s; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(3) { animation-delay: 1.3s; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(4) { animation-delay: 1.45s; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(5) { animation-delay: 1.6s; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(6) { animation-delay: 1.75s; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(7) { animation-delay: 1.9s; }
 
 @keyframes lp-row-in {
   to { opacity: 1; transform: translateX(0); }
 }
 
 /* Rhyme badges pop in slightly after their row */
-.landing-preview .lp-poem-body .lp-rhyme-badge {
+.landing-preview .lp-story-body .lp-rhyme-badge {
   opacity: 0;
   transform: scale(0.6);
   transform-origin: center;
 }
 
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(1) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 1.25s forwards; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(2) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 1.4s forwards; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(3) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 1.55s forwards; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(4) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 1.7s forwards; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(6) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 2s forwards; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(7) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 2.15s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(1) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 1.25s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(2) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 1.4s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(3) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 1.55s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(4) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 1.7s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(6) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 2s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(7) .lp-rhyme-badge { animation: lp-badge-in 0.35s ease 2.15s forwards; }
 
 @keyframes lp-badge-in {
   to { opacity: 1; transform: scale(1); }
 }
 
 /* Syllable bars fill from 0 → width once row lands */
-.landing-preview .lp-poem-body .lp-syl-bar {
+.landing-preview .lp-story-body .lp-syl-bar {
   transform: scaleX(0);
   transform-origin: left center;
   opacity: 0;
 }
 
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(1) .lp-syl-bar { animation: lp-bar-in 0.5s ease 1.3s forwards; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(2) .lp-syl-bar { animation: lp-bar-in 0.5s ease 1.45s forwards; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(3) .lp-syl-bar { animation: lp-bar-in 0.5s ease 1.6s forwards; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(4) .lp-syl-bar { animation: lp-bar-in 0.5s ease 1.75s forwards; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(6) .lp-syl-bar { animation: lp-bar-in 0.5s ease 2.05s forwards; }
-.landing-preview[data-revealed="true"] .lp-poem-body .lp-poem-row:nth-child(7) .lp-syl-bar { animation: lp-bar-in 0.5s ease 2.2s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(1) .lp-syl-bar { animation: lp-bar-in 0.5s ease 1.3s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(2) .lp-syl-bar { animation: lp-bar-in 0.5s ease 1.45s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(3) .lp-syl-bar { animation: lp-bar-in 0.5s ease 1.6s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(4) .lp-syl-bar { animation: lp-bar-in 0.5s ease 1.75s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(6) .lp-syl-bar { animation: lp-bar-in 0.5s ease 2.05s forwards; }
+.landing-preview[data-revealed="true"] .lp-story-body .lp-story-row:nth-child(7) .lp-syl-bar { animation: lp-bar-in 0.5s ease 2.2s forwards; }
 
 @keyframes lp-bar-in {
   to { opacity: 0.7; transform: scaleX(1); }
@@ -2348,9 +2348,9 @@
   .landing-preview .lp-editor,
   .landing-preview .lp-tools,
   .landing-preview .lp-ai,
-  .landing-preview .lp-poem-body .lp-poem-row,
-  .landing-preview .lp-poem-body .lp-rhyme-badge,
-  .landing-preview .lp-poem-body .lp-syl-bar,
+  .landing-preview .lp-story-body .lp-story-row,
+  .landing-preview .lp-story-body .lp-rhyme-badge,
+  .landing-preview .lp-story-body .lp-syl-bar,
   .landing-preview .lp-rqueue .lp-rcard,
   .landing-preview .lp-ai-chip,
   .landing-preview .lp-ai-toggle,
@@ -2539,7 +2539,7 @@
 .lp-field-input-placeholder { color: var(--muted); opacity: 0.7; }
 
 /* Poem header + format toolbar */
-.lp-poem-header {
+.lp-story-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2547,7 +2547,7 @@
   margin-top: 0.2rem;
 }
 
-.lp-poem-label {
+.lp-story-label {
   font-size: 0.65rem;
   font-weight: 600;
   color: var(--text);
@@ -2605,7 +2605,7 @@
 }
 
 /* Poem body — line numbers + gutter + text + syllable widget */
-.lp-poem-body {
+.lp-story-body {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: color-mix(in srgb, var(--bg) 78%, var(--surface));
@@ -2615,7 +2615,7 @@
   min-height: 150px;
 }
 
-.lp-poem-row {
+.lp-story-row {
   display: flex;
   align-items: center;
   gap: 0.4rem;

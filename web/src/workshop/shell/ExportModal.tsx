@@ -1,9 +1,9 @@
 import type { ChecklistItem } from "@/workshop/analysis/publication-checklist";
 import { PublicationChecklistVisual } from "@/workshop/analysis/PublicationChecklistVisual";
 import { useHoverHintBinder } from "@/workshop/hints/HoverHintsContext";
-import type { usePoemWorkshopModel } from "./usePoemWorkshopModel";
+import type { useStoryWorkshopModel } from "./useStoryWorkshopModel";
 
-type WorkshopModel = ReturnType<typeof usePoemWorkshopModel>;
+type WorkshopModel = ReturnType<typeof useStoryWorkshopModel>;
 
 export interface ExportModalProps {
   isOpen: boolean;

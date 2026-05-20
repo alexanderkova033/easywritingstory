@@ -10,20 +10,20 @@ import type { DraftLibrary } from "@/workshop/library/local-draft-library";
 export interface DraftMetaState {
   meta: DraftMetaMap;
   setMeta: React.Dispatch<React.SetStateAction<DraftMetaMap>>;
-  poemOptions: Array<{ id: string; label: string; archived: boolean }>;
-  setDraftLabel: (poemId: string, label: string) => void;
-  togglePinned: (poemId: string) => void;
-  setDraftTags: (poemId: string, tags: string[]) => void;
-  setDraftArchived: (poemId: string, archived: boolean) => void;
+  storyOptions: Array<{ id: string; label: string; archived: boolean }>;
+  setDraftLabel: (storyId: string, label: string) => void;
+  togglePinned: (storyId: string) => void;
+  setDraftTags: (storyId: string, tags: string[]) => void;
+  setDraftArchived: (storyId: string, archived: boolean) => void;
 }
 
 export function useDraftMeta(library: DraftLibrary): DraftMetaState {
   const [meta, setMeta] = useState<DraftMetaMap>(() => loadDraftMetaMap());
 
-  const poemOptions = useMemo(() => {
-    const labelFor = (p: (typeof library.poems)[0]) =>
+  const storyOptions = useMemo(() => {
+    const labelFor = (p: (typeof library.stories)[0]) =>
       meta[p.id]?.label?.trim() || p.title.trim() || "Untitled";
-    return library.poems
+    return library.stories
       .slice()
       .filter(
         (p) => !meta[p.id]?.archived || p.id === library.activeId,
@@ -46,37 +46,37 @@ export function useDraftMeta(library: DraftLibrary): DraftMetaState {
         label: labelFor(p),
         archived: Boolean(meta[p.id]?.archived),
       }));
-  }, [library.poems, library.activeId, meta]);
+  }, [library.stories, library.activeId, meta]);
 
-  const setDraftLabel = useCallback((poemId: string, label: string) => {
+  const setDraftLabel = useCallback((storyId: string, label: string) => {
     setMeta((prev) => {
-      const patched = upsertDraftMeta(prev, poemId, { label });
+      const patched = upsertDraftMeta(prev, storyId, { label });
       void saveDraftMetaMap(patched);
       return patched;
     });
   }, []);
 
-  const togglePinned = useCallback((poemId: string) => {
+  const togglePinned = useCallback((storyId: string) => {
     setMeta((prev) => {
-      const pinned = Boolean(prev[poemId]?.pinned);
-      const patched = upsertDraftMeta(prev, poemId, { pinned: !pinned });
+      const pinned = Boolean(prev[storyId]?.pinned);
+      const patched = upsertDraftMeta(prev, storyId, { pinned: !pinned });
       void saveDraftMetaMap(patched);
       return patched;
     });
   }, []);
 
-  const setDraftTags = useCallback((poemId: string, tags: string[]) => {
+  const setDraftTags = useCallback((storyId: string, tags: string[]) => {
     setMeta((prev) => {
-      const patched = upsertDraftMeta(prev, poemId, { tags });
+      const patched = upsertDraftMeta(prev, storyId, { tags });
       void saveDraftMetaMap(patched);
       return patched;
     });
   }, []);
 
   const setDraftArchived = useCallback(
-    (poemId: string, archived: boolean) => {
+    (storyId: string, archived: boolean) => {
       setMeta((prev) => {
-        const patched = upsertDraftMeta(prev, poemId, { archived });
+        const patched = upsertDraftMeta(prev, storyId, { archived });
         void saveDraftMetaMap(patched);
         return patched;
       });
@@ -87,7 +87,7 @@ export function useDraftMeta(library: DraftLibrary): DraftMetaState {
   return {
     meta,
     setMeta,
-    poemOptions,
+    storyOptions,
     setDraftLabel,
     togglePinned,
     setDraftTags,

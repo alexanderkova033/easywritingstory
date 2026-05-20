@@ -11,11 +11,11 @@ import {
 interface IssueChatMessage { role: "user" | "assistant"; text: string; }
 
 function IssueThread({
-  issue, poemTitle, poemLines, model,
+  issue, storyTitle, storyLines, model,
 }: {
   issue: AnalysisIssue;
-  poemTitle: string;
-  poemLines: string[];
+  storyTitle: string;
+  storyLines: string[];
   model: string;
 }) {
   const [messages, setMessages] = useState<IssueChatMessage[]>([]);
@@ -50,8 +50,8 @@ function IssueThread({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: poemTitle,
-          lines: poemLines,
+          title: storyTitle,
+          lines: storyLines,
           message: text,
           analysisContext: issueContext,
           history: priorHistory,
@@ -72,7 +72,7 @@ function IssueThread({
     } finally {
       setLoading(false);
     }
-  }, [input, loading, messages, poemTitle, poemLines, issueContext, model]);
+  }, [input, loading, messages, storyTitle, storyLines, issueContext, model]);
 
   return (
     <div className="ai-issue-thread">
@@ -120,7 +120,7 @@ function IssueThread({
 
 export function IssueCard({
   issue, index, isOpen, onOpenChange, isResolved, onResolve, onIgnore,
-  onJump, onHighlight, onClearHighlight, onApplyLine, poemLines, poemTitle, model,
+  onJump, onHighlight, onClearHighlight, onApplyLine, storyLines, storyTitle, model,
 }: {
   issue: AnalysisIssue;
   index: number;
@@ -133,8 +133,8 @@ export function IssueCard({
   onHighlight?: (start: number, end: number, severity?: string) => void;
   onClearHighlight?: () => void;
   onApplyLine?: (lineStart: number, lineEnd: number, text: string) => void;
-  poemLines?: string[];
-  poemTitle?: string;
+  storyLines?: string[];
+  storyTitle?: string;
   model?: string;
 }) {
   const rangeLabel = issue.line_start === issue.line_end
@@ -147,8 +147,8 @@ export function IssueCard({
   const [previewRewrite, setPreviewRewrite] = useState(false);
   const [showRewrite, setShowRewrite] = useState(false);
 
-  const originalLineText = poemLines
-    ? poemLines.slice(issue.line_start - 1, issue.line_end).join("\n")
+  const originalLineText = storyLines
+    ? storyLines.slice(issue.line_start - 1, issue.line_end).join("\n")
     : null;
 
   const triggerHighlight = () => {
@@ -343,7 +343,7 @@ export function IssueCard({
           )}
 
           {/* Per-issue thread toggle */}
-          {poemLines && poemTitle !== undefined && model && (
+          {storyLines && storyTitle !== undefined && model && (
             <div className="ai-issue-thread-toggle-row">
               <button
                 type="button"
@@ -356,11 +356,11 @@ export function IssueCard({
             </div>
           )}
 
-          {showThread && poemLines && poemTitle !== undefined && model && (
+          {showThread && storyLines && storyTitle !== undefined && model && (
             <IssueThread
               issue={issue}
-              poemTitle={poemTitle}
-              poemLines={poemLines}
+              storyTitle={storyTitle}
+              storyLines={storyLines}
               model={model}
             />
           )}

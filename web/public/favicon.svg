@@ -1,10 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Rounded square background with padding from edge -->
+  <!-- Rounded square tile background (favicons act as app icons) -->
   <rect x="4" y="4" width="24" height="24" rx="6" fill="#1a0f08"/>
-  <!-- Open book body (amber, scaled to fit padded area) -->
-  <path d="M8 12C11 11 14 11 16 12.5C18 11 21 11 24 12L24 22C21 21 18 21 16 22.5C14 21 11 21 8 22Z" fill="#d98c3e"/>
-  <!-- Page-line highlights (suggest text) -->
-  <path d="M10.5 14.5L14.5 14.8M10.5 16.5L14.5 16.8M17.5 14.8L21.5 14.5M17.5 16.8L21.5 16.5" stroke="#fbe2c2" stroke-width="0.6" stroke-linecap="round" fill="none"/>
-  <!-- Spine -->
-  <path d="M16 12.5L16 22.5" stroke="#1a0f08" stroke-width="0.85" stroke-linecap="round" opacity="0.55" fill="none"/>
+  <!-- v3 open-book + bookmark, mapped from 24-unit viewBox into the 24x24 tile -->
+  <g transform="translate(4 4)">
+    <path d="M11 4L11 23L12 21L13 23L13 4Z" fill="#8c2a1c"/>
+    <path d="M11.5 4.3L11.5 21.4L12 21L12.5 21.4L12.5 4.3Z" fill="#cf4530" opacity="0.95"/>
+    <path d="M3 6.8C6 5.8 9 5.8 12 7.8L12 19.8C9 17.8 6 17.8 3 18.8Z" fill="#a85515"/>
+    <path d="M3 6C6 5 9 5 12 7L12 19C9 17 6 17 3 18Z" fill="#f0a85a"/>
+    <path d="M3 6C6 5 9 5 12 7L12 7.5C9 5.5 6 5.5 3 6.5Z" fill="#fbd99c" opacity="0.75"/>
+    <path d="M12 7.8C15 5.8 18 4.8 21 4.8L21 16.8C18 16.8 15 17.8 12 19.8Z" fill="#6b3010"/>
+    <path d="M12 7C15 5 18 4 21 4L21 16C18 16 15 17 12 19Z" fill="#b56b1f"/>
+    <path d="M12 7C15 5 18 4 21 4L21 4.6C18 4.6 15 5.6 12 7.6Z" fill="#d98c3e" opacity="0.9"/>
+    <path d="M12 7.3L12 18.7" stroke="#3a1a08" stroke-width="0.5" stroke-linecap="round" opacity="0.4"/>
+    <path d="M5.2 10L9.8 10M5 12L10 12M5.5 14L9.5 14" stroke="#a85515" stroke-width="0.7" stroke-linecap="round" opacity="0.5"/>
+    <path d="M14 10C16 9 17.5 8.3 19 8.1" stroke="#f0a85a" stroke-width="0.7" stroke-linecap="round" fill="none" opacity="0.65"/>
+    <path d="M14 12C16 11 17.5 10.3 19 10.1" stroke="#f0a85a" stroke-width="0.7" stroke-linecap="round" fill="none" opacity="0.65"/>
+    <path d="M14 14C16 13 17.5 12.3 19 12.1" stroke="#f0a85a" stroke-width="0.7" stroke-linecap="round" fill="none" opacity="0.65"/>
+  </g>
 </svg>

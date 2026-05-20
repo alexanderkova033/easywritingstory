@@ -17,7 +17,7 @@ import type { ClicheHit } from "@/workshop/analysis/cliche-scan";
 
 // Opaque stubs for rhyme-derived shapes that the worker no longer computes.
 // Kept on the result type so downstream call-sites (WorkshopToolPanels,
-// usePoemWorkshopModel) still typecheck while their poetry features are
+// useStoryWorkshopModel) still typecheck while their poetry features are
 // being torn out. Removed in a later cleanup pass.
 export type RhymeCluster = unknown;
 export type StanzaClusterGroup = unknown;

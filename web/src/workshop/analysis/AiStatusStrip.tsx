@@ -1,6 +1,6 @@
 import "./AiStatusStrip.css";
 import { useEffect, useState } from "react";
-import type { PoemAnalysis, PoemComparison } from "@/workshop/analysis/ai-analyze";
+import type { StoryAnalysis, StoryComparison } from "@/workshop/analysis/ai-analyze";
 
 function scoreColor(score: number): string {
   if (score >= 80) return "var(--ai-score-high, #5fba7d)";
@@ -9,7 +9,7 @@ function scoreColor(score: number): string {
 }
 
 export interface AiStatusStripProps {
-  result: PoemAnalysis | PoemComparison;
+  result: StoryAnalysis | StoryComparison;
   scoringEnabled: boolean;
   onJumpToLine?: (line: number) => void;
 }

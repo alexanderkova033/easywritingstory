@@ -21,7 +21,7 @@ export interface IssuesPanelProps {
   applySpellSuggestionAll: (normalized: string, replacement: string) => boolean;
   refreshSpell: () => void;
   onOpenToolTab: (tab: ToolTab) => void;
-  focusPoemTitle: () => void;
+  focusStoryTitle: () => void;
 }
 
 type QueueSeverity = "now" | "soon" | "optional";
@@ -50,7 +50,7 @@ export function IssuesPanel({
   applySpellSuggestionAll,
   refreshSpell,
   onOpenToolTab,
-  focusPoemTitle,
+  focusStoryTitle,
 }: IssuesPanelProps) {
   const openChecklistItems = publication.items.filter((i) => !i.done);
 
@@ -80,7 +80,7 @@ export function IssuesPanel({
         detail: item.detail,
         primary:
           item.focusTitleField
-            ? { label: "Add title", onClick: () => focusPoemTitle() }
+            ? { label: "Add title", onClick: () => focusStoryTitle() }
             : item.openToolTab
               ? {
                   label: checklistJumpLabel(item),
@@ -147,7 +147,7 @@ export function IssuesPanel({
     clicheHits,
     heavyToolsStale,
     onOpenToolTab,
-    focusPoemTitle,
+    focusStoryTitle,
     goToLine,
     goToSpellHitAt,
     applySpellSuggestion,

@@ -94,12 +94,12 @@ export interface WorkshopToolPanelsProps {
   compareRightBody: string;
   compareDiffRows: LineDiffRow[];
   onOpenToolTab: (tab: ToolTab) => void;
-  focusPoemTitle: () => void;
+  focusStoryTitle: () => void;
   stressLexiconReady: boolean;
   stressLexiconErr: string | null;
   heavyToolsStale: boolean;
-  poemTitle: string;
-  poemLines: string[];
+  storyTitle: string;
+  storyLines: string[];
   onInsertSuggestion?: (text: string) => void;
   onInsertSuggestionAtCursor?: (text: string) => void;
   onInsertWord?: (text: string) => void;
@@ -141,7 +141,7 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           applySpellSuggestionAll={props.applySpellSuggestionAll}
           refreshSpell={props.refreshSpell}
           onOpenToolTab={props.onOpenToolTab}
-          focusPoemTitle={props.focusPoemTitle}
+          focusStoryTitle={props.focusStoryTitle}
         />
       ) : null}
 
@@ -238,8 +238,8 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           aria-labelledby="tool-tab-suggest"
         >
           <StuckHelper
-            title={props.poemTitle}
-            lines={props.poemLines}
+            title={props.storyTitle}
+            lines={props.storyLines}
             onInsert={props.onInsertSuggestion}
             onInsertAtCursor={props.onInsertSuggestionAtCursor}
             cursorLine={props.cursorLine}

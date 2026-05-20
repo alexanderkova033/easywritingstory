@@ -1,23 +1,22 @@
 # Plans — cost control & monetization
 
-Deferred work tracked here. As of 2026-05-11 the live caps are:
+Deferred work tracked here. Current live caps after the story pivot (each AI call is ~3–4× the load of the old poetry analyses, so caps tightened correspondingly):
 
-- **Per-IP**: $2.00 / calendar month of OpenAI spend (in-memory, best-effort).
-- **Global**: $5.00 / UTC day across all callers (kill-switch).
-- **Cooldown**: 5 s between calls per IP per endpoint; 60 s for `/api/analyze` and `/api/compare`.
+- **Per-IP**: $3.00 / calendar month of OpenAI spend.
+- **Global**: $3.00 / UTC day across all callers (kill-switch).
+- **Cooldown**: 5 s between calls per IP per endpoint; 90 s for `/api/analyze` and `/api/compare` on `gpt-5-nano` (180 s on `gpt-5-mini`, 240 s on `gpt-5`).
 - **Env kill-switch**: `OPENAI_DISABLED=true` returns 503 immediately.
 
-Implementation lives in `api/_usage-cap.ts` and `api/_rate-limit.ts`.
+Implementation lives in `api/_usage-cap.ts` and `api/_rate-limit.ts`; KV adapter in `api/_kv.ts`.
 
-## P0 — Storage durability
+## P0 — Storage durability (Vercel KV)
 
-The current caps live in `Map` instances inside `api/_usage-cap.ts`. Vercel serverless containers are recycled, so a cold-start resets every counter and the cap silently re-opens. Move state to **Vercel KV** (or Upstash Redis) before treating the cap as a real spend ceiling. Keys to migrate:
+`api/_kv.ts` already targets Vercel KV when `KV_REST_API_URL` + `KV_REST_API_TOKEN` are present. **Set these env vars in production** — without them the counters live in process-local `Map`s and reset on every cold start. With KV enabled the caps survive cold starts and are shared across concurrent warm containers.
 
-- `ipMonth:<ip>:<YYYY-MM>` → cents spent.
-- `globalDay:<YYYY-MM-DD>` → cents spent.
-- `cooldown:<ip>:<endpoint>` → last-call timestamp (or a sliding-window count).
-
-KV adds ~5 ms per request but makes the limit actually hold across instances.
+Keys in use:
+- `spend:ip:<ip>:<YYYY-MM>` → cents spent.
+- `spend:global:<YYYY-MM-DD>` → cents spent.
+- `cooldown:<ip>:<endpoint>` → expiry-keyed `SET PX NX`.
 
 ## P1 — Real user identity
 
@@ -50,12 +49,13 @@ Once P1 ships:
 
 Free spend goes further if every call sends fewer tokens. Concrete moves:
 
-- **System-prompt trim**: `api/analyze.ts` and `api/compare.ts` system prompts are ~600 words each. Compress; move long descriptions to few-shot examples that cache.
-- **Per-call `max_completion_tokens` audit**: `analyze` (5 000) and `compare` (6 000) likely overshoot real output sizes. Measure p95 and cut to p95 × 1.2.
+- **System-prompt trim**: `api/analyze.ts` and `api/compare.ts` system prompts are ~500 words each. Compress; move long descriptions to few-shot examples that cache.
+- **Per-call `max_tokens` audit**: `analyze` (4 000) and `compare` (5 000) likely overshoot real output sizes for stories at this length. Measure p95 and cut to p95 × 1.2.
 - **Chat history cap**: already capped at 6 turns + 4 000 chars/turn — drop to 4 turns + 2 000 chars/turn after a usability check.
 - **Local pre-filter**: skip the API entirely when `lines` are unchanged from the last analysis (cache by `(title, lines)` hash for ~5 min).
-- **Prompt caching**: prefix-cacheable system prompts saves ~50 % on input tokens for repeat-prompt endpoints (`analyze`, `compare`, `suggest`).
-- **Model tier-down for previews**: the first analyze pass on a short draft can use `gpt-5-nano` with reduced reasoning; promote to `gpt-5-mini` only on user request.
+- **Prompt caching**: OpenAI's gpt-5 family caches stable prefixes > 1,024 tokens automatically — no `cache_control` plumbing needed (unlike Anthropic). Confirmed live for repeated `/api/chat` follow-ups on the same story.
+- **Per-paragraph hash + cache**: when the user re-runs analysis after editing only one paragraph, reuse cached AI judgments for unchanged paragraphs. Requires a structured response that's split per paragraph.
+- **Model tier-down by default**: default is already `gpt-5-nano`; promote to `gpt-5-mini` only on explicit user request.
 
 Track this work under a single epic; each bullet is a separate PR with a before/after token measurement.
 
@@ -64,7 +64,7 @@ Track this work under a single epic; each bullet is a separate PR with a before/
 You cannot tune what you cannot see.
 
 - Log `{userId, endpoint, model, prompt_tokens, completion_tokens, cost_cents}` per call to a durable sink (Vercel logs are ephemeral).
-- Daily aggregate in a dashboard. Alert when global daily spend > 80 % of the $5 ceiling.
+- Daily aggregate in a dashboard. Alert when global daily spend > 80 % of the $3 ceiling.
 
 ## P6 — OpenAI platform hard cap
 

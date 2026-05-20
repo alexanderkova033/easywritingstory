@@ -1,16 +1,16 @@
 const HASH_PREFIX = "share:";
 
-export interface SharedPoem {
+export interface SharedStory {
   title: string;
   body: string;
 }
 
-export function encodeShareHash(poem: SharedPoem): string {
-  const json = JSON.stringify({ t: poem.title.trim(), b: poem.body });
+export function encodeShareHash(story: SharedStory): string {
+  const json = JSON.stringify({ t: story.title.trim(), b: story.body });
   return HASH_PREFIX + btoa(unescape(encodeURIComponent(json)));
 }
 
-export function decodeShareHash(hash: string): SharedPoem | null {
+export function decodeShareHash(hash: string): SharedStory | null {
   try {
     const raw = hash.startsWith("#") ? hash.slice(1) : hash;
     if (!raw.startsWith(HASH_PREFIX)) return null;
@@ -23,10 +23,10 @@ export function decodeShareHash(hash: string): SharedPoem | null {
   }
 }
 
-export function buildShareUrl(poem: SharedPoem): string {
-  return `${window.location.origin}${window.location.pathname}#${encodeShareHash(poem)}`;
+export function buildShareUrl(story: SharedStory): string {
+  return `${window.location.origin}${window.location.pathname}#${encodeShareHash(story)}`;
 }
 
-export function checkShareHash(): SharedPoem | null {
+export function checkShareHash(): SharedStory | null {
   return decodeShareHash(window.location.hash);
 }

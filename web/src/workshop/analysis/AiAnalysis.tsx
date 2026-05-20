@@ -6,8 +6,8 @@ import {
   type AnalysisIssue,
   type HarshnessLevel,
   type LocalAnalysisContext,
-  type PoemAnalysis,
-  type PoemComparison,
+  type StoryAnalysis,
+  type StoryComparison,
 } from "@/workshop/analysis/ai-analyze";
 import type { WorkshopGoals } from "@/workshop/goals/types";
 import { tryLocalStorageSetItem } from "@/shared/platform/browser-storage";
@@ -42,7 +42,7 @@ export interface AiAnalysisProps {
   title: string;
   lines: string[];
   mainIdea?: string;
-  poemId?: string;
+  storyId?: string;
   localAnalysis?: LocalAnalysisContext;
   goals?: WorkshopGoals;
   onJumpToLine?: (line: number) => void;
@@ -61,12 +61,12 @@ export interface AiAnalysisProps {
   /** Called once with a fn so external UI (e.g. editor gutter click) can open the issue covering a given line. Pass scroll=false to open silently. */
   onOpenIssueAtLineRef?: (fn: (line: number, scroll?: boolean) => void) => void;
   /** Fires when the displayed result changes — lets the editor render a status strip + line ribbons. */
-  onResultChange?: (result: PoemAnalysis | PoemComparison | null) => void;
+  onResultChange?: (result: StoryAnalysis | StoryComparison | null) => void;
   /** Receives a setter so external UI (e.g. editor popover) can switch tabs. */
   onSwitchTabRef?: (fn: (tab: "overview" | "issues" | "chat") => void) => void;
 }
 
-export function AiAnalysis({ title, lines, mainIdea, poemId, localAnalysis, goals, onJumpToLine, onPeekLine, onHighlightLines, onClearHighlight, onAnalysisDone, onVisibleIssuesChange, onApplyLine, onAnalyzeRef, onLoadingChange, onOpenIssueAtLineRef, onResultChange, onSwitchTabRef }: AiAnalysisProps) {
+export function AiAnalysis({ title, lines, mainIdea, storyId, localAnalysis, goals, onJumpToLine, onPeekLine, onHighlightLines, onClearHighlight, onAnalysisDone, onVisibleIssuesChange, onApplyLine, onAnalyzeRef, onLoadingChange, onOpenIssueAtLineRef, onResultChange, onSwitchTabRef }: AiAnalysisProps) {
   const [model, setModel] = useState(loadStoredModel);
   const [harshness, setHarshness] = useState<HarshnessLevel>("editor");
   const [scoringEnabled, setScoringEnabled] = useState<boolean>(loadScoringEnabled);
@@ -75,36 +75,36 @@ export function AiAnalysis({ title, lines, mainIdea, poemId, localAnalysis, goal
   const [retryAfterSec, setRetryAfterSec] = useState<number>(0);
   const [externalTabSignal, setExternalTabSignal] = useState<{ tab: AnalysisTab; nonce: number } | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">(
-    () => loadLastAnalysis(poemId) ? "done" : "idle",
+    () => loadLastAnalysis(storyId) ? "done" : "idle",
   );
-  const [result, setResult] = useState<PoemAnalysis | PoemComparison | null>(
-    () => loadLastAnalysis(poemId),
+  const [result, setResult] = useState<StoryAnalysis | StoryComparison | null>(
+    () => loadLastAnalysis(storyId),
   );
-  const [savedResult, setSavedResult] = useState<PoemAnalysis | null>(
-    () => loadLastAnalysis(poemId),
+  const [savedResult, setSavedResult] = useState<StoryAnalysis | null>(
+    () => loadLastAnalysis(storyId),
   );
   const [savedLines, setSavedLines] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState("");
   const [isUnconfigured, setIsUnconfigured] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
-  const [scoreHistory, setScoreHistory] = useState<number[]>(() => loadScoreHistory(poemId));
+  const [scoreHistory, setScoreHistory] = useState<number[]>(() => loadScoreHistory(storyId));
   const abortRef = useRef<AbortController | null>(null);
-  const prevPoemId = useRef(poemId);
+  const prevPoemId = useRef(storyId);
 
   useEffect(() => {
-    if (poemId !== prevPoemId.current) {
-      prevPoemId.current = poemId;
+    if (storyId !== prevPoemId.current) {
+      prevPoemId.current = storyId;
       abortRef.current?.abort();
-      const next = loadLastAnalysis(poemId);
+      const next = loadLastAnalysis(storyId);
       setResult(next);
       setSavedResult(next);
       setSavedLines([]);
       setStatus(next ? "done" : "idle");
       setErrorMsg("");
       setIsUnconfigured(false);
-      setScoreHistory(loadScoreHistory(poemId));
+      setScoreHistory(loadScoreHistory(storyId));
     }
-  }, [poemId]);
+  }, [storyId]);
 
   useEffect(() => () => { abortRef.current?.abort(); }, []);
 
@@ -169,13 +169,13 @@ export function AiAnalysis({ title, lines, mainIdea, poemId, localAnalysis, goal
       mainIdea ?? "",
       canCompare ? "compare" : "fresh",
     ].join("|"));
-    if (!canCompare && result && loadLastHash(poemId) === inputHash) {
+    if (!canCompare && result && loadLastHash(storyId) === inputHash) {
       setStatus("done");
       return;
     }
 
     try {
-      let res: PoemAnalysis | PoemComparison;
+      let res: StoryAnalysis | StoryComparison;
       if (canCompare) {
         res = await comparePoem(
           {
@@ -192,11 +192,11 @@ export function AiAnalysis({ title, lines, mainIdea, poemId, localAnalysis, goal
       setResult(res);
       setSavedResult(res);
       setSavedLines(lines);
-      saveLastAnalysis(poemId, res);
-      saveLastHash(poemId, inputHash);
-      pushSnapshot(poemId, res);
+      saveLastAnalysis(storyId, res);
+      saveLastHash(storyId, inputHash);
+      pushSnapshot(storyId, res);
       onAnalysisDone?.(res.issues, res.overall_score);
-      setScoreHistory(appendScoreHistory(poemId, res.overall_score));
+      setScoreHistory(appendScoreHistory(storyId, res.overall_score));
       setStatus("done");
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
@@ -213,7 +213,7 @@ export function AiAnalysis({ title, lines, mainIdea, poemId, localAnalysis, goal
         setStatus("error");
       }
     }
-  }, [canCompare, hasPoem, harshness, lines, mainIdea, model, savedLines, savedResult, title, scoreHistory, poemId, localAnalysis, goals, onAnalysisDone, result]);
+  }, [canCompare, hasPoem, harshness, lines, mainIdea, model, savedLines, savedResult, title, scoreHistory, storyId, localAnalysis, goals, onAnalysisDone, result]);
 
 
   useEffect(() => {
@@ -222,15 +222,15 @@ export function AiAnalysis({ title, lines, mainIdea, poemId, localAnalysis, goal
 
   const handleNewSession = useCallback(() => {
     abortRef.current?.abort();
-    if (poemId) {
+    if (storyId) {
       try {
-        localStorage.removeItem(LS_LAST_ANALYSIS_PREFIX + poemId);
-        localStorage.removeItem(LS_RESOLVED_PREFIX + poemId);
-        localStorage.removeItem(LS_IGNORED_PREFIX + poemId);
-        localStorage.removeItem(LS_SCORE_HISTORY_PREFIX + poemId);
-        localStorage.removeItem(LS_LAST_HASH_PREFIX + poemId);
-        localStorage.removeItem(LS_CHAT_PREFIX + poemId);
-        localStorage.removeItem(LS_SNAPSHOTS_PREFIX + poemId);
+        localStorage.removeItem(LS_LAST_ANALYSIS_PREFIX + storyId);
+        localStorage.removeItem(LS_RESOLVED_PREFIX + storyId);
+        localStorage.removeItem(LS_IGNORED_PREFIX + storyId);
+        localStorage.removeItem(LS_SCORE_HISTORY_PREFIX + storyId);
+        localStorage.removeItem(LS_LAST_HASH_PREFIX + storyId);
+        localStorage.removeItem(LS_CHAT_PREFIX + storyId);
+        localStorage.removeItem(LS_SNAPSHOTS_PREFIX + storyId);
       } catch { /* ignore */ }
     }
     setResult(null);
@@ -241,7 +241,7 @@ export function AiAnalysis({ title, lines, mainIdea, poemId, localAnalysis, goal
     setScoreHistory([]);
     setSessionNonce((n) => n + 1);
     onVisibleIssuesChange?.([]);
-  }, [poemId, onVisibleIssuesChange]);
+  }, [storyId, onVisibleIssuesChange]);
 
 
   const requestOpenIssueAtLine = useCallback((line: number, scroll = true) => {
@@ -433,10 +433,10 @@ export function AiAnalysis({ title, lines, mainIdea, poemId, localAnalysis, goal
                 onClearHighlight={onClearHighlight}
                 scoreHistory={scoreHistory}
                 onApplyLine={onApplyLine}
-                poemLines={lines}
-                poemTitle={title}
+                storyLines={lines}
+                storyTitle={title}
                 model={model}
-                poemId={poemId}
+                storyId={storyId}
                 onVisibleIssuesChange={onVisibleIssuesChange}
                 openIssueLineSignal={openIssueLineSignal}
                 scoringEnabled={scoringEnabled}

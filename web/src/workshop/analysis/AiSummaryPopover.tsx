@@ -1,6 +1,6 @@
 import "./AiSummaryPopover.css";
 import { useEffect, useRef, useState } from "react";
-import type { PoemAnalysis, PoemComparison } from "@/workshop/analysis/ai-analyze";
+import type { StoryAnalysis, StoryComparison } from "@/workshop/analysis/ai-analyze";
 
 function scoreColor(score: number): string {
   if (score >= 80) return "var(--ai-score-high, #5fba7d)";
@@ -36,7 +36,7 @@ function ScoreRing({ score }: { score: number }) {
 }
 
 export interface AiSummaryPopoverProps {
-  result: PoemAnalysis | PoemComparison;
+  result: StoryAnalysis | StoryComparison;
   scoringEnabled: boolean;
   onJumpToLine?: (line: number) => void;
   /** Fires when user clicks one of the tab-jump buttons inside the popover. */

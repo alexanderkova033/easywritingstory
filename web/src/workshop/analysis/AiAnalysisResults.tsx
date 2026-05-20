@@ -3,8 +3,8 @@ import {
   type AnalysisIssue,
   type ComparisonChanges,
   type LocalAnalysisContext,
-  type PoemAnalysis,
-  type PoemComparison,
+  type StoryAnalysis,
+  type StoryComparison,
 } from "@/workshop/analysis/ai-analyze";
 import { computeVoiceFingerprint } from "@/workshop/analysis/voice-fingerprint";
 import {
@@ -93,12 +93,12 @@ function ComparisonPanel({ cmp }: { cmp: ComparisonChanges }) {
 }
 
 export function AnalysisResults({
-  result, onJump, onPeek, onHighlight, onClearHighlight, onApplyLine, poemLines, poemTitle, model,
-  poemId, onVisibleIssuesChange, openIssueLineSignal, scoringEnabled,
+  result, onJump, onPeek, onHighlight, onClearHighlight, onApplyLine, storyLines, storyTitle, model,
+  storyId, onVisibleIssuesChange, openIssueLineSignal, scoringEnabled,
   activeTab, onTabChange, externalTabSignal, scoreHistory, localAnalysis: _localAnalysis,
 }: {
-  result: PoemAnalysis | PoemComparison;
-  previous?: PoemAnalysis | null;
+  result: StoryAnalysis | StoryComparison;
+  previous?: StoryAnalysis | null;
   onJump?: (line: number) => void;
   /** Soft scroll-into-view without focus/cursor change. */
   onPeek?: (line: number) => void;
@@ -106,10 +106,10 @@ export function AnalysisResults({
   onClearHighlight?: () => void;
   scoreHistory?: number[];
   onApplyLine?: (lineStart: number, lineEnd: number, text: string) => void;
-  poemLines?: string[];
-  poemTitle?: string;
+  storyLines?: string[];
+  storyTitle?: string;
   model?: string;
-  poemId?: string;
+  storyId?: string;
   onVisibleIssuesChange?: (issues: AnalysisIssue[]) => void;
   openIssueLineSignal?: { line: number; nonce: number; scroll?: boolean } | null;
   scoringEnabled?: boolean;
@@ -120,8 +120,8 @@ export function AnalysisResults({
 }) {
   const isCompare = "comparison" in result;
 
-  const [resolvedIds, setResolvedIds] = useState<Set<string>>(() => loadIdSet(LS_RESOLVED_PREFIX, poemId));
-  const [ignoredIds, setIgnoredIds] = useState<Set<string>>(() => loadIdSet(LS_IGNORED_PREFIX, poemId));
+  const [resolvedIds, setResolvedIds] = useState<Set<string>>(() => loadIdSet(LS_RESOLVED_PREFIX, storyId));
+  const [ignoredIds, setIgnoredIds] = useState<Set<string>>(() => loadIdSet(LS_IGNORED_PREFIX, storyId));
   const [showIgnored, setShowIgnored] = useState(false);
   const [openIds, setOpenIds] = useState<Set<string>>(() => new Set());
   const [allExpanded, setAllExpanded] = useState(false);
@@ -153,8 +153,8 @@ export function AnalysisResults({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [externalTabSignal?.nonce]);
 
-  useEffect(() => { saveIdSet(LS_RESOLVED_PREFIX, poemId, resolvedIds); }, [poemId, resolvedIds]);
-  useEffect(() => { saveIdSet(LS_IGNORED_PREFIX, poemId, ignoredIds); }, [poemId, ignoredIds]);
+  useEffect(() => { saveIdSet(LS_RESOLVED_PREFIX, storyId, resolvedIds); }, [storyId, resolvedIds]);
+  useEffect(() => { saveIdSet(LS_IGNORED_PREFIX, storyId, ignoredIds); }, [storyId, ignoredIds]);
 
   const visibleIssues = useMemo(() => {
     const strongestLineNo = result.strongest_line?.line;
@@ -293,8 +293,8 @@ export function AnalysisResults({
       onHighlight={onHighlight}
       onClearHighlight={onClearHighlight}
       onApplyLine={onApplyLine}
-      poemLines={poemLines}
-      poemTitle={poemTitle}
+      storyLines={storyLines}
+      storyTitle={storyTitle}
       model={model}
     />
   );
@@ -316,7 +316,7 @@ export function AnalysisResults({
             <span className="ai-tab-badge">{issuesBadge}</span>
           )}
         </button>
-        {poemLines && poemTitle !== undefined && model && (
+        {storyLines && storyTitle !== undefined && model && (
           <button type="button" role="tab" aria-selected={tab === "chat"}
             className={`ai-tab${tab === "chat" ? " is-active" : ""}`}
             onClick={() => setTab("chat")}>
@@ -336,7 +336,7 @@ export function AnalysisResults({
         <div className="ai-tab-panel ai-tab-overview">
           {isCompare && scoreHistory && scoreHistory.length >= 2 && (
             <CompareCelebration
-              cmp={(result as PoemComparison).comparison}
+              cmp={(result as StoryComparison).comparison}
               scoreDelta={result.overall_score - (scoreHistory[scoreHistory.length - 2] ?? result.overall_score)}
               dismissed={cmpToastDismissed}
               onDismiss={() => setCmpToastDismissed(true)}
@@ -370,7 +370,7 @@ export function AnalysisResults({
             {voiceFingerprint && (
               <p
                 className="ai-voice-fingerprint muted small"
-                title={`Pattern detected across ${voiceFingerprint.poemCount} of your poems`}
+                title={`Pattern detected across ${voiceFingerprint.storyCount} of your poems`}
               >
                 Your voice often: {voiceFingerprint.tags.join(" · ")}
               </p>
@@ -450,7 +450,7 @@ export function AnalysisResults({
           )}
 
           {/* 6. Comparison detail (still useful when toast is dismissed) */}
-          {isCompare && <ComparisonPanel cmp={(result as PoemComparison).comparison} />}
+          {isCompare && <ComparisonPanel cmp={(result as StoryComparison).comparison} />}
 
           {/* 7. CTA — jump to issues */}
           {visibleIssues.length > 0 && (
@@ -585,9 +585,9 @@ export function AnalysisResults({
       )}
 
       {/* Chat tab */}
-      {tab === "chat" && poemLines && poemTitle !== undefined && model && (
+      {tab === "chat" && storyLines && storyTitle !== undefined && model && (
         <div className="ai-tab-panel ai-tab-chat">
-          <AiChat title={poemTitle} lines={poemLines} result={result} model={model} poemId={poemId} />
+          <AiChat title={storyTitle} lines={storyLines} result={result} model={model} storyId={storyId} />
         </div>
       )}
     </div>

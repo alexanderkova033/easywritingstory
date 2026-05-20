@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { DocumentStats } from "@/workshop/analysis/line-stats";
 import type { SpellHit } from "@/spellcheck/scan";
 import type { SpellMode } from "@/workshop/library/local-draft-storage";
-import { downloadTextFile } from "@/workshop/library/export-poem";
+import { downloadTextFile } from "@/workshop/library/export-story";
 import {
   addToPersonalDictionary,
   addWordsToPersonalDictionary,

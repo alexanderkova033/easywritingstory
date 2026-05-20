@@ -7,12 +7,17 @@ import { HoverHintsProvider } from "@/workshop/hints/HoverHintsContext";
 import { ToastProvider } from "@/shared/toast/ToastContext";
 import { ErrorBoundary } from "@/app/ErrorBoundary";
 import { clearChunkReloadFlag, lazyWithReload } from "@/app/lazy-with-reload";
-import { STORAGE_KEY_LANDING_DISMISSED } from "@/shared/storage-keys";
+import { STORAGE_KEY_LANDING_DISMISSED, runStorageMigrationOnce } from "@/shared/storage-keys";
 import "@/app/index.css";
 
-const PoemWorkshop = lazy(
+// Migrate legacy easy-poems:* keys to easy-stories:* on first boot. Must
+// run before any other code reads from localStorage; applyAppearance() below
+// is the first such read.
+runStorageMigrationOnce();
+
+const StoryWorkshop = lazy(
   lazyWithReload(() =>
-    import("@/workshop/shell/PoemWorkshop").then((m) => ({ default: m.PoemWorkshop })),
+    import("@/workshop/shell/StoryWorkshop").then((m) => ({ default: m.StoryWorkshop })),
   ),
 );
 const LandingPage = lazy(
@@ -159,10 +164,10 @@ function App() {
 
   return (
     <Suspense fallback={<div className="app-loading-shell" aria-hidden />}>
-      <a href="#poem-body" className="skip-link">Skip to editor</a>
+      <a href="#story-body" className="skip-link">Skip to editor</a>
       <ToastProvider>
         <HoverHintsProvider>
-          <PoemWorkshop />
+          <StoryWorkshop />
         </HoverHintsProvider>
       </ToastProvider>
     </Suspense>

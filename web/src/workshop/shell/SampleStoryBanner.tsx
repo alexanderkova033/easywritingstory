@@ -1,6 +1,6 @@
-import "./SamplePoemBanner.css";
+import "./SampleStoryBanner.css";
 
-export function SamplePoemBanner({
+export function SampleStoryBanner({
   onClear,
   onKeep,
 }: {

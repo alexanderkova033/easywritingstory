@@ -435,7 +435,7 @@ const wordHighlightField = StateField.define<DecorationSet>({
   provide: (f) => EditorView.decorations.from(f),
 });
 
-export interface PoemBodyEditorProps {
+export interface StoryBodyEditorProps {
   value: string;
   /** Increment when `value` was set by the workshop (not from the debounced editor pipeline). */
   bodySyncNonce: number;
@@ -487,7 +487,7 @@ export interface PoemBodyEditorProps {
   "aria-describedby"?: string;
 }
 
-export function PoemBodyEditor(props: PoemBodyEditorProps) {
+export function StoryBodyEditor(props: StoryBodyEditorProps) {
   bindSpellContext(() => ({
     dict: props.wordlist,
     mode: props.spellMode,
@@ -822,7 +822,7 @@ export function PoemBodyEditor(props: PoemBodyEditorProps) {
           // Don't setLocalValue here: localValue is only used to feed
           // external resyncs (bodySyncNonce). CodeMirror owns the doc
           // internally during typing, so updating React state on every
-          // keystroke caused a full PoemBodyEditor rerender per char.
+          // keystroke caused a full StoryBodyEditor rerender per char.
           props.onLiveBody(v);
         }}
         onCreateEditor={(view) => {

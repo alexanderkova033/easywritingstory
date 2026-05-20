@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mergePersonalDictionaryFromJson } from "./personal-dictionary";
 
-const KEY = "easy-poems:spell:personal:v1";
+const KEY = "easy-stories:spell:personal:v1";
 
 describe("mergePersonalDictionaryFromJson", () => {
   const store: Record<string, string> = {};

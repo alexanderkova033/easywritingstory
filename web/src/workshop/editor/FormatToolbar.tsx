@@ -2,7 +2,7 @@ import "./FormatToolbar.css";
 import type { EditorView } from "@codemirror/view";
 import type { MutableRefObject } from "react";
 import { toggleBold, toggleUnderline } from "@/workshop/editor/format-marks";
-import { POEM_SIZE_OPTIONS, type PoemSizeId } from "@/workshop/appearance/appearance";
+import { STORY_SIZE_OPTIONS, type StorySizeId } from "@/workshop/appearance/appearance";
 import { useHoverHintBinder } from "@/workshop/hints/HoverHintsContext";
 
 function tidyDoubleSpaces(view: EditorView) {
@@ -66,7 +66,7 @@ function tidyStanzaSpacing(view: EditorView) {
 
 export function FormatToolbar({
   editorViewRef,
-  poemSize,
+  storySize,
   onSizeChange,
   onReadingMode,
   showLineSyllables,
@@ -77,8 +77,8 @@ export function FormatToolbar({
   onLineFocusModeChange,
 }: {
   editorViewRef: MutableRefObject<EditorView | null>;
-  poemSize: PoemSizeId;
-  onSizeChange: (size: PoemSizeId) => void;
+  storySize: StorySizeId;
+  onSizeChange: (size: StorySizeId) => void;
   onReadingMode?: () => void;
   showLineSyllables: boolean;
   onShowLineSyllablesChange: (next: boolean) => void;
@@ -131,10 +131,10 @@ export function FormatToolbar({
           <span className="fmt-size-label-text">Size</span>
           <select
             className="fmt-size-select"
-            value={poemSize}
-            onChange={(e) => onSizeChange(e.target.value as PoemSizeId)}
+            value={storySize}
+            onChange={(e) => onSizeChange(e.target.value as StorySizeId)}
           >
-            {POEM_SIZE_OPTIONS.map((o) => (
+            {STORY_SIZE_OPTIONS.map((o) => (
               <option key={o.id} value={o.id}>
                 {o.label}
               </option>

@@ -35,7 +35,7 @@ export interface StrongestLine {
   why: string;
 }
 
-export interface PoemAnalysis {
+export interface StoryAnalysis {
   meta: AnalysisMeta;
   overall_score: number;
   warm_reaction?: string;
@@ -135,7 +135,7 @@ function balanceAndCapIssues<T extends { severity?: "high" | "medium" | "low" }>
   return out;
 }
 
-function parseAnalysis(obj: Record<string, unknown>): PoemAnalysis {
+function parseAnalysis(obj: Record<string, unknown>): StoryAnalysis {
   const issuesRaw = Array.isArray(obj.issues) ? obj.issues : [];
   const meta = (obj.meta ?? {}) as Record<string, unknown>;
 
@@ -193,11 +193,11 @@ export interface ComparisonChanges {
   unchanged: string[];
 }
 
-export interface PoemComparison extends PoemAnalysis {
+export interface StoryComparison extends StoryAnalysis {
   comparison: ComparisonChanges;
 }
 
-function parseComparison(obj: Record<string, unknown>): PoemComparison {
+function parseComparison(obj: Record<string, unknown>): StoryComparison {
   const base = parseAnalysis(obj);
   const c = (obj.comparison ?? {}) as Record<string, unknown>;
   const toStrArr = (v: unknown) =>
@@ -286,7 +286,7 @@ export async function comparePoem(
   },
   model = "gpt-5-nano",
   signal?: AbortSignal,
-): Promise<PoemComparison> {
+): Promise<StoryComparison> {
   const changesText = buildChangesText(previousLines, lines);
   const response = await fetch("/api/compare", {
     method: "POST",
@@ -326,7 +326,7 @@ export async function analyzePoem(
   },
   model = "gpt-5-nano",
   signal?: AbortSignal,
-): Promise<PoemAnalysis> {
+): Promise<StoryAnalysis> {
   const response = await fetch("/api/analyze", {
     method: "POST",
     signal,
