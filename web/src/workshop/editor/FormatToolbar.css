@@ -142,14 +142,14 @@
   line-height: 1.45;
 }
 
-.poem-editor-shell {
+.story-editor-shell {
   position: relative;
   width: 100%;
 }
 
 /* Copy button: now sits in flow below the editor (right-aligned),
    always visible, smooth crossfade icon → Copied */
-.poem-editor-copy-box {
+.story-editor-copy-box {
   --quick-copy-ease: cubic-bezier(0.33, 1, 0.32, 1);
   --quick-copy-duration: 0.48s;
   align-self: flex-end;
@@ -168,14 +168,14 @@
     box-shadow 0.4s ease;
 }
 
-.poem-editor-copy-box.is-copied {
+.story-editor-copy-box.is-copied {
   width: 5.15rem;
   box-shadow:
     0 6px 22px color-mix(in srgb, #000 14%, transparent),
     0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
-.poem-editor-copy-slot-inner {
+.story-editor-copy-slot-inner {
   position: relative;
   height: 100%;
   width: 100%;
@@ -221,14 +221,14 @@
 }
 
 /* → copied: icon out immediately, “Copied” eases in slightly after */
-.poem-editor-copy-box:not(.is-copied) .quick-copy-face-icon {
+.story-editor-copy-box:not(.is-copied) .quick-copy-face-icon {
   opacity: 1;
   transform: scale(1);
   pointer-events: auto;
   transition-delay: 0s, 0s;
 }
 
-.poem-editor-copy-box.is-copied .quick-copy-face-icon {
+.story-editor-copy-box.is-copied .quick-copy-face-icon {
   opacity: 0;
   transform: scale(0.86);
   pointer-events: none;
@@ -245,13 +245,13 @@
   pointer-events: none;
 }
 
-.poem-editor-copy-box:not(.is-copied) .quick-copy-face-done {
+.story-editor-copy-box:not(.is-copied) .quick-copy-face-done {
   opacity: 0;
   transform: scale(0.9) translateY(0.12rem);
   transition-delay: 0s, 0s;
 }
 
-.poem-editor-copy-box.is-copied .quick-copy-face-done {
+.story-editor-copy-box.is-copied .quick-copy-face-done {
   opacity: 1;
   transform: scale(1) translateY(0);
   transition-delay: 0.12s, 0.12s;
@@ -263,7 +263,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .poem-editor-copy-box {
+  .story-editor-copy-box {
     transition: none;
   }
 
@@ -272,16 +272,16 @@
     will-change: auto;
   }
 
-  .poem-editor-copy-box:not(.is-copied) .quick-copy-face-icon,
-  .poem-editor-copy-box.is-copied .quick-copy-face-icon,
-  .poem-editor-copy-box:not(.is-copied) .quick-copy-face-done,
-  .poem-editor-copy-box.is-copied .quick-copy-face-done {
+  .story-editor-copy-box:not(.is-copied) .quick-copy-face-icon,
+  .story-editor-copy-box.is-copied .quick-copy-face-icon,
+  .story-editor-copy-box:not(.is-copied) .quick-copy-face-done,
+  .story-editor-copy-box.is-copied .quick-copy-face-done {
     transform: none;
     transition-delay: 0s;
   }
 }
 
-.poem-cm-wrap {
+.story-cm-wrap {
   width: 100%;
   min-width: 0;
   overflow: hidden; /* contain CM's horizontal expansion */
@@ -291,14 +291,14 @@
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.poem-cm-wrap:focus-within {
+.story-cm-wrap:focus-within {
   border-color: color-mix(in srgb, var(--accent) 70%, var(--border));
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--accent) 14%, transparent),
     0 1px 6px color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
-.poem-cm-wrap .cm-editor {
+.story-cm-wrap .cm-editor {
   border-radius: 10px;
   background: transparent !important;
   border: 1px solid transparent;
@@ -307,11 +307,11 @@
   max-width: 100%;
 }
 
-.poem-cm-wrap .cm-editor.cm-focused {
+.story-cm-wrap .cm-editor.cm-focused {
   outline: none;
 }
 
-.poem-cm-wrap .cm-scroller {
+.story-cm-wrap .cm-scroller {
   overflow-x: hidden;
   overflow-y: visible;
   background: transparent !important;

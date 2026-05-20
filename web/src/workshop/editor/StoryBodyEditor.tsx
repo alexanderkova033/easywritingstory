@@ -811,7 +811,7 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
   const lastCursorLineRef = useRef<number>(-1);
 
   return (
-    <div className={`poem-cm-wrap${props.diffSnapshotBody ? " is-diff-mode" : ""}`} id={props.id}>
+    <div className={`story-cm-wrap${props.diffSnapshotBody ? " is-diff-mode" : ""}`} id={props.id}>
       <CodeMirror
         aria-describedby={props["aria-describedby"]}
         value={localValue}

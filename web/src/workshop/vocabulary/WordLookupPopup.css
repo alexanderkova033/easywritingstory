@@ -315,7 +315,7 @@
 }
 
 /* ── Editor + right-side rhyme scheme wrapper ─────────────────── */
-.poem-editor-with-scheme {
+.story-editor-with-scheme {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
@@ -324,7 +324,7 @@
   overflow: hidden; /* prevent any x-scroll leaking out */
 }
 
-.poem-editor-with-scheme .poem-editor-shell {
+.story-editor-with-scheme .story-editor-shell {
   flex: 1 1 0;
   min-width: 0;
   overflow: hidden;

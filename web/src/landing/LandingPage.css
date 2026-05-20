@@ -1419,7 +1419,7 @@
   font-family: var(--font-metric, ui-monospace, monospace);
 }
 
-.lp-poem-lines {
+.lp-story-lines {
   display: flex;
   flex-direction: column;
   gap: 0;

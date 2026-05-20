@@ -29,12 +29,12 @@
 }
 
 /* Subtle background tint on the editor while diff overlay is active. */
-.poem-cm-wrap.is-diff-mode .cm-content {
+.story-cm-wrap.is-diff-mode .cm-content {
   background: color-mix(in srgb, var(--surface-2) 50%, transparent);
 }
 
 /* Diff status pill — sits above editor when in diff mode. */
-.poem-diff-bar {
+.story-diff-bar {
   display: flex;
   align-items: center;
   gap: 0.55rem;
@@ -46,7 +46,7 @@
   font-size: 0.78rem;
 }
 
-.poem-diff-bar-label {
+.story-diff-bar-label {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -54,18 +54,18 @@
   font-weight: 600;
 }
 
-.poem-diff-bar-label::before {
+.story-diff-bar-label::before {
   content: "↶";
   color: var(--accent);
   font-size: 0.95rem;
 }
 
-.poem-diff-bar-snapshot {
+.story-diff-bar-snapshot {
   color: var(--muted);
   font-style: italic;
 }
 
-.poem-diff-bar-stats {
+.story-diff-bar-stats {
   margin-left: auto;
   display: inline-flex;
   gap: 0.55rem;
@@ -73,10 +73,10 @@
   font-size: 0.72rem;
 }
 
-.poem-diff-bar-stat-add  { color: var(--ai-score-high, #5fba7d); }
-.poem-diff-bar-stat-rem  { color: var(--ai-score-low,  #d95f5f); }
+.story-diff-bar-stat-add  { color: var(--ai-score-high, #5fba7d); }
+.story-diff-bar-stat-rem  { color: var(--ai-score-low,  #d95f5f); }
 
-.poem-diff-bar-exit {
+.story-diff-bar-exit {
   appearance: none;
   border: 1px solid var(--hairline, var(--border));
   background: var(--surface);
@@ -89,7 +89,7 @@
   cursor: pointer;
   flex-shrink: 0;
 }
-.poem-diff-bar-exit:hover {
+.story-diff-bar-exit:hover {
   border-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 10%, var(--surface));
 }

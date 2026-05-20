@@ -1,4 +1,4 @@
-/* Overlay sits inside .poem-editor-body-wrap (which must be position:relative).
+/* Overlay sits inside .story-editor-body-wrap (which must be position:relative).
    Each ribbon is absolutely positioned at the top offset of its line. */
 .ai-ribbons-overlay {
   position: absolute;
