@@ -1,5 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <!-- v3 open-book + bookmark, no background, full-bleed within 24-unit viewBox -->
+  <!-- Cream halo (drawn first, behind v3 layers). The stroke extends ~1 unit
+       past each silhouette edge, giving a thin rim visible on dark/colored
+       backgrounds. On light backgrounds it blends invisibly and the logo's
+       internal dark elements (spine, ribbon base, cocoa back) carry contrast. -->
+  <path d="M3 6C6 5 9 5 12 7C15 5 18 4 21 4L21 16C18 16 15 17 12 19C9 17 6 17 3 18Z" fill="#fff4d8" stroke="#fff4d8" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M11 4L11 23L12 21L13 23L13 4Z" fill="#fff4d8" stroke="#fff4d8" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- v3 open-book + bookmark -->
   <path d="M11 4L11 23L12 21L13 23L13 4Z" fill="#8c2a1c"/>
   <path d="M11.5 4.3L11.5 21.4L12 21L12.5 21.4L12.5 4.3Z" fill="#cf4530" opacity="0.95"/>
   <path d="M3 6.8C6 5.8 9 5.8 12 7.8L12 19.8C9 17.8 6 17.8 3 18.8Z" fill="#a85515"/>
