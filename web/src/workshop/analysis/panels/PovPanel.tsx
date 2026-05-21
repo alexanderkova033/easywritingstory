@@ -3,7 +3,7 @@ import type { StoryCraftAnalysis } from "@/workshop/analysis/story-craft";
 import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
   CraftConflictCard,
-  CraftSummary,
+  CraftHeadline,
   TripleDistributionBar,
 } from "@/workshop/analysis/tools/CraftCards";
 import { LiveSectionTitle } from "../ToolTabBar";
@@ -16,19 +16,18 @@ export interface PovPanelProps {
   goToLine: (line1Based: number) => void;
 }
 
-function povLabel(p: string): string {
-  if (p === "first") return "1st person";
-  if (p === "second") return "2nd person";
-  if (p === "third") return "3rd person";
-  if (p === "mixed") return "mixed";
-  return "—";
+function povName(p: string): string {
+  if (p === "first") return "first person";
+  if (p === "second") return "second person";
+  if (p === "third") return "third person";
+  return "mixed";
 }
 
 function povCue(p: string): string {
   if (p === "first") return "I / we / my";
   if (p === "second") return "you / your";
   if (p === "third") return "he / she / they";
-  return "—";
+  return "";
 }
 
 export function PovPanel({
@@ -40,6 +39,28 @@ export function PovPanel({
 }: PovPanelProps) {
   const p = craft.pov;
   const total = p.totals.first + p.totals.second + p.totals.third;
+
+  let tone: "good" | "warn" | "info" = "info";
+  let title = "";
+  let detail = "";
+
+  if (total === 0) {
+    title = "No personal pronouns yet.";
+    detail = "POV is detected from I/we, you, and he/she/they.";
+  } else if (p.dominant === "mixed") {
+    tone = "warn";
+    title = "No POV holds a clear majority.";
+    detail = "Short stories usually pick one — switching mid-story is jarring.";
+  } else if (p.conflicts.length === 0) {
+    tone = "good";
+    title = `Consistent ${povName(p.dominant)} throughout.`;
+    detail = `Cue words: ${povCue(p.dominant)}.`;
+  } else {
+    tone = "warn";
+    const n = p.conflicts.length;
+    title = `Mostly ${povName(p.dominant)} — ${n} line${n === 1 ? "" : "s"} slip into another POV.`;
+    detail = `Each line below uses pronouns that don’t match the dominant ${povName(p.dominant)} read.`;
+  }
 
   return (
     <div
@@ -64,33 +85,7 @@ export function PovPanel({
         </EmptyState>
       ) : (
         <>
-          <CraftSummary
-            stats={[
-              {
-                value: povLabel(p.dominant),
-                label: "dominant POV",
-                tone: p.dominant === "mixed" ? "loud" : "craft",
-              },
-              { value: p.totals.first, label: "1st" },
-              { value: p.totals.second, label: "2nd" },
-              { value: p.totals.third, label: "3rd" },
-              {
-                value: p.conflicts.length,
-                label: p.conflicts.length === 1 ? "off-POV line" : "off-POV lines",
-                tone: p.conflicts.length > 0 ? "loud" : "default",
-              },
-            ]}
-            hint={
-              p.dominant === "mixed" ? (
-                <>No POV holds a clear majority. Short stories usually stick to one.</>
-              ) : p.dominant !== "unknown" ? (
-                <>
-                  Cue words for <strong>{povLabel(p.dominant)}</strong>:{" "}
-                  <em>{povCue(p.dominant)}</em>.
-                </>
-              ) : null
-            }
-          />
+          <CraftHeadline tone={tone} title={title} detail={detail} />
 
           <TripleDistributionBar
             first={{ label: "1st", value: p.totals.first }}
@@ -100,38 +95,29 @@ export function PovPanel({
 
           {p.conflicts.length > 0 ? (
             <>
-              <h4 className="rep-pattern-title">
-                Off-POV lines{" "}
-                <span className="muted small">— {p.conflicts.length}</span>
-              </h4>
-              <ul className="rep-card-list">
+              <div className="craft-section-head">
+                <h4 className="craft-section-title">Lines that don’t match</h4>
+                <span className="muted small">
+                  doc reads as <strong>{povName(p.dominant)}</strong>
+                </span>
+              </div>
+              <ul className="craft-finding-list">
                 {p.conflicts.slice(0, 30).map((c) => (
                   <CraftConflictCard
                     key={c.line}
                     line={c.line}
                     text={storyLines[c.line - 1] ?? ""}
-                    badge={povLabel(c.dominant)}
-                    detail={
-                      <>
-                        {c.first}·1st {c.second}·2nd {c.third}·3rd
-                      </>
-                    }
+                    badge={`reads as ${povName(c.dominant)}`}
+                    detail={`Pronouns on this line: ${c.first} first · ${c.second} second · ${c.third} third`}
                     goToLine={goToLine}
                   />
                 ))}
               </ul>
               {p.conflicts.length > 30 ? (
-                <p className="muted small">
-                  …and {p.conflicts.length - 30} more.
-                </p>
+                <p className="muted small">…and {p.conflicts.length - 30} more.</p>
               ) : null}
             </>
-          ) : (
-            <p className="muted small">
-              ✓ No POV conflicts detected — every line that uses a pronoun matches
-              the document&apos;s point of view.
-            </p>
-          )}
+          ) : null}
         </>
       )}
     </div>

@@ -2,46 +2,50 @@ import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { buildPhraseRegex, escapeRegex, highlightInLine } from "./helpers";
 
-export type CraftSeverity = "low" | "med" | "high";
+export type CraftSeverity = "now" | "soon" | "optional";
+export type CraftTone = "warn" | "good" | "info";
 
-function severityClass(sev: CraftSeverity): string {
-  return sev === "high"
-    ? "rep-card-sev-high"
-    : sev === "med"
-      ? "rep-card-sev-med"
-      : "rep-card-sev-low";
+/** Tier label thresholds used across word/verb-style panels. */
+export function tierFromCount(count: number): CraftSeverity {
+  if (count >= 5) return "now";
+  if (count >= 2) return "soon";
+  return "optional";
 }
 
-export function CraftSummary({
-  stats,
-  hint,
+const TIER_LABEL: Record<CraftSeverity, string> = {
+  now: "Heavy use",
+  soon: "Worth a look",
+  optional: "Occasional",
+};
+
+const TIER_HINT: Record<CraftSeverity, string> = {
+  now: "Used many times — most readers will notice the pattern.",
+  soon: "Used a few times — check whether each one earns its keep.",
+  optional: "Used once or twice — usually fine.",
+};
+
+/** One-line plain-English summary that leads every Craft panel. */
+export function CraftHeadline({
+  tone = "info",
+  title,
+  detail,
 }: {
-  stats: Array<{ value: ReactNode; label: string; tone?: "default" | "loud" | "craft" }>;
-  hint?: ReactNode;
+  tone?: CraftTone;
+  title: ReactNode;
+  detail?: ReactNode;
 }) {
   return (
-    <div className="rep-summary" role="status" aria-live="polite">
-      {stats.map((s, i) => (
-        <div
-          key={i}
-          className={`rep-summary-stat${
-            s.tone === "loud"
-              ? " rep-summary-loud"
-              : s.tone === "craft"
-                ? " rep-summary-craft"
-                : ""
-          }`}
-        >
-          <span className="rep-summary-value">{s.value}</span>
-          <span className="rep-summary-label">{s.label}</span>
-        </div>
-      ))}
-      {hint ? <div className="rep-summary-hint muted small">{hint}</div> : null}
+    <div className={`craft-headline craft-headline--${tone}`} role="status">
+      <span className={`craft-headline-dot craft-headline-dot--${tone}`} aria-hidden />
+      <div className="craft-headline-body">
+        <p className="craft-headline-title">{title}</p>
+        {detail ? <p className="craft-headline-detail muted small">{detail}</p> : null}
+      </div>
     </div>
   );
 }
 
-/** Two-tone horizontal bar showing the share of two competing labels (e.g. past vs present). */
+/** Two-tone horizontal bar showing the share of two competing labels. */
 export function DistributionBar({
   left,
   right,
@@ -71,10 +75,10 @@ export function DistributionBar({
       </div>
       <div className="craft-dist-legend muted small">
         <span>
-          <strong>{left.label}</strong> {leftPct}% ({left.value})
+          <strong>{left.label}</strong> {leftPct}% <span className="craft-dist-num">({left.value})</span>
         </span>
         <span>
-          <strong>{right.label}</strong> {rightPct}% ({right.value})
+          <strong>{right.label}</strong> {rightPct}% <span className="craft-dist-num">({right.value})</span>
         </span>
       </div>
     </div>
@@ -109,13 +113,13 @@ export function TripleDistributionBar({
       </div>
       <div className="craft-dist-legend muted small">
         <span>
-          <strong>{first.label}</strong> {a}% ({first.value})
+          <strong>{first.label}</strong> {a}% <span className="craft-dist-num">({first.value})</span>
         </span>
         <span>
-          <strong>{second.label}</strong> {b}% ({second.value})
+          <strong>{second.label}</strong> {b}% <span className="craft-dist-num">({second.value})</span>
         </span>
         <span>
-          <strong>{third.label}</strong> {c}% ({third.value})
+          <strong>{third.label}</strong> {c}% <span className="craft-dist-num">({third.value})</span>
         </span>
       </div>
     </div>
@@ -127,119 +131,213 @@ export interface CraftSnippet {
   text: string;
 }
 
-/** Card for a single highlighted word/phrase with line snippets. */
-export function CraftWordCard({
-  title,
-  count,
-  meta,
-  hint,
-  snippets,
-  highlight,
-  severity = "low",
-  initialShown = 2,
-  goToLine,
-}: {
-  title: string;
+export interface CraftFinding {
+  key: string;
+  word: string;
   count: number;
-  meta?: ReactNode;
-  hint?: ReactNode;
+  tier: CraftSeverity;
+  category: string;
+  /** Optional human-readable category badge (e.g. "filler"); defaults to category. */
+  categoryLabel?: string;
   snippets: CraftSnippet[];
-  /** Either a literal word or a phrase to highlight inside each snippet. */
-  highlight: string;
-  severity?: CraftSeverity;
-  initialShown?: number;
+  hint?: ReactNode;
+}
+
+/** Renders findings grouped into severity buckets, using IssuesPanel's queue look. */
+export function CraftFindingBuckets({
+  findings,
+  goToLine,
+  emptyMessage,
+  initialShownPerCard = 2,
+  primaryActionLabel = "Jump",
+}: {
+  findings: CraftFinding[];
   goToLine: (line1Based: number) => void;
+  emptyMessage?: ReactNode;
+  initialShownPerCard?: number;
+  primaryActionLabel?: string;
+}) {
+  const buckets = useMemo(() => {
+    const out: Record<CraftSeverity, CraftFinding[]> = {
+      now: [],
+      soon: [],
+      optional: [],
+    };
+    for (const f of findings) out[f.tier].push(f);
+    return out;
+  }, [findings]);
+
+  if (findings.length === 0) {
+    return emptyMessage ? <p className="muted small">{emptyMessage}</p> : null;
+  }
+
+  return (
+    <div className="queue-buckets craft-buckets">
+      {(["now", "soon", "optional"] as CraftSeverity[]).map((tier) => {
+        const list = buckets[tier];
+        if (list.length === 0) return null;
+        return (
+          <section key={tier} className={`queue-bucket queue-bucket-${tier}`}>
+            <header className="queue-bucket-head">
+              <span className={`queue-sev-dot queue-sev-dot-${tier}`} aria-hidden />
+              <h4 className="tool-subheading queue-bucket-title">
+                {TIER_LABEL[tier]}
+                <span className="queue-bucket-count">{list.length}</span>
+              </h4>
+              <span className="craft-bucket-hint muted small">{TIER_HINT[tier]}</span>
+            </header>
+            <ul className="craft-finding-list">
+              {list.map((f) => (
+                <CraftFindingCard
+                  key={f.key}
+                  finding={f}
+                  goToLine={goToLine}
+                  initialShown={initialShownPerCard}
+                  primaryActionLabel={primaryActionLabel}
+                />
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+function CraftFindingCard({
+  finding,
+  goToLine,
+  initialShown,
+  primaryActionLabel,
+}: {
+  finding: CraftFinding;
+  goToLine: (line1Based: number) => void;
+  initialShown: number;
+  primaryActionLabel: string;
 }) {
   const [open, setOpen] = useState(false);
   const re = useMemo(() => {
-    const trimmed = highlight.trim();
+    const trimmed = finding.word.trim();
     if (!trimmed) return new RegExp("(?!)", "g");
     if (/\s/.test(trimmed)) return buildPhraseRegex(trimmed);
     return new RegExp(`\\b${escapeRegex(trimmed)}\\b`, "gi");
-  }, [highlight]);
-  const preview = open ? snippets : snippets.slice(0, initialShown);
-  const hasMore = snippets.length > initialShown;
+  }, [finding.word]);
+  const preview = open ? finding.snippets : finding.snippets.slice(0, initialShown);
+  const hasMore = finding.snippets.length > initialShown;
+  const firstLine = finding.snippets[0]?.line;
+
   return (
-    <li className={`rep-card ${severityClass(severity)}`}>
-      <div className="rep-card-header">
-        <span className="rep-card-title">{title}</span>
-        <span className="rep-card-count">×{count}</span>
-        {meta ? <span className="rep-card-meta muted small">{meta}</span> : null}
+    <li className={`queue-item queue-item-craft queue-item-tier-${finding.tier}`}>
+      <div className="queue-item-header">
+        <span className="queue-cat queue-cat-craft" title={finding.categoryLabel ?? finding.category}>
+          {finding.categoryLabel ?? finding.category}
+        </span>
+        {firstLine != null ? (
+          <button
+            type="button"
+            className="queue-line-link"
+            onClick={() => goToLine(firstLine)}
+            title={`Jump to line ${firstLine}`}
+          >
+            L{firstLine}
+          </button>
+        ) : null}
       </div>
-      {hint ? <p className="craft-card-hint muted small">{hint}</p> : null}
-      <ul className="rep-snippets">
-        {preview.map((s, i) => (
-          <li key={`${s.line}-${i}`} className="rep-snippet">
-            <button
-              type="button"
-              className="rep-line-jump linkish"
-              onClick={() => goToLine(s.line)}
-              aria-label={`Go to line ${s.line}`}
-            >
-              L{s.line}
-            </button>
-            <span className="rep-snippet-text">{highlightInLine(s.text, re)}</span>
-          </li>
-        ))}
-      </ul>
-      {hasMore ? (
+      <div className="queue-body">
+        <div className="queue-title-row">
+          <span className="queue-title">
+            <strong className="craft-word">{finding.word}</strong>{" "}
+            <span className="craft-finding-count">×{finding.count}</span>
+          </span>
+        </div>
+        {finding.hint ? <p className="queue-detail muted small">{finding.hint}</p> : null}
+        {preview.length > 0 ? (
+          <ul className="craft-finding-snippets">
+            {preview.map((s, i) => (
+              <li key={`${s.line}-${i}`} className="craft-finding-snippet">
+                <button
+                  type="button"
+                  className="craft-snippet-jump linkish"
+                  onClick={() => goToLine(s.line)}
+                  aria-label={`Go to line ${s.line}`}
+                >
+                  L{s.line}
+                </button>
+                <span className="craft-snippet-text">{highlightInLine(s.text, re)}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {hasMore ? (
+          <button
+            type="button"
+            className="linkish small craft-snippet-more"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? "Show less" : `Show ${finding.snippets.length - initialShown} more`}
+          </button>
+        ) : null}
+      </div>
+      {firstLine != null ? (
         <button
           type="button"
-          className="rep-show-more linkish small"
-          onClick={() => setOpen((v) => !v)}
+          className="small-btn queue-primary-btn"
+          onClick={() => goToLine(firstLine)}
         >
-          {open ? "Show less" : `Show ${snippets.length - initialShown} more`}
+          {primaryActionLabel}
         </button>
       ) : null}
     </li>
   );
 }
 
-/** Card for a per-line conflict (POV/tense), highlighting a tag rather than a word. */
+/** Conflict card for POV/tense — single-line preview with a labelled badge. */
 export function CraftConflictCard({
   line,
   text,
   badge,
-  badgeTone = "warn",
   detail,
   goToLine,
 }: {
   line: number;
   text: string;
   badge: string;
-  badgeTone?: "warn" | "info";
   detail?: ReactNode;
   goToLine: (line1Based: number) => void;
 }) {
   return (
-    <li className="rep-card rep-card-sev-med">
-      <div className="rep-card-header">
+    <li className="queue-item queue-item-craft queue-item-tier-now">
+      <div className="queue-item-header">
+        <span className="queue-cat queue-cat-craft" title={`Reads as ${badge}`}>
+          {badge}
+        </span>
         <button
           type="button"
-          className="rep-line-jump linkish"
+          className="queue-line-link"
           onClick={() => goToLine(line)}
-          aria-label={`Go to line ${line}`}
+          title={`Jump to line ${line}`}
         >
           L{line}
         </button>
-        <span
-          className={`craft-badge craft-badge--${badgeTone}`}
-          aria-label={`Detected as ${badge}`}
-        >
-          {badge}
-        </span>
-        {detail ? <span className="rep-card-meta muted small">{detail}</span> : null}
       </div>
-      <ul className="rep-snippets">
-        <li className="rep-snippet">
-          <span className="rep-snippet-text">{text}</span>
-        </li>
-      </ul>
+      <div className="queue-body">
+        <div className="queue-title-row">
+          <span className="craft-snippet-text craft-conflict-text">{text || <em>(empty line)</em>}</span>
+        </div>
+        {detail ? <p className="queue-detail muted small">{detail}</p> : null}
+      </div>
+      <button
+        type="button"
+        className="small-btn queue-primary-btn"
+        onClick={() => goToLine(line)}
+      >
+        Jump
+      </button>
     </li>
   );
 }
 
-/** Card for a single named character with first/last appearance and mention snippets. */
+/** Character card: name, mention count, appearance arc, jump action. */
 export function CraftCharacterCard({
   name,
   count,
@@ -259,56 +357,73 @@ export function CraftCharacterCard({
   snippets: CraftSnippet[];
   goToLine: (line1Based: number) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const re = useMemo(
     () => new RegExp(`\\b${escapeRegex(name)}\\b`, "gi"),
     [name],
   );
-  const initialShown = 2;
-  const preview = open ? snippets : snippets.slice(0, initialShown);
-  const hasMore = snippets.length > initialShown;
+  const firstSnippet = snippets[0];
   return (
-    <li className={`rep-card ${vanishes ? "rep-card-sev-high" : "rep-card-sev-low"}`}>
-      <div className="rep-card-header">
-        <span className="rep-card-title">{name}</span>
-        <span className="rep-card-count">×{count}</span>
-        <span className="rep-card-meta muted small">
-          L{firstLine}–L{lastLine}
+    <li
+      className={`queue-item queue-item-craft ${vanishes ? "queue-item-tier-now" : "queue-item-tier-optional"}`}
+    >
+      <div className="queue-item-header">
+        <span className="queue-cat queue-cat-craft">
+          {vanishes ? "Vanishes" : "Recurring"}
         </span>
-        {vanishes ? (
-          <span className="craft-badge craft-badge--warn">vanishes</span>
-        ) : null}
-      </div>
-      <CharacterArc
-        firstLine={firstLine}
-        lastLine={lastLine}
-        totalLines={totalLines}
-        lines={snippets.map((s) => s.line)}
-      />
-      <ul className="rep-snippets">
-        {preview.map((s, i) => (
-          <li key={`${s.line}-${i}`} className="rep-snippet">
-            <button
-              type="button"
-              className="rep-line-jump linkish"
-              onClick={() => goToLine(s.line)}
-              aria-label={`Go to line ${s.line}`}
-            >
-              L{s.line}
-            </button>
-            <span className="rep-snippet-text">{highlightInLine(s.text, re)}</span>
-          </li>
-        ))}
-      </ul>
-      {hasMore ? (
         <button
           type="button"
-          className="rep-show-more linkish small"
-          onClick={() => setOpen((v) => !v)}
+          className="queue-line-link"
+          onClick={() => goToLine(firstLine)}
+          title={`Jump to first mention (line ${firstLine})`}
         >
-          {open ? "Show less" : `Show ${snippets.length - initialShown} more`}
+          L{firstLine}
         </button>
-      ) : null}
+      </div>
+      <div className="queue-body">
+        <div className="queue-title-row">
+          <span className="queue-title">
+            <strong className="craft-word">{name}</strong>{" "}
+            <span className="craft-finding-count">×{count}</span>
+          </span>
+          <span className="muted small craft-character-range">
+            line {firstLine} → line {lastLine}
+          </span>
+        </div>
+        <CharacterArc
+          firstLine={firstLine}
+          lastLine={lastLine}
+          totalLines={totalLines}
+          lines={snippets.map((s) => s.line)}
+        />
+        {vanishes ? (
+          <p className="queue-detail muted small">
+            Appears in the first third but never returns in the last third — possible
+            loose thread.
+          </p>
+        ) : null}
+        {firstSnippet ? (
+          <ul className="craft-finding-snippets">
+            <li className="craft-finding-snippet">
+              <button
+                type="button"
+                className="craft-snippet-jump linkish"
+                onClick={() => goToLine(firstSnippet.line)}
+                aria-label={`Go to line ${firstSnippet.line}`}
+              >
+                L{firstSnippet.line}
+              </button>
+              <span className="craft-snippet-text">{highlightInLine(firstSnippet.text, re)}</span>
+            </li>
+          </ul>
+        ) : null}
+      </div>
+      <button
+        type="button"
+        className="small-btn queue-primary-btn"
+        onClick={() => goToLine(firstLine)}
+      >
+        Jump
+      </button>
     </li>
   );
 }
@@ -330,8 +445,10 @@ function CharacterArc({
     <div
       className="craft-arc"
       role="img"
-      aria-label={`Appears between line ${firstLine} and line ${lastLine}`}
+      aria-label={`Appears between line ${firstLine} and line ${lastLine} of ${totalLines}`}
     >
+      <span className="craft-arc-third craft-arc-third--early" />
+      <span className="craft-arc-third craft-arc-third--late" />
       <span
         className="craft-arc-span"
         style={{
@@ -374,5 +491,21 @@ export function CraftFilterRow({
         />
       </label>
     </div>
+  );
+}
+
+/** Inline metric label like "12 / 100 words" used in headline detail rows. */
+export function CraftMetric({
+  value,
+  label,
+}: {
+  value: ReactNode;
+  label: string;
+}) {
+  return (
+    <span className="craft-metric">
+      <span className="craft-metric-value">{value}</span>
+      <span className="craft-metric-label muted small">{label}</span>
+    </span>
   );
 }

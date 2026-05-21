@@ -3,7 +3,7 @@ import type { StoryCraftAnalysis } from "@/workshop/analysis/story-craft";
 import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
   CraftConflictCard,
-  CraftSummary,
+  CraftHeadline,
   DistributionBar,
 } from "@/workshop/analysis/tools/CraftCards";
 import { LiveSectionTitle } from "../ToolTabBar";
@@ -16,13 +16,6 @@ export interface TensePanelProps {
   goToLine: (line1Based: number) => void;
 }
 
-function tenseLabel(t: string): string {
-  if (t === "past") return "past";
-  if (t === "present") return "present";
-  if (t === "mixed") return "mixed";
-  return "—";
-}
-
 export function TensePanel({
   docStats,
   craft,
@@ -33,7 +26,29 @@ export function TensePanel({
   const t = craft.tense;
   const total = t.totals.past + t.totals.present;
   const dominant = t.dominant;
-  const off = dominant === "past" ? "present" : "past";
+
+  let tone: "good" | "warn" | "info" = "info";
+  let title = "";
+  let detail = "";
+
+  if (total === 0) {
+    title = "No verbs detected yet.";
+    detail = "Past- and present-tense verbs are spotted by common forms and -ed suffixes.";
+  } else if (dominant === "mixed") {
+    tone = "warn";
+    title = "Tense is mixed.";
+    detail = "Short stories usually pick one tense and hold it the whole way through.";
+  } else if (t.conflicts.length === 0) {
+    tone = "good";
+    title = `Consistent ${dominant} tense throughout.`;
+    detail = "Every line that uses a verb stays in the same tense.";
+  } else {
+    tone = "warn";
+    const off = dominant === "past" ? "present" : "past";
+    const n = t.conflicts.length;
+    title = `Mostly ${dominant} tense — ${n} line${n === 1 ? "" : "s"} slip into ${off}.`;
+    detail = `Check the lines below — each leans toward ${off} when the rest of the story is in ${dominant}.`;
+  }
 
   return (
     <div
@@ -60,35 +75,7 @@ export function TensePanel({
         </EmptyState>
       ) : (
         <>
-          <CraftSummary
-            stats={[
-              {
-                value: tenseLabel(dominant),
-                label: "dominant tense",
-                tone: dominant === "mixed" ? "loud" : "craft",
-              },
-              { value: t.totals.past, label: "past verbs" },
-              { value: t.totals.present, label: "present verbs" },
-              {
-                value: t.conflicts.length,
-                label: t.conflicts.length === 1 ? "off-tense line" : "off-tense lines",
-                tone: t.conflicts.length > 0 ? "loud" : "default",
-              },
-            ]}
-            hint={
-              dominant === "mixed" ? (
-                <>
-                  Tense use is mixed. Short stories usually pick one and hold it the
-                  whole way through.
-                </>
-              ) : dominant === "past" || dominant === "present" ? (
-                <>
-                  Mostly <strong>{dominant}</strong>. Watch for stray{" "}
-                  <em>{off === "past" ? "past" : "present"}</em> verbs below.
-                </>
-              ) : null
-            }
-          />
+          <CraftHeadline tone={tone} title={title} detail={detail} />
 
           <DistributionBar
             left={{ label: "past", value: t.totals.past, tone: dominant === "past" ? "primary" : "warn" }}
@@ -97,37 +84,28 @@ export function TensePanel({
 
           {t.conflicts.length > 0 ? (
             <>
-              <h4 className="rep-pattern-title">
-                Off-tense lines{" "}
-                <span className="muted small">— {t.conflicts.length}</span>
-              </h4>
-              <ul className="rep-card-list">
+              <div className="craft-section-head">
+                <h4 className="craft-section-title">Lines that don’t match</h4>
+                <span className="muted small">
+                  doc reads as <strong>{dominant}</strong>
+                </span>
+              </div>
+              <ul className="craft-finding-list">
                 {t.conflicts.slice(0, 30).map((c) => (
                   <CraftConflictCard
                     key={c.line}
                     line={c.line}
                     text={storyLines[c.line - 1] ?? ""}
-                    badge={tenseLabel(c.dominant)}
-                    detail={
-                      <>
-                        {c.past}·past {c.present}·present
-                      </>
-                    }
+                    badge={`reads as ${c.dominant}`}
+                    detail={`Verbs on this line: ${c.past} past · ${c.present} present`}
                     goToLine={goToLine}
                   />
                 ))}
               </ul>
               {t.conflicts.length > 30 ? (
-                <p className="muted small">
-                  …and {t.conflicts.length - 30} more.
-                </p>
+                <p className="muted small">…and {t.conflicts.length - 30} more.</p>
               ) : null}
             </>
-          ) : dominant === "past" || dominant === "present" ? (
-            <p className="muted small">
-              ✓ No tense conflicts detected — every line that uses a verb keeps to{" "}
-              <strong>{dominant}</strong>.
-            </p>
           ) : null}
         </>
       )}

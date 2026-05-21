@@ -1,11 +1,8 @@
 /* Theme imports — load before base so specificity-tied rules cascade correctly */
 @import "./themes/dark.css";
 @import "./themes/nebula.css";
-@import "./themes/tidepool.css";
-@import "./themes/kiln.css";
 @import "./themes/glasshouse.css";
 @import "./themes/velvet.css";
-@import "./themes/riverstone.css";
 @import "./themes/linen.css";
 @import "./themes/apricotfog.css";
 @import "./themes/inkwell.css";

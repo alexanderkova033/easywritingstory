@@ -5,7 +5,8 @@ import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
   CraftCharacterCard,
   CraftFilterRow,
-  CraftSummary,
+  CraftHeadline,
+  CraftMetric,
 } from "@/workshop/analysis/tools/CraftCards";
 import { LiveSectionTitle } from "../ToolTabBar";
 
@@ -39,6 +40,36 @@ export function CharactersPanel({
   }, [c.characters, filter]);
 
   const vanishCount = c.characters.filter((ch) => ch.vanishes).length;
+  const lead = c.characters[0];
+
+  let tone: "good" | "warn" | "info" = "info";
+  let title = "";
+  let detail = "";
+
+  if (c.characters.length === 0) {
+    title = "No named characters detected yet.";
+    detail = "Capitalized names that appear at least twice will show up here.";
+  } else if (vanishCount > 0) {
+    tone = "warn";
+    title = `${vanishCount} character${vanishCount === 1 ? "" : "s"} vanish${vanishCount === 1 ? "es" : ""} before the ending.`;
+    detail = `Appears in the first third but never returns in the last third — possible loose thread.`;
+  } else {
+    tone = "good";
+    title = lead
+      ? `${c.characters.length} named character${c.characters.length === 1 ? "" : "s"} — ${lead.display} is the lead (${lead.count} mentions).`
+      : `${c.characters.length} named character${c.characters.length === 1 ? "" : "s"}.`;
+    detail = "Every named character returns by the final third.";
+  }
+
+  // Sorted: vanishing characters first (more urgent), then by mention count.
+  const sorted = useMemo(
+    () =>
+      [...filtered].sort((a, b) => {
+        if (a.vanishes !== b.vanishes) return a.vanishes ? -1 : 1;
+        return b.count - a.count;
+      }),
+    [filtered],
+  );
 
   return (
     <div
@@ -58,35 +89,23 @@ export function CharactersPanel({
       {c.characters.length === 0 ? (
         <EmptyState title="No characters detected yet">
           <p className="muted small">
-            Capitalized names mentioned at least twice will appear here, with the
-            lines they show up on. Words that also appear lowercase (<em>She</em>,{" "}
-            <em>The</em>) are filtered out automatically.
+            Capitalized names mentioned at least twice will appear here. Words that
+            also appear lowercase (<em>She</em>, <em>The</em>) are filtered out
+            automatically.
           </p>
         </EmptyState>
       ) : (
         <>
-          <CraftSummary
-            stats={[
-              { value: c.characters.length, label: c.characters.length === 1 ? "character" : "characters" },
-              { value: c.totalMentions, label: "mentions" },
-              {
-                value: vanishCount,
-                label: vanishCount === 1 ? "vanishes" : "vanish",
-                tone: vanishCount > 0 ? "loud" : "default",
-              },
-            ]}
-            hint={
-              vanishCount > 0 ? (
-                <>
-                  {vanishCount === 1 ? "One name appears" : `${vanishCount} names appear`}{" "}
-                  in the first third but never return in the last third — a possible
-                  loose thread.
-                </>
-              ) : (
-                <>Every named character returns by the final third — good.</>
-              )
-            }
-          />
+          <CraftHeadline tone={tone} title={title} detail={detail} />
+
+          <div className="craft-metric-row">
+            <CraftMetric value={c.characters.length} label={c.characters.length === 1 ? "named character" : "named characters"} />
+            <CraftMetric value={c.totalMentions} label="total mentions" />
+            <CraftMetric
+              value={vanishCount}
+              label={vanishCount === 1 ? "vanishes" : "vanish"}
+            />
+          </div>
 
           <CraftFilterRow
             value={filter}
@@ -95,11 +114,11 @@ export function CharactersPanel({
             placeholder="Anna, Tom…"
           />
 
-          {filtered.length === 0 ? (
+          {sorted.length === 0 ? (
             <p className="muted small">No names match this filter.</p>
           ) : (
-            <ul className="rep-card-list">
-              {filtered.map((ch) => (
+            <ul className="craft-finding-list">
+              {sorted.map((ch) => (
                 <CraftCharacterCard
                   key={ch.name}
                   name={ch.display}
@@ -108,12 +127,10 @@ export function CharactersPanel({
                   lastLine={ch.lastLine}
                   vanishes={ch.vanishes}
                   totalLines={totalLines}
-                  snippets={ch.mentions
-                    .slice(0, 8)
-                    .map((m) => ({
-                      line: m.line,
-                      text: storyLines[m.line - 1] ?? "",
-                    }))}
+                  snippets={ch.mentions.slice(0, 6).map((m) => ({
+                    line: m.line,
+                    text: storyLines[m.line - 1] ?? "",
+                  }))}
                   goToLine={goToLine}
                 />
               ))}

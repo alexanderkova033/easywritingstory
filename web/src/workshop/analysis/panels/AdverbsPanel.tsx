@@ -4,8 +4,11 @@ import type { StoryCraftAnalysis } from "@/workshop/analysis/story-craft";
 import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
   CraftFilterRow,
-  CraftSummary,
-  CraftWordCard,
+  CraftFindingBuckets,
+  CraftHeadline,
+  CraftMetric,
+  tierFromCount,
+  type CraftFinding,
 } from "@/workshop/analysis/tools/CraftCards";
 import { LiveSectionTitle } from "../ToolTabBar";
 
@@ -17,12 +20,6 @@ export interface AdverbsPanelProps {
 }
 
 type AdverbsSubTab = "adverbs" | "weasels";
-
-function severityFor(count: number): "low" | "med" | "high" {
-  if (count >= 5) return "high";
-  if (count >= 2) return "med";
-  return "low";
-}
 
 export function AdverbsPanel({
   docStats,
@@ -54,21 +51,64 @@ export function AdverbsPanel({
     return map;
   }, [a.weaselHits]);
 
-  const empty = a.adverbTotal === 0 && a.weaselTotal === 0;
-  const list = sub === "adverbs" ? a.topAdverbs : a.topWeasels;
-  const snippetsFor = sub === "adverbs" ? adverbSnippets : weaselSnippets;
-  const filtered = useMemo(() => {
+  const findings: CraftFinding[] = useMemo(() => {
     const q = filter.trim().toLowerCase();
-    if (!q) return list;
-    return list.filter((w) => w.word.toLowerCase().includes(q));
-  }, [list, filter]);
+    const list = sub === "adverbs" ? a.topAdverbs : a.topWeasels;
+    const snippetsFor = sub === "adverbs" ? adverbSnippets : weaselSnippets;
+    return list
+      .filter((w) => !q || w.word.toLowerCase().includes(q))
+      .map((w) => {
+        const tier = tierFromCount(w.count);
+        return {
+          key: w.word,
+          word: w.word,
+          count: w.count,
+          tier,
+          category: sub === "adverbs" ? "-ly adverb" : "filler",
+          categoryLabel: sub === "adverbs" ? "Adverb" : "Filler",
+          snippets: snippetsFor.get(w.word) ?? [],
+          hint:
+            sub === "adverbs"
+              ? tier === "now"
+                ? "Try a stronger verb instead — “ran fast” → “sprinted.”"
+                : tier === "soon"
+                  ? "Each is fine — check whether the verb already says it."
+                  : "Occasional adverbs read fine."
+              : tier === "now"
+                ? "Most of these can be deleted with no loss in meaning."
+                : tier === "soon"
+                  ? "Often these can simply be cut — read the line without the word."
+                  : "One or two filler words read fine.",
+        };
+      });
+  }, [sub, a.topAdverbs, a.topWeasels, adverbSnippets, weaselSnippets, filter]);
 
+  const empty = a.adverbTotal === 0 && a.weaselTotal === 0;
+
+  const density = a.adverbPer100;
   const densityLabel =
-    a.adverbPer100 >= 4
-      ? "heavy"
-      : a.adverbPer100 >= 2
-        ? "moderate"
-        : "light";
+    density >= 4 ? "heavy" : density >= 2 ? "moderate" : "light";
+
+  let tone: "good" | "warn" | "info" = "info";
+  let title = "";
+  let detail = "";
+
+  if (empty) {
+    tone = "good";
+    title = "No -ly adverbs or filler words spotted.";
+    detail = "Strong verbs and concrete nouns are doing the work — nice.";
+  } else if (density >= 4) {
+    tone = "warn";
+    title = `Heavy adverb use — ${density.toFixed(1)} per 100 words.`;
+    detail = "A strong verb usually beats verb + adverb. Look for the ones you can replace.";
+  } else if (a.weaselTotal >= 6) {
+    tone = "warn";
+    title = `${a.weaselTotal} filler words add noise without meaning.`;
+    detail = "Words like “very”, “really”, “just” can usually be deleted with no loss.";
+  } else if (density > 0 || a.weaselTotal > 0) {
+    title = `Light touch — ${density.toFixed(1)} adverbs per 100 words, ${a.weaselTotal} filler${a.weaselTotal === 1 ? "" : "s"}.`;
+    detail = "Looks fine. Skim the lists below for any standout repeats.";
+  }
 
   return (
     <div
@@ -86,43 +126,27 @@ export function AdverbsPanel({
       ) : null}
 
       {empty ? (
-        <EmptyState title="No adverbs or filler words">
-          <p className="muted small">
-            No <em>-ly</em> adverbs or weasel words (<em>very</em>, <em>really</em>,{" "}
-            <em>just</em>) spotted.
-          </p>
-        </EmptyState>
+        <>
+          <CraftHeadline tone="good" title={title} detail={detail} />
+          <EmptyState title="No adverbs or filler words">
+            <p className="muted small">
+              No <em>-ly</em> adverbs or weasel words (<em>very</em>, <em>really</em>,{" "}
+              <em>just</em>) spotted.
+            </p>
+          </EmptyState>
+        </>
       ) : (
         <>
-          <CraftSummary
-            stats={[
-              {
-                value: a.adverbTotal,
-                label: a.adverbTotal === 1 ? "-ly adverb" : "-ly adverbs",
-                tone: a.adverbPer100 >= 4 ? "loud" : "default",
-              },
-              {
-                value: a.weaselTotal,
-                label: a.weaselTotal === 1 ? "filler" : "fillers",
-                tone: a.weaselTotal >= 6 ? "loud" : "default",
-              },
-              {
-                value: a.adverbPer100 > 0 ? a.adverbPer100.toFixed(1) : "0",
-                label: "adverbs / 100 words",
-                tone: a.adverbPer100 >= 4 ? "loud" : "craft",
-              },
-            ]}
-            hint={
-              a.adverbPer100 > 0 ? (
-                <>
-                  Adverb density is <strong>{densityLabel}</strong>. A strong verb
-                  usually beats a verb + adverb (<em>“ran fast”</em> &rarr; <em>“sprinted”</em>).
-                </>
-              ) : (
-                <>Filler words add noise without meaning — most can simply be deleted.</>
-              )
-            }
-          />
+          <CraftHeadline tone={tone} title={title} detail={detail} />
+
+          <div className="craft-metric-row">
+            <CraftMetric value={a.adverbTotal} label={a.adverbTotal === 1 ? "-ly adverb" : "-ly adverbs"} />
+            <CraftMetric value={a.weaselTotal} label={a.weaselTotal === 1 ? "filler" : "fillers"} />
+            <CraftMetric
+              value={density > 0 ? density.toFixed(1) : "0"}
+              label={`per 100 words · ${densityLabel}`}
+            />
+          </div>
 
           <div className="rep-subtabs" role="tablist" aria-label="Adverb categories">
             <button
@@ -151,53 +175,23 @@ export function AdverbsPanel({
             </button>
           </div>
 
-          {list.length === 0 ? (
-            <p className="muted small">
-              {sub === "adverbs"
-                ? "No -ly adverbs in this draft."
-                : "No filler words in this draft."}
-            </p>
-          ) : (
-            <>
-              <CraftFilterRow
-                value={filter}
-                onChange={setFilter}
-                ariaLabel={
-                  sub === "adverbs"
-                    ? "Filter -ly adverbs"
-                    : "Filter filler words"
-                }
-                placeholder={sub === "adverbs" ? "quickly, suddenly…" : "very, just…"}
-              />
-              {filtered.length === 0 ? (
-                <p className="muted small">No words match this filter.</p>
-              ) : (
-                <ul className="rep-card-list">
-                  {filtered.map((w) => (
-                    <CraftWordCard
-                      key={w.word}
-                      title={w.word}
-                      count={w.count}
-                      severity={severityFor(w.count)}
-                      meta={sub === "adverbs" ? "-ly adverb" : "filler"}
-                      hint={
-                        sub === "adverbs"
-                          ? w.count >= 5
-                            ? "Heavy. Try replacing each adverb with a stronger verb."
-                            : "Each is fine in isolation — check whether the verb already says it."
-                          : w.count >= 5
-                            ? "Heavy. Most of these can be deleted with no loss."
-                            : "Often these can simply be cut."
-                      }
-                      highlight={w.word}
-                      snippets={snippetsFor.get(w.word) ?? []}
-                      goToLine={goToLine}
-                    />
-                  ))}
-                </ul>
-              )}
-            </>
-          )}
+          <CraftFilterRow
+            value={filter}
+            onChange={setFilter}
+            ariaLabel={sub === "adverbs" ? "Filter -ly adverbs" : "Filter filler words"}
+            placeholder={sub === "adverbs" ? "quickly, suddenly…" : "very, just…"}
+          />
+          <CraftFindingBuckets
+            findings={findings}
+            goToLine={goToLine}
+            emptyMessage={
+              filter.trim()
+                ? "No words match this filter."
+                : sub === "adverbs"
+                  ? "No -ly adverbs in this draft."
+                  : "No filler words in this draft."
+            }
+          />
         </>
       )}
     </div>

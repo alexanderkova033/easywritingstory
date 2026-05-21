@@ -4,8 +4,11 @@ import type { StoryCraftAnalysis } from "@/workshop/analysis/story-craft";
 import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
   CraftFilterRow,
-  CraftSummary,
-  CraftWordCard,
+  CraftFindingBuckets,
+  CraftHeadline,
+  CraftMetric,
+  tierFromCount,
+  type CraftFinding,
 } from "@/workshop/analysis/tools/CraftCards";
 import { LiveSectionTitle } from "../ToolTabBar";
 
@@ -14,12 +17,6 @@ export interface ShowTellPanelProps {
   craft: StoryCraftAnalysis;
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
-}
-
-function severityFor(count: number): "low" | "med" | "high" {
-  if (count >= 5) return "high";
-  if (count >= 2) return "med";
-  return "low";
 }
 
 export function ShowTellPanel({
@@ -41,11 +38,48 @@ export function ShowTellPanel({
     return map;
   }, [s.hits]);
 
-  const filtered = useMemo(() => {
+  const findings: CraftFinding[] = useMemo(() => {
     const q = filter.trim().toLowerCase();
-    if (!q) return s.byWord;
-    return s.byWord.filter((w) => w.word.toLowerCase().includes(q));
-  }, [s.byWord, filter]);
+    return s.byWord
+      .filter((w) => !q || w.word.toLowerCase().includes(q))
+      .map((w) => {
+        const tier = tierFromCount(w.count);
+        return {
+          key: w.word,
+          word: w.word,
+          count: w.count,
+          tier,
+          category: "filter word",
+          categoryLabel: "Filter",
+          snippets: snippetsByWord.get(w.word) ?? [],
+          hint:
+            tier === "now"
+              ? "Pick the few moments where filtering matters — cut the rest by showing the sensation directly."
+              : tier === "soon"
+                ? "A handful — see whether any can become a direct image instead."
+                : "One or two filter words usually read fine.",
+        };
+      });
+  }, [s.byWord, filter, snippetsByWord]);
+
+  const top = s.byWord.slice(0, 2).map((w) => `“${w.word}”`).join(" and ");
+
+  let tone: "good" | "warn" | "info" = "info";
+  let title = "";
+  let detail = "";
+
+  if (s.total === 0) {
+    tone = "good";
+    title = "No filter words spotted.";
+    detail = "Words like “felt”, “knew”, “noticed” distance the reader — this draft skips them.";
+  } else if (s.total >= 8) {
+    tone = "warn";
+    title = `${s.total} filter words${top ? ` — mostly ${top}` : ""}.`;
+    detail = "Filter words signal telling. Each one can be replaced by showing the sensation directly: “she felt cold” → “she pulled her coat tighter.”";
+  } else {
+    title = `${s.total} filter word${s.total === 1 ? "" : "s"}${top ? ` — ${top}` : ""}.`;
+    detail = "A handful is fine. Look at the ones below and decide which can be shown rather than told.";
+  }
 
   return (
     <div
@@ -63,62 +97,39 @@ export function ShowTellPanel({
       ) : null}
 
       {s.total === 0 ? (
-        <EmptyState title="No filter words found">
-          <p className="muted small">
-            Filter words like <em>felt</em>, <em>knew</em>, and <em>noticed</em>{" "}
-            distance the reader from your character. None spotted — nice.
-          </p>
-        </EmptyState>
+        <>
+          <CraftHeadline tone="good" title={title} detail={detail} />
+          <EmptyState title="No filter words found">
+            <p className="muted small">
+              Filter words like <em>felt</em>, <em>knew</em>, and <em>noticed</em>{" "}
+              keep readers at arm’s length. None spotted — nice.
+            </p>
+          </EmptyState>
+        </>
       ) : (
         <>
-          <CraftSummary
-            stats={[
-              { value: s.total, label: "filter hits", tone: s.total >= 6 ? "loud" : "default" },
-              { value: s.byWord.length, label: s.byWord.length === 1 ? "distinct word" : "distinct words" },
-            ]}
-            hint={
-              <>
-                Filter words signal <em>telling</em>: “she felt cold” &rarr; “she pulled
-                her coat tighter.” Use sparingly when the sensation matters more than the
-                source.
-              </>
-            }
-          />
+          <CraftHeadline tone={tone} title={title} detail={detail} />
 
-          <h4 className="rep-pattern-title">
-            Most-used <span className="muted small">— top {Math.min(s.byWord.length, 10)}</span>
-          </h4>
+          <div className="craft-metric-row">
+            <CraftMetric value={s.total} label="filter hits" />
+            <CraftMetric value={s.byWord.length} label={s.byWord.length === 1 ? "distinct word" : "distinct words"} />
+          </div>
+
+          <div className="craft-section-head">
+            <h4 className="craft-section-title">Most-used filter words</h4>
+            <span className="muted small">grouped by how often each appears</span>
+          </div>
           <CraftFilterRow
             value={filter}
             onChange={setFilter}
             ariaLabel="Filter show-vs-tell words"
             placeholder="felt, knew…"
           />
-          {filtered.length === 0 ? (
-            <p className="muted small">No words match this filter.</p>
-          ) : (
-            <ul className="rep-card-list">
-              {filtered.slice(0, 10).map((w) => (
-                <CraftWordCard
-                  key={w.word}
-                  title={w.word}
-                  count={w.count}
-                  severity={severityFor(w.count)}
-                  meta="filter word"
-                  hint={
-                    w.count >= 5
-                      ? "Heavy use. Pick the few moments that need filtering — cut the rest."
-                      : w.count >= 3
-                        ? "A handful — see whether any can be shown directly."
-                        : "Occasional filtering is fine."
-                  }
-                  highlight={w.word}
-                  snippets={snippetsByWord.get(w.word) ?? []}
-                  goToLine={goToLine}
-                />
-              ))}
-            </ul>
-          )}
+          <CraftFindingBuckets
+            findings={findings}
+            goToLine={goToLine}
+            emptyMessage="No words match this filter."
+          />
         </>
       )}
     </div>

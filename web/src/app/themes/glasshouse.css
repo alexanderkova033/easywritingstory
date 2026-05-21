@@ -27,6 +27,8 @@ html[data-workshop-bg="glasshouse"] {
 
 html[data-workshop-bg="glasshouse"] body::before {
   background-image:
+    /* Etched-glass crescent — prismatic rim refracting through a frosted pane */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cdefs%3E%3CradialGradient id='gh' cx='50%25' cy='50%25' r='58%25'%3E%3Cstop offset='0%25' stop-color='%23e8f4ff' stop-opacity='0.25'/%3E%3Cstop offset='62%25' stop-color='%23a8c8e8' stop-opacity='0.08'/%3E%3Cstop offset='100%25' stop-color='%23000' stop-opacity='0'/%3E%3C/radialGradient%3E%3ClinearGradient id='gp' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff9ed0' stop-opacity='0.85'/%3E%3Cstop offset='32%25' stop-color='%23ffce92' stop-opacity='0.80'/%3E%3Cstop offset='62%25' stop-color='%23a4eaff' stop-opacity='0.82'/%3E%3Cstop offset='100%25' stop-color='%23b4a4ff' stop-opacity='0.78'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='148' cy='128' r='96' fill='url(%23gh)'/%3E%3Ccircle cx='148' cy='128' r='62' fill='url(%23gp)'/%3E%3Ccircle cx='166' cy='118' r='58' fill='%2314181f'/%3E%3C/svg%3E"),
     linear-gradient(
       78deg,
       transparent 0%,
@@ -39,7 +41,8 @@ html[data-workshop-bg="glasshouse"] body::before {
     ),
     radial-gradient(ellipse 100% 60% at 50% 0%, var(--ambient-a), transparent 65%),
     radial-gradient(ellipse 110% 50% at 50% 100%, var(--ambient-d), transparent 70%);
-  background-size: 100% 100%;
+  background-size: 280px 280px, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 90% 10%, 0 0, 0 0, 0 0;
   background-repeat: no-repeat;
   animation: glasshouse-refract 168s ease-in-out infinite;
 }

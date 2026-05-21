@@ -120,7 +120,7 @@ export const storyEditorTheme = EditorView.theme({
     fontFamily: "var(--font-story), Georgia, serif",
     fontWeight: "var(--story-font-weight, 400)",
     textDecoration: "var(--story-text-decoration, none)",
-    lineHeight: "var(--story-line-height, 1.65)",
+    lineHeight: "var(--story-line-height, 1.5)",
     letterSpacing: "var(--story-letter-spacing, 0em)",
     caretColor: "color-mix(in srgb, var(--accent) 70%, var(--text))",
     minHeight: "13rem",

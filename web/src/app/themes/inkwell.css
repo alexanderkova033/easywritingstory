@@ -27,11 +27,15 @@ html[data-workshop-bg="inkwell"] {
 
 html[data-workshop-bg="inkwell"] body::before {
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='480'%3E%3Cpath fill='%231a1410' fill-opacity='0.12' d='M60 80 Q90 60 130 88 Q170 116 150 150 Q130 184 88 168 Q46 152 60 80 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.08' d='M320 60 Q360 70 380 110 Q400 150 370 178 Q340 206 314 178 Q288 150 304 110 Q314 80 320 60 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.10' d='M180 300 Q220 290 260 320 Q300 350 268 388 Q236 426 200 400 Q164 374 168 340 Q172 314 180 300 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.07' d='M380 360 Q420 360 432 400 Q444 440 412 458 Q380 476 360 446 Q340 416 358 388 Q368 372 380 360 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.06' d='M30 380 Q60 376 78 408 Q96 440 70 458 Q44 476 28 444 Q12 412 22 396 Q26 386 30 380 Z'/%3E%3Ccircle cx='400' cy='110' r='14' fill='%23a83824' fill-opacity='0.36'/%3E%3C/svg%3E"),
+    /* Sumi-brushed crescent with vermilion seal — single confident brushstroke over cream paper */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cdefs%3E%3CradialGradient id='ih' cx='50%25' cy='50%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%231a1410' stop-opacity='0.14'/%3E%3Cstop offset='100%25' stop-color='%231a1410' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='150' cy='130' r='110' fill='url(%23ih)'/%3E%3Cpath d='M150 56 Q98 60 80 116 Q66 168 102 200 Q138 232 184 220 Q142 222 116 188 Q92 154 104 116 Q116 80 150 70 Q156 68 162 67 Z' fill='%231a1410' fill-opacity='0.78'/%3E%3Cpath d='M104 76 Q92 88 86 100' fill='none' stroke='%231a1410' stroke-opacity='0.30' stroke-width='1.4' stroke-linecap='round'/%3E%3Cpath d='M180 218 Q188 214 196 208' fill='none' stroke='%231a1410' stroke-opacity='0.26' stroke-width='1.2' stroke-linecap='round'/%3E%3Crect x='228' y='230' width='34' height='34' fill='%23a83824' fill-opacity='0.68' rx='2'/%3E%3Cpath d='M236 240 H254 M236 248 H254 M236 256 H254' stroke='%23f5efe2' stroke-width='1.2' stroke-opacity='0.85'/%3E%3C/svg%3E"),
+    /* Background ink blots */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='480'%3E%3Cpath fill='%231a1410' fill-opacity='0.10' d='M60 80 Q90 60 130 88 Q170 116 150 150 Q130 184 88 168 Q46 152 60 80 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.07' d='M320 60 Q360 70 380 110 Q400 150 370 178 Q340 206 314 178 Q288 150 304 110 Q314 80 320 60 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.09' d='M180 300 Q220 290 260 320 Q300 350 268 388 Q236 426 200 400 Q164 374 168 340 Q172 314 180 300 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.06' d='M380 360 Q420 360 432 400 Q444 440 412 458 Q380 476 360 446 Q340 416 358 388 Q368 372 380 360 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.05' d='M30 380 Q60 376 78 408 Q96 440 70 458 Q44 476 28 444 Q12 412 22 396 Q26 386 30 380 Z'/%3E%3C/svg%3E"),
     radial-gradient(ellipse 90% 80% at 0% 0%, var(--shine-top), transparent 65%),
     radial-gradient(ellipse 100% 60% at 100% 100%, var(--ambient-d), transparent 70%);
-  background-size: 480px 480px, 100% 100%, 100% 100%;
-  background-repeat: repeat, no-repeat, no-repeat;
+  background-size: 300px 300px, 480px 480px, 100% 100%, 100% 100%;
+  background-position: 86% 14%, 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, repeat, no-repeat, no-repeat;
   animation: inkwell-breathe 168s ease-in-out infinite;
 }
 

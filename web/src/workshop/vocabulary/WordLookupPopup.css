@@ -361,7 +361,7 @@
    font-size × line-height. If the user changes the story font size, both match. */
 .editor-rhyme-row,
 .editor-rhyme-spacer {
-  height: calc(var(--story-font-size, 1rem) * var(--story-line-height, 1.65));
+  height: calc(var(--story-font-size, 1rem) * var(--story-line-height, 1.5));
   flex-shrink: 0;
 }
 
