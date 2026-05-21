@@ -56,6 +56,12 @@ export interface AppearanceSettings {
   backdropMotion: BackdropMotionSetting;
   /** Reduce paint complexity (fewer layers / less blend). */
   backdropPower: BackdropPowerSetting;
+  /** Extra saturation cap for long-session comfort. */
+  calmMode: boolean;
+  /** Auto-warm + dim backdrop in the evening/night. */
+  autoTimeShift: boolean;
+  /** Fade motifs near the editor so prose has room to breathe. */
+  nearTextDim: boolean;
   /** User-generated custom backdrop (active when background === "custom"). */
   customBackground: CustomBackgroundTheme | null;
 }
@@ -69,6 +75,9 @@ const DEFAULTS: AppearanceSettings = {
   storyDecoration: "none",
   backdropMotion: "system",
   backdropPower: "off",
+  calmMode: false,
+  autoTimeShift: false,
+  nearTextDim: false,
   customBackground: null,
 };
 
@@ -160,6 +169,9 @@ export function loadAppearance(): AppearanceSettings {
           : typeof o.lowPowerBackdrops === "boolean"
             ? (o.lowPowerBackdrops ? "low" : "off")
             : DEFAULTS.backdropPower,
+      calmMode: typeof o.calmMode === "boolean" ? o.calmMode : DEFAULTS.calmMode,
+      autoTimeShift: typeof o.autoTimeShift === "boolean" ? o.autoTimeShift : DEFAULTS.autoTimeShift,
+      nearTextDim: typeof o.nearTextDim === "boolean" ? o.nearTextDim : DEFAULTS.nearTextDim,
       customBackground: loadCustomBackground(o.customBackground),
     };
   } catch {
@@ -223,6 +235,26 @@ function clearCustomVars(el: HTMLElement): void {
   _customVarsApplied = false;
 }
 
+/** Map local hour → `evening` (18-21), `night` (22-5), otherwise unset. */
+function applyTimeOfDay(el: HTMLElement): void {
+  const h = new Date().getHours();
+  let band: string | null = null;
+  if (h >= 22 || h < 6) band = "night";
+  else if (h >= 18) band = "evening";
+  if (band) el.dataset.timeOfDay = band;
+  else delete el.dataset.timeOfDay;
+}
+
+let _timeOfDayTimer: number | undefined;
+function maintainTimeOfDayTimer(el: HTMLElement, enabled: boolean): void {
+  if (enabled && _timeOfDayTimer === undefined) {
+    _timeOfDayTimer = window.setInterval(() => applyTimeOfDay(el), 15 * 60 * 1000);
+  } else if (!enabled && _timeOfDayTimer !== undefined) {
+    window.clearInterval(_timeOfDayTimer);
+    _timeOfDayTimer = undefined;
+  }
+}
+
 // The CSS-side variables and dataset attributes (`--story-font-size`,
 // `data-story-font`, etc.) keep their `story-*` names to avoid rewriting every
 // CSS file that reads them. This is purely a name mismatch with the TS-side
@@ -264,6 +296,18 @@ export function applyAppearance(s: AppearanceSettings): void {
     el.setAttribute("data-backdrop-low-power", "");
     el.dataset.backdropPower = s.backdropPower;
   }
+  if (s.calmMode) el.dataset.calmMode = "on";
+  else delete el.dataset.calmMode;
+  if (s.nearTextDim) el.dataset.nearTextDim = "on";
+  else delete el.dataset.nearTextDim;
+  if (s.autoTimeShift) {
+    el.dataset.autoTimeShift = "on";
+    applyTimeOfDay(el);
+  } else {
+    delete el.dataset.autoTimeShift;
+    delete el.dataset.timeOfDay;
+  }
+  maintainTimeOfDayTimer(el, s.autoTimeShift);
   el.style.setProperty("--story-font-size", STORY_SIZE_VAR[s.storySize]);
   el.style.setProperty("--story-font-weight", STORY_WEIGHT_VAR[s.storyWeight]);
   el.style.setProperty(

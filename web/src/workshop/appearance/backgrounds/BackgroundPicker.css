@@ -223,7 +223,7 @@
 .bg-picker-swatch--inkwell {
   background-image:
     /* Sumi-e ink blots */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath fill='%231a1410' fill-opacity='0.40' d='M14 18 Q22 12 30 18 Q38 24 32 32 Q26 40 18 36 Q10 32 14 18 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.30' d='M52 14 Q62 16 64 26 Q66 36 56 38 Q46 40 46 28 Q46 18 52 14 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.34' d='M28 52 Q38 48 46 56 Q54 64 44 70 Q34 76 26 68 Q18 60 28 52 Z'/%3E%3Ccircle cx='64' cy='62' r='5' fill='%23a83824' fill-opacity='0.62'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath fill='%231a1410' fill-opacity='0.40' d='M14 18 Q22 12 30 18 Q38 24 32 32 Q26 40 18 36 Q10 32 14 18 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.30' d='M52 14 Q62 16 64 26 Q66 36 56 38 Q46 40 46 28 Q46 18 52 14 Z'/%3E%3Cpath fill='%231a1410' fill-opacity='0.34' d='M28 52 Q38 48 46 56 Q54 64 44 70 Q34 76 26 68 Q18 60 28 52 Z'/%3E%3Ccircle cx='64' cy='62' r='5' fill='%2397543e' fill-opacity='0.62'/%3E%3C/svg%3E"),
     /* Cream paper sheen */
     radial-gradient(ellipse 90% 80% at 0% 0%, rgba(255, 248, 232, 0.55), transparent 65%),
     radial-gradient(ellipse 70% 55% at 100% 100%, rgba(80, 60, 40, 0.18), transparent 70%),

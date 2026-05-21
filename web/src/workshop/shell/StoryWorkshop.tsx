@@ -9,7 +9,7 @@ import {
   type AppearanceSettings,
 } from "@/workshop/appearance/appearance";
 import { AppearanceFormFields } from "@/workshop/appearance/AppearanceFormFields";
-import { BackdropFormFields, BackdropMotionToggle } from "@/workshop/appearance/BackdropFormFields";
+import { BackdropFormFields, BackdropMotionToggle, ComfortFormFields } from "@/workshop/appearance/BackdropFormFields";
 import { lazyWithReload } from "@/app/lazy-with-reload";
 // BackgroundPicker pulls in the full AI theme generator + ColorEditor; only
 // rendered when the user opens the Page Background modal. Lazy keeps it off
@@ -1253,6 +1253,7 @@ export function StoryWorkshop() {
               />
             </Suspense>
             <BackdropFormFields appearance={appearance} onChange={setAppearance} />
+            <ComfortFormFields appearance={appearance} onChange={setAppearance} />
           </section>
         </div>
       ) : null}

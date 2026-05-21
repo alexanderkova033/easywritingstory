@@ -158,3 +158,68 @@ export function BackdropMotionToggle(props: {
     </label>
   );
 }
+
+function ComfortToggle(props: {
+  label: string;
+  blurb: string;
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <label className="perf-toggle">
+      <span className="perf-toggle-text">
+        <strong>{props.label}</strong>
+        <span className="muted small">{props.blurb}</span>
+      </span>
+      <span className="perf-toggle-switch">
+        <input
+          type="checkbox"
+          checked={props.checked}
+          onChange={props.onToggle}
+          aria-label={props.label}
+        />
+        <span className="perf-toggle-track" aria-hidden="true">
+          <span className="perf-toggle-thumb" />
+        </span>
+      </span>
+    </label>
+  );
+}
+
+export function ComfortFormFields(props: {
+  appearance: AppearanceSettings;
+  onChange: (next: AppearanceSettings) => void;
+}) {
+  const { appearance, onChange } = props;
+  return (
+    <div className="perf-panel" role="group" aria-label="Eye comfort">
+      <div className="perf-panel-head">
+        <span className="perf-panel-icon" aria-hidden="true">☾</span>
+        <div className="perf-panel-heading">
+          <h3 className="perf-panel-title">Eye comfort</h3>
+          <p className="perf-panel-sub">
+            Helpful for long writing sessions.
+          </p>
+        </div>
+      </div>
+      <ComfortToggle
+        label="Calm mode"
+        blurb="Tones down saturation across the backdrop"
+        checked={appearance.calmMode}
+        onToggle={() => onChange({ ...appearance, calmMode: !appearance.calmMode })}
+      />
+      <ComfortToggle
+        label="Auto evening shift"
+        blurb="Warms and dims the backdrop after 6pm"
+        checked={appearance.autoTimeShift}
+        onToggle={() => onChange({ ...appearance, autoTimeShift: !appearance.autoTimeShift })}
+      />
+      <ComfortToggle
+        label="Fade near text"
+        blurb="Softens motifs around the editor for better focus"
+        checked={appearance.nearTextDim}
+        onToggle={() => onChange({ ...appearance, nearTextDim: !appearance.nearTextDim })}
+      />
+    </div>
+  );
+}

@@ -1,28 +1,28 @@
 html[data-workshop-bg="velvet"] {
   color-scheme: dark;
-  --bg: #160a1c;
-  --surface: #221432;
-  --surface-2: #2c1c40;
-  --surface-elevated: #382450;
-  --border: #4a2e62;
-  --text: #ecdcff;
-  --muted: #a690c0;
-  --accent: #d4a850;
+  --bg: #181020;
+  --surface: #241a32;
+  --surface-2: #2e2240;
+  --surface-elevated: #382c4a;
+  --border: #463658;
+  --text: #e2d6e8;
+  --muted: #a298b0;
+  --accent: #c69e62;
   --accent-soft: color-mix(in srgb, var(--accent) 22%, transparent);
-  --selection-bg: color-mix(in srgb, var(--accent) 26%, var(--surface));
+  --selection-bg: color-mix(in srgb, var(--accent) 24%, var(--surface));
   --selection-fg: var(--text);
-  --danger: #ff7090;
-  --net-line: rgba(212, 168, 80, 0.04);
-  --ambient-a: rgba(180, 100, 220, 0.10);
-  --ambient-b: rgba(120, 60, 180, 0.08);
-  --ambient-c: rgba(212, 168, 80, 0.06);
-  --ambient-d: rgba(0, 0, 0, 0.38);
-  --shine-top: rgba(220, 180, 240, 0.05);
-  --shine-mid: rgba(180, 120, 220, 0.03);
-  --after-opacity: 0.50;
-  --shadow-1: 0 2px 12px color-mix(in srgb, #000 55%, transparent);
-  --shadow-2: 0 6px 24px color-mix(in srgb, #000 65%, transparent);
-  --shadow-3: 0 14px 40px color-mix(in srgb, #000 75%, transparent);
+  --danger: #d88498;
+  --net-line: rgba(198, 158, 98, 0.035);
+  --ambient-a: rgba(150, 110, 180, 0.07);
+  --ambient-b: rgba(110, 80, 140, 0.06);
+  --ambient-c: rgba(198, 158, 98, 0.04);
+  --ambient-d: rgba(0, 0, 0, 0.32);
+  --shine-top: rgba(210, 190, 220, 0.04);
+  --shine-mid: rgba(170, 140, 180, 0.025);
+  --after-opacity: 0.38;
+  --shadow-1: 0 2px 12px color-mix(in srgb, #000 50%, transparent);
+  --shadow-2: 0 6px 24px color-mix(in srgb, #000 60%, transparent);
+  --shadow-3: 0 14px 40px color-mix(in srgb, #000 70%, transparent);
 }
 
 html[data-workshop-bg="velvet"] body::before {
@@ -31,11 +31,11 @@ html[data-workshop-bg="velvet"] body::before {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cdefs%3E%3CradialGradient id='vh' cx='50%25' cy='50%25' r='62%25'%3E%3Cstop offset='0%25' stop-color='%23f4d8a0' stop-opacity='0.32'/%3E%3Cstop offset='42%25' stop-color='%23c890d8' stop-opacity='0.20'/%3E%3Cstop offset='100%25' stop-color='%23000' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='160' cy='140' r='118' fill='url(%23vh)'/%3E%3Ccircle cx='160' cy='140' r='72' fill='%23e8c878' fill-opacity='0.85'/%3E%3Ccircle cx='184' cy='128' r='68' fill='%23160a1c'/%3E%3C/svg%3E"),
     /* Jewel stars + feathers + moth silhouettes + drifting petals + tiny sparkles — dense tile */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='460'%3E%3Cg fill='%23f4d8a0' fill-opacity='0.60'%3E%3Cpath d='M68 88 L70 92 L74 94 L70 96 L68 100 L66 96 L62 94 L66 92 Z'/%3E%3Cpath d='M218 148 L220 152 L224 154 L220 156 L218 160 L216 156 L212 154 L216 152 Z'/%3E%3Cpath d='M340 96 L342 100 L346 102 L342 104 L340 108 L338 104 L334 102 L338 100 Z'/%3E%3Cpath d='M114 268 L116 272 L120 274 L116 276 L114 280 L112 276 L108 274 L112 272 Z'/%3E%3Cpath d='M268 318 L270 322 L274 324 L270 326 L268 330 L266 326 L262 324 L266 322 Z'/%3E%3Cpath d='M358 268 L360 272 L364 274 L360 276 L358 280 L356 276 L352 274 L356 272 Z'/%3E%3Cpath d='M178 60 L180 64 L184 66 L180 68 L178 72 L176 68 L172 66 L176 64 Z'/%3E%3Cpath d='M44 348 L46 352 L50 354 L46 356 L44 360 L42 356 L38 354 L42 352 Z'/%3E%3Cpath d='M408 178 L410 182 L414 184 L410 186 L408 190 L406 186 L402 184 L406 182 Z'/%3E%3Cpath d='M306 412 L308 416 L312 418 L308 420 L306 424 L304 420 L300 418 L304 416 Z'/%3E%3Cpath d='M148 410 L150 414 L154 416 L150 418 L148 422 L146 418 L142 416 L146 414 Z'/%3E%3Cpath d='M24 198 L26 202 L30 204 L26 206 L24 210 L22 206 L18 204 L22 202 Z'/%3E%3Cpath d='M420 56 L422 60 L426 62 L422 64 L420 68 L418 64 L414 62 L418 60 Z'/%3E%3C/g%3E%3Cg fill='%23e0c0f0' fill-opacity='0.30'%3E%3Cpath d='M132 196 Q138 194 144 200 Q150 206 144 212 Q138 218 132 212 Q126 206 132 196 Z' transform='rotate(28 138 204)'/%3E%3Cpath d='M298 226 Q304 224 310 230 Q316 236 310 242 Q304 248 298 242 Q292 236 298 226 Z' transform='rotate(-22 304 234)'/%3E%3Cpath d='M76 162 Q82 160 88 166 Q94 172 88 178 Q82 184 76 178 Q70 172 76 162 Z' transform='rotate(46 82 170)'/%3E%3Cpath d='M226 358 Q232 356 238 362 Q244 368 238 374 Q232 380 226 374 Q220 368 226 358 Z' transform='rotate(-12 232 366)'/%3E%3Cpath d='M386 358 Q392 356 398 362 Q404 368 398 374 Q392 380 386 374 Q380 368 386 358 Z' transform='rotate(38 392 366)'/%3E%3Cpath d='M156 96 Q162 94 168 100 Q174 106 168 112 Q162 118 156 112 Q150 106 156 96 Z' transform='rotate(-30 162 104)'/%3E%3C/g%3E%3Cg fill='%23c4a8e8' fill-opacity='0.34'%3E%3Cg transform='translate(94 246)'%3E%3Cellipse cx='-4' cy='0' rx='6' ry='3' transform='rotate(-22)'/%3E%3Cellipse cx='4' cy='0' rx='6' ry='3' transform='rotate(22)'/%3E%3Crect x='-0.5' y='-2.4' width='1' height='5' fill='%23a888d0'/%3E%3C/g%3E%3Cg transform='translate(248 90)'%3E%3Cellipse cx='-3.4' cy='0' rx='5' ry='2.4' transform='rotate(-26)'/%3E%3Cellipse cx='3.4' cy='0' rx='5' ry='2.4' transform='rotate(26)'/%3E%3Crect x='-0.4' y='-2' width='0.8' height='4' fill='%23a888d0'/%3E%3C/g%3E%3Cg transform='translate(372 196)'%3E%3Cellipse cx='-4' cy='0' rx='6' ry='3' transform='rotate(-18)'/%3E%3Cellipse cx='4' cy='0' rx='6' ry='3' transform='rotate(18)'/%3E%3Crect x='-0.5' y='-2.4' width='1' height='5' fill='%23a888d0'/%3E%3C/g%3E%3Cg transform='translate(54 388)'%3E%3Cellipse cx='-3.6' cy='0' rx='5.4' ry='2.6' transform='rotate(-28)'/%3E%3Cellipse cx='3.6' cy='0' rx='5.4' ry='2.6' transform='rotate(28)'/%3E%3Crect x='-0.4' y='-2.2' width='0.8' height='4.4' fill='%23a888d0'/%3E%3C/g%3E%3Cg transform='translate(202 296)'%3E%3Cellipse cx='-3.4' cy='0' rx='5' ry='2.4' transform='rotate(-22)'/%3E%3Cellipse cx='3.4' cy='0' rx='5' ry='2.4' transform='rotate(22)'/%3E%3Crect x='-0.4' y='-2' width='0.8' height='4' fill='%23a888d0'/%3E%3C/g%3E%3C/g%3E%3Cg fill='%23f4c0d8' fill-opacity='0.36'%3E%3Cellipse cx='322' cy='52' rx='2.4' ry='4' transform='rotate(28 322 52)'/%3E%3Cellipse cx='184' cy='244' rx='2.2' ry='3.6' transform='rotate(-18 184 244)'/%3E%3Cellipse cx='438' cy='270' rx='2.4' ry='4' transform='rotate(48 438 270)'/%3E%3Cellipse cx='124' cy='340' rx='2.0' ry='3.2' transform='rotate(-32 124 340)'/%3E%3Cellipse cx='258' cy='160' rx='2.2' ry='3.6' transform='rotate(58 258 160)'/%3E%3Cellipse cx='42' cy='52' rx='2.2' ry='3.6' transform='rotate(-44 42 52)'/%3E%3Cellipse cx='402' cy='438' rx='2.4' ry='4' transform='rotate(18 402 438)'/%3E%3C/g%3E%3Cg fill='%23ffe0a8' fill-opacity='0.36'%3E%3Ccircle cx='200' cy='44' r='0.7'/%3E%3Ccircle cx='86' cy='124' r='0.6'/%3E%3Ccircle cx='298' cy='180' r='0.7'/%3E%3Ccircle cx='350' cy='340' r='0.7'/%3E%3Ccircle cx='162' cy='176' r='0.6'/%3E%3Ccircle cx='62' cy='292' r='0.7'/%3E%3Ccircle cx='246' cy='414' r='0.6'/%3E%3Ccircle cx='414' cy='370' r='0.7'/%3E%3Ccircle cx='132' cy='446' r='0.6'/%3E%3C/g%3E%3C/svg%3E"),
-    radial-gradient(circle 80px at 18% 32%, rgba(220, 160, 240, 0.18), transparent 60%),
-    radial-gradient(circle 60px at 72% 22%, rgba(180, 130, 220, 0.16), transparent 62%),
-    radial-gradient(circle 100px at 32% 78%, rgba(212, 168, 80, 0.14), transparent 65%),
-    radial-gradient(circle 70px at 84% 68%, rgba(220, 140, 200, 0.16), transparent 62%),
-    radial-gradient(circle 50px at 50% 50%, rgba(160, 100, 220, 0.12), transparent 65%),
+    radial-gradient(circle 80px at 18% 32%, rgba(190, 160, 200, 0.12), transparent 60%),
+    radial-gradient(circle 60px at 72% 22%, rgba(170, 140, 190, 0.11), transparent 62%),
+    radial-gradient(circle 100px at 32% 78%, rgba(198, 160, 100, 0.09), transparent 65%),
+    radial-gradient(circle 70px at 84% 68%, rgba(190, 150, 180, 0.11), transparent 62%),
+    radial-gradient(circle 50px at 50% 50%, rgba(150, 120, 180, 0.08), transparent 65%),
     radial-gradient(ellipse 90% 60% at 50% 0%, var(--ambient-a), transparent 65%),
     radial-gradient(ellipse 100% 50% at 50% 100%, var(--ambient-d), transparent 70%);
   background-size: 320px 320px, 460px 460px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
@@ -54,7 +54,7 @@ html[data-workshop-bg="velvet"]::after {
   background-repeat: no-repeat;
   mix-blend-mode: screen;
   opacity: var(--after-opacity);
-  animation: velvet-fall 184s ease-in-out infinite;
+  animation: velvet-fall 360s ease-in-out infinite;
 }
 
 @keyframes velvet-bokeh {
@@ -64,10 +64,15 @@ html[data-workshop-bg="velvet"]::after {
 }
 
 @keyframes velvet-fall {
-  0%   { opacity: 0.50; filter: hue-rotate(0deg); }
-  30%  { opacity: 0.58; filter: hue-rotate(15deg); }
-  65%  { opacity: 0.46; filter: hue-rotate(-10deg); }
-  100% { opacity: 0.50; filter: hue-rotate(0deg); }
+  0%   { opacity: 0.38; filter: hue-rotate(0deg); }
+  16%  { opacity: 0.46; filter: hue-rotate(10deg); }
+  28%  { opacity: 0;    filter: hue-rotate(15deg); }
+  42%  { opacity: 0;    filter: hue-rotate(8deg); }
+  56%  { opacity: 0.42; filter: hue-rotate(-6deg); }
+  70%  { opacity: 0.36; filter: hue-rotate(-10deg); }
+  80%  { opacity: 0;    filter: hue-rotate(-4deg); }
+  90%  { opacity: 0;    filter: hue-rotate(0deg); }
+  100% { opacity: 0.38; filter: hue-rotate(0deg); }
 }
 
 html[data-backdrop-motion="off"][data-workshop-bg="velvet"] body::before,

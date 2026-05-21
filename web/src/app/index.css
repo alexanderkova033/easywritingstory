@@ -382,14 +382,88 @@ html[data-backdrop-power="very-low"] {
 }
 
 html[data-backdrop-power="low"] body::before {
-  filter: saturate(0.78) brightness(0.95);
-  opacity: 0.92;
+  filter: saturate(0.74) brightness(0.94);
+  opacity: 0.62;
+}
+html[data-backdrop-power="low"]::after {
+  opacity: calc(var(--after-opacity, 0.4) * 0.55) !important;
 }
 
 html[data-backdrop-power="very-low"] body::before {
-  filter: saturate(0.72) brightness(0.95);
-  opacity: 0.75;
+  filter: saturate(0.6) brightness(0.92);
+  opacity: 0.30;
   animation: none !important;
+}
+html[data-backdrop-power="very-low"]::after {
+  opacity: calc(var(--after-opacity, 0.4) * 0.25) !important;
+  animation: none !important;
+}
+
+/* #5 Calm mode — extra saturation cap on top of whatever else is active. */
+html[data-calm-mode] body::before {
+  filter: saturate(0.7) brightness(0.96);
+}
+html[data-calm-mode][data-backdrop-power="low"] body::before {
+  filter: saturate(0.62) brightness(0.92);
+}
+html[data-calm-mode][data-backdrop-power="very-low"] body::before {
+  filter: saturate(0.5) brightness(0.9);
+}
+html[data-calm-mode]::after {
+  opacity: calc(var(--after-opacity, 0.4) * 0.7) !important;
+}
+
+/* #4 Time-of-day shift — evening softens text and dims drift,
+   night goes further with a warm overlay. Driven by JS-set data attribute. */
+html[data-time-of-day="evening"] body::before {
+  filter: saturate(0.86) brightness(0.95) hue-rotate(-4deg);
+}
+html[data-time-of-day="evening"]::after {
+  opacity: calc(var(--after-opacity, 0.4) * 0.8) !important;
+}
+html[data-time-of-day="night"] body::before {
+  filter: saturate(0.78) brightness(0.88) hue-rotate(-8deg);
+}
+html[data-time-of-day="night"]::after {
+  opacity: calc(var(--after-opacity, 0.4) * 0.55) !important;
+}
+
+/* #3 Near-text dim — mask body::before so motifs around the editor fade.
+   Body background-color (var(--bg)) shows through where the mask is partial,
+   keeping the palette intact behind the editor. Approximate editor centre is
+   50% horizontal, ~40% vertical (below the topbar). */
+html[data-near-text-dim] body::before {
+  -webkit-mask-image: radial-gradient(
+    ellipse 760px 520px at 50% 40%,
+    rgba(0, 0, 0, 0.18) 0%,
+    rgba(0, 0, 0, 0.50) 38%,
+    rgba(0, 0, 0, 0.88) 70%,
+    rgba(0, 0, 0, 1) 95%
+  );
+  mask-image: radial-gradient(
+    ellipse 760px 520px at 50% 40%,
+    rgba(0, 0, 0, 0.18) 0%,
+    rgba(0, 0, 0, 0.50) 38%,
+    rgba(0, 0, 0, 0.88) 70%,
+    rgba(0, 0, 0, 1) 95%
+  );
+}
+@media (max-width: 899px) {
+  /* Mobile: editor takes most of viewport, dim less aggressively. */
+  html[data-near-text-dim] body::before {
+    -webkit-mask-image: radial-gradient(
+      ellipse 90% 70% at 50% 45%,
+      rgba(0, 0, 0, 0.45) 0%,
+      rgba(0, 0, 0, 0.80) 60%,
+      rgba(0, 0, 0, 1) 100%
+    );
+    mask-image: radial-gradient(
+      ellipse 90% 70% at 50% 45%,
+      rgba(0, 0, 0, 0.45) 0%,
+      rgba(0, 0, 0, 0.80) 60%,
+      rgba(0, 0, 0, 1) 100%
+    );
+  }
 }
 
 @keyframes studio-light {

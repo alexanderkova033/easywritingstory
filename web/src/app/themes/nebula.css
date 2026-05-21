@@ -1,28 +1,28 @@
 html[data-workshop-bg="nebula"] {
   color-scheme: dark;
-  --bg: #040616;
-  --surface: #0c1024;
-  --surface-2: #131938;
-  --surface-elevated: #1c234a;
-  --border: #2a3160;
-  --text: #e6ecff;
-  --muted: #8f9bc4;
-  --accent: #9ab8ff;
+  --bg: #0a0e1a;
+  --surface: #14182a;
+  --surface-2: #1c213a;
+  --surface-elevated: #242a48;
+  --border: #2c3252;
+  --text: #d8dde8;
+  --muted: #8a93a8;
+  --accent: #94aacc;
   --accent-soft: color-mix(in srgb, var(--accent) 22%, transparent);
-  --selection-bg: color-mix(in srgb, var(--accent) 30%, var(--surface));
+  --selection-bg: color-mix(in srgb, var(--accent) 26%, var(--surface));
   --selection-fg: var(--text);
-  --danger: #ff7892;
-  --net-line: rgba(160, 190, 255, 0.04);
-  --ambient-a: rgba(120, 80, 220, 0.10);
-  --ambient-b: rgba(60, 180, 200, 0.07);
-  --ambient-c: rgba(220, 90, 180, 0.06);
-  --ambient-d: rgba(0, 0, 0, 0.40);
-  --shine-top: rgba(200, 220, 255, 0.05);
-  --shine-mid: rgba(120, 200, 220, 0.03);
-  --after-opacity: 0.65;
-  --shadow-1: 0 2px 10px color-mix(in srgb, #000 55%, transparent);
-  --shadow-2: 0 6px 22px color-mix(in srgb, #000 65%, transparent);
-  --shadow-3: 0 14px 40px color-mix(in srgb, #000 75%, transparent);
+  --danger: #e08494;
+  --net-line: rgba(160, 180, 220, 0.035);
+  --ambient-a: rgba(110, 90, 180, 0.07);
+  --ambient-b: rgba(80, 140, 170, 0.06);
+  --ambient-c: rgba(180, 110, 160, 0.045);
+  --ambient-d: rgba(0, 0, 0, 0.35);
+  --shine-top: rgba(200, 210, 230, 0.04);
+  --shine-mid: rgba(140, 180, 200, 0.025);
+  --after-opacity: 0.42;
+  --shadow-1: 0 2px 10px color-mix(in srgb, #000 50%, transparent);
+  --shadow-2: 0 6px 22px color-mix(in srgb, #000 60%, transparent);
+  --shadow-3: 0 14px 40px color-mix(in srgb, #000 70%, transparent);
 }
 
 /* Galactic arch perspective: looking up from a planet's nightside, the
@@ -36,17 +36,17 @@ html[data-workshop-bg="nebula"] body::before {
     /* Foreground starfield — sparse, scattered */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='560'%3E%3Ccircle cx='42' cy='68' r='0.9' fill='%23fff' fill-opacity='0.85'/%3E%3Ccircle cx='128' cy='44' r='0.6' fill='%23dce8ff' fill-opacity='0.65'/%3E%3Ccircle cx='214' cy='92' r='1.1' fill='%23fff' fill-opacity='0.90'/%3E%3Ccircle cx='298' cy='52' r='0.7' fill='%23c8e0ff' fill-opacity='0.70'/%3E%3Ccircle cx='386' cy='128' r='1.0' fill='%23fff' fill-opacity='0.78'/%3E%3Ccircle cx='478' cy='62' r='0.6' fill='%23e0d8ff' fill-opacity='0.60'/%3E%3Ccircle cx='72' cy='168' r='0.5' fill='%23fff' fill-opacity='0.55'/%3E%3Ccircle cx='168' cy='216' r='0.85' fill='%23d8e0ff' fill-opacity='0.65'/%3E%3Ccircle cx='254' cy='248' r='0.6' fill='%23fff' fill-opacity='0.55'/%3E%3Ccircle cx='340' cy='282' r='0.9' fill='%23f0d8ff' fill-opacity='0.62'/%3E%3Ccircle cx='438' cy='208' r='0.7' fill='%23fff' fill-opacity='0.50'/%3E%3Ccircle cx='510' cy='268' r='0.55' fill='%23d0e0ff' fill-opacity='0.46'/%3E%3Ccircle cx='44' cy='332' r='0.65' fill='%23fff' fill-opacity='0.55'/%3E%3Ccircle cx='148' cy='378' r='0.5' fill='%23e8d8ff' fill-opacity='0.48'/%3E%3Ccircle cx='318' cy='402' r='0.85' fill='%23fff' fill-opacity='0.55'/%3E%3Ccircle cx='402' cy='438' r='0.6' fill='%23d8e8ff' fill-opacity='0.46'/%3E%3Ccircle cx='498' cy='496' r='0.7' fill='%23fff' fill-opacity='0.50'/%3E%3C/svg%3E"),
     /* Galactic-arch band — soft curved gradient sweeping NW to SE */
-    radial-gradient(ellipse 130% 18% at 50% 38%, rgba(220, 200, 255, 0.16), transparent 62%),
-    radial-gradient(ellipse 110% 12% at 50% 35%, rgba(255, 220, 240, 0.20), transparent 60%),
-    /* Bruised colour pools deep in the band */
-    radial-gradient(ellipse 38% 18% at 32% 32%, rgba(160, 110, 220, 0.40), transparent 68%),
-    radial-gradient(ellipse 32% 16% at 64% 40%, rgba(80, 160, 220, 0.36), transparent 70%),
-    radial-gradient(ellipse 28% 14% at 82% 30%, rgba(220, 110, 180, 0.30), transparent 70%),
+    radial-gradient(ellipse 130% 18% at 50% 38%, rgba(210, 210, 232, 0.12), transparent 62%),
+    radial-gradient(ellipse 110% 12% at 50% 35%, rgba(230, 220, 232, 0.14), transparent 60%),
+    /* Dusty colour pools deep in the band (muted) */
+    radial-gradient(ellipse 38% 18% at 32% 32%, rgba(150, 130, 200, 0.22), transparent 70%),
+    radial-gradient(ellipse 32% 16% at 64% 40%, rgba(110, 160, 200, 0.20), transparent 72%),
+    radial-gradient(ellipse 28% 14% at 82% 30%, rgba(190, 130, 170, 0.16), transparent 72%),
     /* Planet-rim glow rising from lower-right */
-    radial-gradient(ellipse 110% 32% at 78% 116%, rgba(150, 170, 255, 0.32), transparent 60%),
-    radial-gradient(ellipse 80% 22% at 78% 110%, rgba(220, 200, 255, 0.18), transparent 65%),
+    radial-gradient(ellipse 110% 32% at 78% 116%, rgba(150, 165, 210, 0.22), transparent 62%),
+    radial-gradient(ellipse 80% 22% at 78% 110%, rgba(200, 195, 220, 0.12), transparent 68%),
     /* Deep space base */
-    linear-gradient(178deg, #02030e 0%, #050818 55%, #02030e 100%);
+    linear-gradient(178deg, #07091a 0%, #0b0f22 55%, #07091a 100%);
   background-size:
     560px 560px,
     560px 560px,
@@ -73,7 +73,7 @@ html[data-workshop-bg="nebula"]::after {
   background-position: center center, 0 0, 0 0;
   mix-blend-mode: screen;
   opacity: var(--after-opacity);
-  animation: nebula-drift 220s ease-in-out infinite;
+  animation: nebula-drift 360s ease-in-out infinite;
 }
 
 @keyframes nebula-stars {
@@ -82,10 +82,15 @@ html[data-workshop-bg="nebula"]::after {
 }
 
 @keyframes nebula-drift {
-  0%   { opacity: 0.65; filter: hue-rotate(0deg); }
-  35%  { opacity: 0.72; filter: hue-rotate(18deg); }
-  70%  { opacity: 0.58; filter: hue-rotate(-12deg); }
-  100% { opacity: 0.65; filter: hue-rotate(0deg); }
+  0%   { opacity: 0.42; filter: hue-rotate(0deg); }
+  15%  { opacity: 0.50; filter: hue-rotate(10deg); }
+  28%  { opacity: 0;    filter: hue-rotate(18deg); }
+  40%  { opacity: 0;    filter: hue-rotate(8deg); }
+  55%  { opacity: 0.46; filter: hue-rotate(-6deg); }
+  68%  { opacity: 0.40; filter: hue-rotate(-12deg); }
+  78%  { opacity: 0;    filter: hue-rotate(-8deg); }
+  88%  { opacity: 0;    filter: hue-rotate(0deg); }
+  100% { opacity: 0.42; filter: hue-rotate(0deg); }
 }
 
 html[data-backdrop-motion="off"][data-workshop-bg="nebula"] body::before,
