@@ -25,16 +25,14 @@
   --shadow-3: 0 10px 32px color-mix(in srgb, #000 60%, transparent);
 }
 
-/* Word-style dark workspace: flat dark grey desk with a pale silver crescent. */
+/* Word-style dark workspace: flat dark grey desk. */
 html[data-workshop-bg="dark"] body::before {
   background-image:
-    /* Cool silver crescent — upper right, very low contrast */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cdefs%3E%3CradialGradient id='dh' cx='50%25' cy='50%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23e8edf2' stop-opacity='0.16'/%3E%3Cstop offset='62%25' stop-color='%23a0acb8' stop-opacity='0.06'/%3E%3Cstop offset='100%25' stop-color='%23000' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='128' cy='112' r='80' fill='url(%23dh)'/%3E%3Ccircle cx='128' cy='112' r='52' fill='%23d6dee5' fill-opacity='0.42'/%3E%3Ccircle cx='144' cy='102' r='48' fill='%231c1c1c'/%3E%3C/svg%3E"),
     radial-gradient(ellipse 140% 90% at 50% 0%, var(--ambient-a), transparent 65%),
     radial-gradient(ellipse 120% 80% at 50% 100%, var(--ambient-d), transparent 70%);
-  background-size: 240px 240px, 150% 150%, 150% 150%;
-  background-position: 92% 8%, 50% 0%, 50% 100%;
-  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-size: 150% 150%, 150% 150%;
+  background-position: 50% 0%, 50% 100%;
+  background-repeat: no-repeat, no-repeat;
   animation: none;
 }
 

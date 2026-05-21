@@ -1,30 +1,18 @@
 import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { buildPhraseRegex, escapeRegex, highlightInLine } from "./helpers";
 
 export type CraftSeverity = "now" | "soon" | "optional";
 export type CraftTone = "warn" | "good" | "info";
 
-/** Tier label thresholds used across word/verb-style panels. */
 export function tierFromCount(count: number): CraftSeverity {
   if (count >= 5) return "now";
   if (count >= 2) return "soon";
   return "optional";
 }
 
-const TIER_LABEL: Record<CraftSeverity, string> = {
-  now: "Heavy use",
-  soon: "Worth a look",
-  optional: "Occasional",
-};
+// ─── Headline ────────────────────────────────────────────────────────────────
 
-const TIER_HINT: Record<CraftSeverity, string> = {
-  now: "Used many times — most readers will notice the pattern.",
-  soon: "Used a few times — check whether each one earns its keep.",
-  optional: "Used once or twice — usually fine.",
-};
-
-/** One-line plain-English summary that leads every Craft panel. */
 export function CraftHeadline({
   tone = "info",
   title,
@@ -45,7 +33,8 @@ export function CraftHeadline({
   );
 }
 
-/** Two-tone horizontal bar showing the share of two competing labels. */
+// ─── Distribution bars ───────────────────────────────────────────────────────
+
 export function DistributionBar({
   left,
   right,
@@ -67,25 +56,20 @@ export function DistributionBar({
         <span
           className={`craft-dist-seg craft-dist-seg--${left.tone ?? "primary"}`}
           style={{ width: `${leftPct}%` }}
-        />
+        >
+          <span className="craft-dist-seg-label">{leftPct >= 12 ? `${left.label} ${leftPct}%` : ""}</span>
+        </span>
         <span
           className={`craft-dist-seg craft-dist-seg--${right.tone ?? "warn"}`}
           style={{ width: `${rightPct}%` }}
-        />
-      </div>
-      <div className="craft-dist-legend muted small">
-        <span>
-          <strong>{left.label}</strong> {leftPct}% <span className="craft-dist-num">({left.value})</span>
-        </span>
-        <span>
-          <strong>{right.label}</strong> {rightPct}% <span className="craft-dist-num">({right.value})</span>
+        >
+          <span className="craft-dist-seg-label">{rightPct >= 12 ? `${right.label} ${rightPct}%` : ""}</span>
         </span>
       </div>
     </div>
   );
 }
 
-/** Three-segment bar for POV (first/second/third). */
 export function TripleDistributionBar({
   first,
   second,
@@ -107,367 +91,54 @@ export function TripleDistributionBar({
         role="img"
         aria-label={`${first.label}: ${a}%, ${second.label}: ${b}%, ${third.label}: ${c}%`}
       >
-        <span className="craft-dist-seg craft-dist-seg--primary" style={{ width: `${a}%` }} />
-        <span className="craft-dist-seg craft-dist-seg--warn" style={{ width: `${b}%` }} />
-        <span className="craft-dist-seg craft-dist-seg--accent" style={{ width: `${c}%` }} />
-      </div>
-      <div className="craft-dist-legend muted small">
-        <span>
-          <strong>{first.label}</strong> {a}% <span className="craft-dist-num">({first.value})</span>
+        <span className="craft-dist-seg craft-dist-seg--primary" style={{ width: `${a}%` }}>
+          <span className="craft-dist-seg-label">{a >= 12 ? `${first.label} ${a}%` : ""}</span>
         </span>
-        <span>
-          <strong>{second.label}</strong> {b}% <span className="craft-dist-num">({second.value})</span>
+        <span className="craft-dist-seg craft-dist-seg--warn" style={{ width: `${b}%` }}>
+          <span className="craft-dist-seg-label">{b >= 12 ? `${second.label} ${b}%` : ""}</span>
         </span>
-        <span>
-          <strong>{third.label}</strong> {c}% <span className="craft-dist-num">({third.value})</span>
+        <span className="craft-dist-seg craft-dist-seg--accent" style={{ width: `${c}%` }}>
+          <span className="craft-dist-seg-label">{c >= 12 ? `${third.label} ${c}%` : ""}</span>
         </span>
       </div>
     </div>
   );
 }
 
-export interface CraftSnippet {
-  line: number;
-  text: string;
-}
+// ─── Controls toolbar (mirrors meter-controls) ───────────────────────────────
 
-export interface CraftFinding {
-  key: string;
-  word: string;
-  count: number;
-  tier: CraftSeverity;
-  category: string;
-  /** Optional human-readable category badge (e.g. "filler"); defaults to category. */
-  categoryLabel?: string;
-  snippets: CraftSnippet[];
-  hint?: ReactNode;
-}
-
-/** Renders findings grouped into severity buckets, using IssuesPanel's queue look. */
-export function CraftFindingBuckets({
-  findings,
-  goToLine,
-  emptyMessage,
-  initialShownPerCard = 2,
-  primaryActionLabel = "Jump",
+export function CraftControls({
+  children,
+  ariaLabel,
 }: {
-  findings: CraftFinding[];
-  goToLine: (line1Based: number) => void;
-  emptyMessage?: ReactNode;
-  initialShownPerCard?: number;
-  primaryActionLabel?: string;
+  children: ReactNode;
+  ariaLabel: string;
 }) {
-  const buckets = useMemo(() => {
-    const out: Record<CraftSeverity, CraftFinding[]> = {
-      now: [],
-      soon: [],
-      optional: [],
-    };
-    for (const f of findings) out[f.tier].push(f);
-    return out;
-  }, [findings]);
-
-  if (findings.length === 0) {
-    return emptyMessage ? <p className="muted small">{emptyMessage}</p> : null;
-  }
-
   return (
-    <div className="queue-buckets craft-buckets">
-      {(["now", "soon", "optional"] as CraftSeverity[]).map((tier) => {
-        const list = buckets[tier];
-        if (list.length === 0) return null;
-        return (
-          <section key={tier} className={`queue-bucket queue-bucket-${tier}`}>
-            <header className="queue-bucket-head">
-              <span className={`queue-sev-dot queue-sev-dot-${tier}`} aria-hidden />
-              <h4 className="tool-subheading queue-bucket-title">
-                {TIER_LABEL[tier]}
-                <span className="queue-bucket-count">{list.length}</span>
-              </h4>
-              <span className="craft-bucket-hint muted small">{TIER_HINT[tier]}</span>
-            </header>
-            <ul className="craft-finding-list">
-              {list.map((f) => (
-                <CraftFindingCard
-                  key={f.key}
-                  finding={f}
-                  goToLine={goToLine}
-                  initialShown={initialShownPerCard}
-                  primaryActionLabel={primaryActionLabel}
-                />
-              ))}
-            </ul>
-          </section>
-        );
-      })}
+    <div className="craft-controls" role="group" aria-label={ariaLabel}>
+      {children}
     </div>
   );
 }
 
-function CraftFindingCard({
-  finding,
-  goToLine,
-  initialShown,
-  primaryActionLabel,
+export function CraftToggle({
+  checked,
+  onChange,
+  label,
 }: {
-  finding: CraftFinding;
-  goToLine: (line1Based: number) => void;
-  initialShown: number;
-  primaryActionLabel: string;
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  label: ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
-  const re = useMemo(() => {
-    const trimmed = finding.word.trim();
-    if (!trimmed) return new RegExp("(?!)", "g");
-    if (/\s/.test(trimmed)) return buildPhraseRegex(trimmed);
-    return new RegExp(`\\b${escapeRegex(trimmed)}\\b`, "gi");
-  }, [finding.word]);
-  const preview = open ? finding.snippets : finding.snippets.slice(0, initialShown);
-  const hasMore = finding.snippets.length > initialShown;
-  const firstLine = finding.snippets[0]?.line;
-
   return (
-    <li className={`queue-item queue-item-craft queue-item-tier-${finding.tier}`}>
-      <div className="queue-item-header">
-        <span className="queue-cat queue-cat-craft" title={finding.categoryLabel ?? finding.category}>
-          {finding.categoryLabel ?? finding.category}
-        </span>
-        {firstLine != null ? (
-          <button
-            type="button"
-            className="queue-line-link"
-            onClick={() => goToLine(firstLine)}
-            title={`Jump to line ${firstLine}`}
-          >
-            L{firstLine}
-          </button>
-        ) : null}
-      </div>
-      <div className="queue-body">
-        <div className="queue-title-row">
-          <span className="queue-title">
-            <strong className="craft-word">{finding.word}</strong>{" "}
-            <span className="craft-finding-count">×{finding.count}</span>
-          </span>
-        </div>
-        {finding.hint ? <p className="queue-detail muted small">{finding.hint}</p> : null}
-        {preview.length > 0 ? (
-          <ul className="craft-finding-snippets">
-            {preview.map((s, i) => (
-              <li key={`${s.line}-${i}`} className="craft-finding-snippet">
-                <button
-                  type="button"
-                  className="craft-snippet-jump linkish"
-                  onClick={() => goToLine(s.line)}
-                  aria-label={`Go to line ${s.line}`}
-                >
-                  L{s.line}
-                </button>
-                <span className="craft-snippet-text">{highlightInLine(s.text, re)}</span>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        {hasMore ? (
-          <button
-            type="button"
-            className="linkish small craft-snippet-more"
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? "Show less" : `Show ${finding.snippets.length - initialShown} more`}
-          </button>
-        ) : null}
-      </div>
-      {firstLine != null ? (
-        <button
-          type="button"
-          className="small-btn queue-primary-btn"
-          onClick={() => goToLine(firstLine)}
-        >
-          {primaryActionLabel}
-        </button>
-      ) : null}
-    </li>
+    <label className="craft-toggle">
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      {label}
+    </label>
   );
 }
 
-/** Conflict card for POV/tense — single-line preview with a labelled badge. */
-export function CraftConflictCard({
-  line,
-  text,
-  badge,
-  detail,
-  goToLine,
-}: {
-  line: number;
-  text: string;
-  badge: string;
-  detail?: ReactNode;
-  goToLine: (line1Based: number) => void;
-}) {
-  return (
-    <li className="queue-item queue-item-craft queue-item-tier-now">
-      <div className="queue-item-header">
-        <span className="queue-cat queue-cat-craft" title={`Reads as ${badge}`}>
-          {badge}
-        </span>
-        <button
-          type="button"
-          className="queue-line-link"
-          onClick={() => goToLine(line)}
-          title={`Jump to line ${line}`}
-        >
-          L{line}
-        </button>
-      </div>
-      <div className="queue-body">
-        <div className="queue-title-row">
-          <span className="craft-snippet-text craft-conflict-text">{text || <em>(empty line)</em>}</span>
-        </div>
-        {detail ? <p className="queue-detail muted small">{detail}</p> : null}
-      </div>
-      <button
-        type="button"
-        className="small-btn queue-primary-btn"
-        onClick={() => goToLine(line)}
-      >
-        Jump
-      </button>
-    </li>
-  );
-}
-
-/** Character card: name, mention count, appearance arc, jump action. */
-export function CraftCharacterCard({
-  name,
-  count,
-  firstLine,
-  lastLine,
-  vanishes,
-  totalLines,
-  snippets,
-  goToLine,
-}: {
-  name: string;
-  count: number;
-  firstLine: number;
-  lastLine: number;
-  vanishes: boolean;
-  totalLines: number;
-  snippets: CraftSnippet[];
-  goToLine: (line1Based: number) => void;
-}) {
-  const re = useMemo(
-    () => new RegExp(`\\b${escapeRegex(name)}\\b`, "gi"),
-    [name],
-  );
-  const firstSnippet = snippets[0];
-  return (
-    <li
-      className={`queue-item queue-item-craft ${vanishes ? "queue-item-tier-now" : "queue-item-tier-optional"}`}
-    >
-      <div className="queue-item-header">
-        <span className="queue-cat queue-cat-craft">
-          {vanishes ? "Vanishes" : "Recurring"}
-        </span>
-        <button
-          type="button"
-          className="queue-line-link"
-          onClick={() => goToLine(firstLine)}
-          title={`Jump to first mention (line ${firstLine})`}
-        >
-          L{firstLine}
-        </button>
-      </div>
-      <div className="queue-body">
-        <div className="queue-title-row">
-          <span className="queue-title">
-            <strong className="craft-word">{name}</strong>{" "}
-            <span className="craft-finding-count">×{count}</span>
-          </span>
-          <span className="muted small craft-character-range">
-            line {firstLine} → line {lastLine}
-          </span>
-        </div>
-        <CharacterArc
-          firstLine={firstLine}
-          lastLine={lastLine}
-          totalLines={totalLines}
-          lines={snippets.map((s) => s.line)}
-        />
-        {vanishes ? (
-          <p className="queue-detail muted small">
-            Appears in the first third but never returns in the last third — possible
-            loose thread.
-          </p>
-        ) : null}
-        {firstSnippet ? (
-          <ul className="craft-finding-snippets">
-            <li className="craft-finding-snippet">
-              <button
-                type="button"
-                className="craft-snippet-jump linkish"
-                onClick={() => goToLine(firstSnippet.line)}
-                aria-label={`Go to line ${firstSnippet.line}`}
-              >
-                L{firstSnippet.line}
-              </button>
-              <span className="craft-snippet-text">{highlightInLine(firstSnippet.text, re)}</span>
-            </li>
-          </ul>
-        ) : null}
-      </div>
-      <button
-        type="button"
-        className="small-btn queue-primary-btn"
-        onClick={() => goToLine(firstLine)}
-      >
-        Jump
-      </button>
-    </li>
-  );
-}
-
-function CharacterArc({
-  firstLine,
-  lastLine,
-  totalLines,
-  lines,
-}: {
-  firstLine: number;
-  lastLine: number;
-  totalLines: number;
-  lines: number[];
-}) {
-  if (totalLines <= 0) return null;
-  const denom = Math.max(1, totalLines);
-  return (
-    <div
-      className="craft-arc"
-      role="img"
-      aria-label={`Appears between line ${firstLine} and line ${lastLine} of ${totalLines}`}
-    >
-      <span className="craft-arc-third craft-arc-third--early" />
-      <span className="craft-arc-third craft-arc-third--late" />
-      <span
-        className="craft-arc-span"
-        style={{
-          left: `${((firstLine - 1) / denom) * 100}%`,
-          width: `${Math.max(2, ((lastLine - firstLine + 1) / denom) * 100)}%`,
-        }}
-      />
-      {lines.map((l, i) => (
-        <span
-          key={`${l}-${i}`}
-          className="craft-arc-tick"
-          style={{ left: `${((l - 1) / denom) * 100}%` }}
-        />
-      ))}
-    </div>
-  );
-}
-
-export function CraftFilterRow({
+export function CraftFilterField({
   value,
   onChange,
   placeholder,
@@ -479,33 +150,332 @@ export function CraftFilterRow({
   ariaLabel: string;
 }) {
   return (
-    <div className="rep-controls">
-      <label className="tool-filter-field rep-filter">
-        <span className="tool-filter-label">Filter</span>
-        <input
-          type="search"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder ?? "Substring"}
-          aria-label={ariaLabel}
-        />
-      </label>
+    <label className="craft-filter-field">
+      <span className="craft-filter-label muted small">Filter</span>
+      <input
+        type="search"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder ?? "Substring"}
+        aria-label={ariaLabel}
+      />
+    </label>
+  );
+}
+
+// ─── Paragraph reference ─────────────────────────────────────────────────────
+
+export function ParaPill({
+  paragraph,
+  goTo,
+  ariaLabel,
+}: {
+  paragraph: number;
+  goTo: (p: number) => void;
+  ariaLabel?: string;
+}) {
+  return (
+    <button
+      type="button"
+      className="craft-para-pill"
+      onClick={() => goTo(paragraph)}
+      aria-label={ariaLabel ?? `Jump to paragraph ${paragraph}`}
+      title={`Paragraph ${paragraph}`}
+    >
+      ¶&nbsp;{paragraph}
+    </button>
+  );
+}
+
+export function ParaPillList({
+  paragraphs,
+  goTo,
+}: {
+  paragraphs: number[];
+  goTo: (p: number) => void;
+}) {
+  return (
+    <div className="craft-para-pill-row">
+      {paragraphs.map((p, i) => (
+        <ParaPill key={`${p}-${i}`} paragraph={p} goTo={goTo} />
+      ))}
     </div>
   );
 }
 
-/** Inline metric label like "12 / 100 words" used in headline detail rows. */
-export function CraftMetric({
-  value,
-  label,
-}: {
-  value: ReactNode;
+// ─── Cluster cards (mirrors rhyme-cluster-card) ──────────────────────────────
+
+const COLOR_LETTERS = "abcdefghijklmnopqrstuvwxyz" as const;
+type ColorLetter = (typeof COLOR_LETTERS)[number];
+
+export function colorLetterForIndex(i: number): ColorLetter {
+  return COLOR_LETTERS[i % COLOR_LETTERS.length]!;
+}
+
+export interface CraftCluster {
+  /** Unique React key. */
+  key: string;
+  /** Main label (the word, verb, character name…). */
   label: string;
+  /** Total count, shown alongside the label. */
+  count: number;
+  /** Color letter a..z; default rotates by order. */
+  color?: ColorLetter;
+  /** Short tag text shown in the colored badge (e.g. "verb", "filter", "A"). */
+  tag?: string;
+  /** Optional one-line hint shown under the chip row. */
+  hint?: ReactNode;
+  /** Mentions: one chip per occurrence. */
+  mentions: Array<{ paragraph: number; surface?: string }>;
+  /** Optional snippet to preview the first context. */
+  preview?: { paragraph: number; text: string };
+  /** Optional onReject — adds × button to dismiss. */
+  onReject?: () => void;
+}
+
+export function CraftClusterCard({
+  cluster,
+  goToParagraph,
+}: {
+  cluster: CraftCluster;
+  goToParagraph: (p: number) => void;
+}) {
+  const color = cluster.color ?? "a";
+  const re = useMemo(
+    () => {
+      const trimmed = cluster.label.trim();
+      if (!trimmed) return new RegExp("(?!)", "g");
+      if (/\s/.test(trimmed)) return buildPhraseRegex(trimmed);
+      return new RegExp(`\\b${escapeRegex(trimmed)}\\b`, "gi");
+    },
+    [cluster.label],
+  );
+  return (
+    <li className={`craft-cluster-card craft-cluster-card-${color}`}>
+      <div className="craft-cluster-card-head">
+        <span className={`craft-cluster-tag rhyme-label-${color}`}>
+          {cluster.tag ?? color.toUpperCase()}
+        </span>
+        <span className="craft-cluster-label">{cluster.label}</span>
+        <span className="craft-cluster-count">×{cluster.count}</span>
+        {cluster.onReject ? (
+          <button
+            type="button"
+            className="craft-cluster-reject"
+            onClick={cluster.onReject}
+            title="Dismiss this group"
+            aria-label={`Dismiss ${cluster.label}`}
+          >
+            ×
+          </button>
+        ) : null}
+      </div>
+      {cluster.hint ? (
+        <p className="craft-cluster-hint muted small">{cluster.hint}</p>
+      ) : null}
+      <div className="craft-cluster-chips">
+        {cluster.mentions.map((m, i) => (
+          <button
+            key={`${m.paragraph}-${i}`}
+            type="button"
+            className={`craft-word-chip rhyme-label-${color}`}
+            onClick={() => goToParagraph(m.paragraph)}
+            title={`Paragraph ${m.paragraph}`}
+            aria-label={`Jump to paragraph ${m.paragraph}`}
+          >
+            <span className="craft-word-chip-word">{m.surface ?? cluster.label}</span>
+            <span className="craft-word-chip-line">{m.paragraph}</span>
+          </button>
+        ))}
+      </div>
+      {cluster.preview ? (
+        <div className="craft-cluster-preview">
+          <ParaPill paragraph={cluster.preview.paragraph} goTo={goToParagraph} />
+          <span className="craft-snippet-text">
+            {highlightInLine(cluster.preview.text, re)}
+          </span>
+        </div>
+      ) : null}
+    </li>
+  );
+}
+
+export function CraftClusterCardList({ children }: { children: ReactNode }) {
+  return <ul className="craft-cluster-card-list">{children}</ul>;
+}
+
+// ─── Grouping (mirrors rhyme-stanza-group) ──────────────────────────────────
+
+export function CraftGroupSection({
+  label,
+  detail,
+  children,
+}: {
+  label: ReactNode;
+  detail?: ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <span className="craft-metric">
-      <span className="craft-metric-value">{value}</span>
-      <span className="craft-metric-label muted small">{label}</span>
-    </span>
+    <section className="craft-group">
+      <div className="craft-group-head">
+        <span className="craft-group-label">{label}</span>
+        {detail ? <span className="craft-group-detail muted small">{detail}</span> : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+// ─── Beat rows (mirrors meter-bar-row) ──────────────────────────────────────
+
+export type BeatKind = "primary" | "warn" | "accent" | "neutral";
+
+export interface BeatSegment {
+  kind: BeatKind;
+  weight: number;
+}
+
+/**
+ * Renders per-paragraph rows with a visual beat strip + fit %, modelled on
+ * Easy-poems' meter-bar-row. Each beat is a small colored block — primary for
+ * the dominant POV/tense, warn for the off colour, accent for the third.
+ */
+export function CraftBeatList({
+  rows,
+  goToParagraph,
+}: {
+  rows: Array<{
+    paragraph: number;
+    segments: BeatSegment[];
+    fitPercent?: number | null;
+    fitLabel?: string;
+    badge?: ReactNode;
+    title?: string;
+  }>;
+  goToParagraph: (p: number) => void;
+}) {
+  return (
+    <ul className="craft-beat-list" aria-label="Per-paragraph readout">
+      {rows.map((row) => {
+        const fit = row.fitPercent;
+        const fitClass =
+          fit == null
+            ? "craft-beat-fit--none"
+            : fit >= 70
+              ? "craft-beat-fit--high"
+              : fit >= 40
+                ? "craft-beat-fit--mid"
+                : "craft-beat-fit--low";
+        const hasBeats = row.segments.some((s) => s.weight > 0);
+        return (
+          <li
+            key={row.paragraph}
+            className="craft-beat-row"
+            tabIndex={0}
+            role="button"
+            aria-label={`Paragraph ${row.paragraph}, ${row.title ?? ""}`}
+            onClick={() => goToParagraph(row.paragraph)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                goToParagraph(row.paragraph);
+              }
+            }}
+            title={row.title}
+          >
+            <span className="craft-beat-para">¶ {row.paragraph}</span>
+            <span className="craft-beat-strip" aria-hidden>
+              {hasBeats ? (
+                row.segments.map((seg, i) =>
+                  Array.from({ length: seg.weight }).map((_, j) => (
+                    <span
+                      key={`${i}-${j}`}
+                      className={`craft-beat craft-beat--${seg.kind}`}
+                    />
+                  )),
+                )
+              ) : (
+                <span className="craft-beat-empty">—</span>
+              )}
+            </span>
+            {row.badge ? <span className="craft-beat-badge">{row.badge}</span> : null}
+            <span className={`craft-beat-fit ${fitClass}`}>
+              {fit == null ? "—" : `${fit}%`}
+              {row.fitLabel ? (
+                <span className="craft-beat-fit-label">{row.fitLabel}</span>
+              ) : null}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+// ─── Character arc (kept for Cast panel) ────────────────────────────────────
+
+export function CraftCharacterArc({
+  firstParagraph,
+  lastParagraph,
+  totalParagraphs,
+  appearances,
+  color = "a",
+  goToParagraph,
+}: {
+  firstParagraph: number;
+  lastParagraph: number;
+  totalParagraphs: number;
+  appearances: number[];
+  color?: ColorLetter;
+  goToParagraph: (p: number) => void;
+}) {
+  if (totalParagraphs <= 0) return null;
+  const denom = Math.max(1, totalParagraphs);
+  return (
+    <div
+      className={`craft-arc rhyme-label-${color}`}
+      role="img"
+      aria-label={`Appears in paragraphs ${firstParagraph} to ${lastParagraph} of ${totalParagraphs}`}
+    >
+      <span className="craft-arc-third craft-arc-third--early" />
+      <span className="craft-arc-third craft-arc-third--late" />
+      <span
+        className="craft-arc-span"
+        style={{
+          left: `${((firstParagraph - 1) / denom) * 100}%`,
+          width: `${Math.max(2, ((lastParagraph - firstParagraph + 1) / denom) * 100)}%`,
+        }}
+      />
+      {appearances.map((p, i) => (
+        <button
+          key={`${p}-${i}`}
+          type="button"
+          className="craft-arc-tick"
+          style={{ left: `${((p - 1) / denom) * 100}%` }}
+          onClick={() => goToParagraph(p)}
+          aria-label={`Jump to paragraph ${p}`}
+          title={`¶ ${p}`}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Callout ─────────────────────────────────────────────────────────────────
+
+export function CraftCallout({
+  tone = "warn",
+  title,
+  children,
+}: {
+  tone?: "warn" | "info";
+  title: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div className={`craft-callout craft-callout--${tone}`}>
+      <p className="craft-callout-title">{title}</p>
+      <div className="craft-callout-body">{children}</div>
+    </div>
   );
 }

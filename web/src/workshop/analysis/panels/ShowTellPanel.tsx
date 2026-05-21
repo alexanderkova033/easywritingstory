@@ -3,12 +3,12 @@ import type { DocumentStats } from "@/workshop/analysis/line-stats";
 import type { StoryCraftAnalysis } from "@/workshop/analysis/story-craft";
 import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
-  CraftFilterRow,
-  CraftFindingBuckets,
+  CraftClusterCard,
+  CraftClusterCardList,
+  CraftFilterField,
+  CraftGroupSection,
   CraftHeadline,
-  CraftMetric,
-  tierFromCount,
-  type CraftFinding,
+  type CraftCluster,
 } from "@/workshop/analysis/tools/CraftCards";
 import { LiveSectionTitle } from "../ToolTabBar";
 
@@ -17,6 +17,24 @@ export interface ShowTellPanelProps {
   craft: StoryCraftAnalysis;
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
+}
+
+function tierColor(count: number): "e" | "g" | "f" {
+  if (count >= 5) return "e";
+  if (count >= 2) return "g";
+  return "f";
+}
+function tierTag(count: number): string {
+  if (count >= 5) return "HEAVY";
+  if (count >= 2) return "USED";
+  return "RARE";
+}
+function tierHint(count: number): string {
+  if (count >= 5)
+    return "Pick the few moments where filtering matters — cut the rest by showing the sensation directly.";
+  if (count >= 2)
+    return "A handful — see whether any can become a direct image instead.";
+  return "One or two filter words usually read fine.";
 }
 
 export function ShowTellPanel({
@@ -28,46 +46,40 @@ export function ShowTellPanel({
   const s = craft.showVsTell;
   const [filter, setFilter] = useState("");
 
-  const snippetsByWord = useMemo(() => {
-    const map = new Map<string, { line: number; text: string }[]>();
+  const hitsByWord = useMemo(() => {
+    const map = new Map<string, Array<{ paragraph: number; text: string }>>();
     for (const h of s.hits) {
       const arr = map.get(h.word) ?? [];
-      arr.push({ line: h.line, text: h.lineText });
+      arr.push({ paragraph: h.line, text: h.lineText });
       map.set(h.word, arr);
     }
     return map;
   }, [s.hits]);
 
-  const findings: CraftFinding[] = useMemo(() => {
+  const clusters: CraftCluster[] = useMemo(() => {
     const q = filter.trim().toLowerCase();
     return s.byWord
       .filter((w) => !q || w.word.toLowerCase().includes(q))
       .map((w) => {
-        const tier = tierFromCount(w.count);
+        const occ = hitsByWord.get(w.word) ?? [];
         return {
           key: w.word,
-          word: w.word,
+          label: w.word,
           count: w.count,
-          tier,
-          category: "filter word",
-          categoryLabel: "Filter",
-          snippets: snippetsByWord.get(w.word) ?? [],
-          hint:
-            tier === "now"
-              ? "Pick the few moments where filtering matters — cut the rest by showing the sensation directly."
-              : tier === "soon"
-                ? "A handful — see whether any can become a direct image instead."
-                : "One or two filter words usually read fine.",
+          color: tierColor(w.count),
+          tag: tierTag(w.count),
+          hint: tierHint(w.count),
+          mentions: occ.map((o) => ({ paragraph: o.paragraph })),
+          preview: occ[0] ? { paragraph: occ[0].paragraph, text: occ[0].text } : undefined,
         };
       });
-  }, [s.byWord, filter, snippetsByWord]);
+  }, [s.byWord, filter, hitsByWord]);
 
   const top = s.byWord.slice(0, 2).map((w) => `“${w.word}”`).join(" and ");
 
   let tone: "good" | "warn" | "info" = "info";
   let title = "";
   let detail = "";
-
   if (s.total === 0) {
     tone = "good";
     title = "No filter words spotted.";
@@ -75,10 +87,11 @@ export function ShowTellPanel({
   } else if (s.total >= 8) {
     tone = "warn";
     title = `${s.total} filter words${top ? ` — mostly ${top}` : ""}.`;
-    detail = "Filter words signal telling. Each one can be replaced by showing the sensation directly: “she felt cold” → “she pulled her coat tighter.”";
+    detail =
+      "Filter words signal telling. Try showing the sensation: “she felt cold” → “she pulled her coat tighter.”";
   } else {
     title = `${s.total} filter word${s.total === 1 ? "" : "s"}${top ? ` — ${top}` : ""}.`;
-    detail = "A handful is fine. Look at the ones below and decide which can be shown rather than told.";
+    detail = "A handful is fine. Tap any chip to jump to that paragraph.";
   }
 
   return (
@@ -110,26 +123,30 @@ export function ShowTellPanel({
         <>
           <CraftHeadline tone={tone} title={title} detail={detail} />
 
-          <div className="craft-metric-row">
-            <CraftMetric value={s.total} label="filter hits" />
-            <CraftMetric value={s.byWord.length} label={s.byWord.length === 1 ? "distinct word" : "distinct words"} />
-          </div>
-
-          <div className="craft-section-head">
-            <h4 className="craft-section-title">Most-used filter words</h4>
-            <span className="muted small">grouped by how often each appears</span>
-          </div>
-          <CraftFilterRow
-            value={filter}
-            onChange={setFilter}
-            ariaLabel="Filter show-vs-tell words"
-            placeholder="felt, knew…"
-          />
-          <CraftFindingBuckets
-            findings={findings}
-            goToLine={goToLine}
-            emptyMessage="No words match this filter."
-          />
+          <CraftGroupSection
+            label="Filter words"
+            detail={`${s.byWord.length} distinct · ${s.total} total · color = how often each appears`}
+          >
+            <CraftFilterField
+              value={filter}
+              onChange={setFilter}
+              ariaLabel="Filter show-vs-tell words"
+              placeholder="felt, knew…"
+            />
+            {clusters.length === 0 ? (
+              <p className="muted small">No words match this filter.</p>
+            ) : (
+              <CraftClusterCardList>
+                {clusters.map((c) => (
+                  <CraftClusterCard
+                    key={c.key}
+                    cluster={c}
+                    goToParagraph={goToLine}
+                  />
+                ))}
+              </CraftClusterCardList>
+            )}
+          </CraftGroupSection>
         </>
       )}
     </div>

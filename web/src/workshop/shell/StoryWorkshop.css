@@ -6955,16 +6955,16 @@
 }
 
 /* ============================================================
-   Craft panels — headline, metric strip, distribution bars,
-   bucketed findings, character arcs
+   Craft panels — headline, distribution bar, word cloud,
+   paragraph timeline, conflict rows, cast cards
    ============================================================ */
 
 .craft-headline {
   display: flex;
   align-items: flex-start;
   gap: 0.65rem;
-  padding: 0.7rem 0.85rem;
-  margin: 0.35rem 0 0.75rem;
+  padding: 0.75rem 0.9rem;
+  margin: 0.35rem 0 0.85rem;
   border-radius: 0.7rem;
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg) 92%, transparent);
@@ -7024,233 +7024,537 @@
   line-height: 1.45;
 }
 
-.craft-metric-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1.1rem;
-  margin: 0.25rem 0 0.75rem;
-  padding: 0.55rem 0.8rem;
-  border-radius: 0.6rem;
-  background: color-mix(in srgb, var(--border) 22%, transparent);
-}
-
-.craft-metric {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.35rem;
-}
-
-.craft-metric-value {
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  font-size: 0.95rem;
-}
-
-.craft-metric-label {
-  font-size: 0.78rem;
-}
-
-.craft-section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin: 0.8rem 0 0.35rem;
-  flex-wrap: wrap;
-}
-
-.craft-section-title {
-  margin: 0;
-  font-size: 0.92rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-
-.craft-buckets {
-  margin-top: 0.5rem;
-}
-
-.craft-buckets .queue-bucket-head {
-  align-items: baseline;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.craft-bucket-hint {
-  flex: 1 1 100%;
-  line-height: 1.4;
-}
-
-.craft-finding-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.queue-item-craft {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas:
-    "header header"
-    "body   action";
-  column-gap: 0.65rem;
-  row-gap: 0.4rem;
-  align-items: start;
-}
-
-.queue-item-craft .queue-item-header {
-  grid-area: header;
-}
-
-.queue-item-craft .queue-body {
-  grid-area: body;
-  min-width: 0;
-}
-
-.queue-item-craft .queue-primary-btn {
-  grid-area: action;
-  align-self: center;
-}
-
-.queue-item-tier-now::before {
-  background: #d97706 !important;
-}
-
-.queue-item-tier-soon::before {
-  background: color-mix(in srgb, var(--accent) 70%, transparent) !important;
-}
-
-.queue-item-tier-optional::before {
-  background: color-mix(in srgb, var(--muted) 60%, transparent) !important;
-}
-
-.queue-cat-craft {
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  color: color-mix(in srgb, var(--accent) 90%, var(--fg));
-}
-
-.craft-word {
-  font-weight: 700;
-  letter-spacing: 0.005em;
-}
-
-.craft-finding-count {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.craft-finding-snippets {
-  list-style: none;
-  margin: 0.4rem 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.craft-finding-snippet {
-  display: flex;
-  gap: 0.45rem;
-  align-items: baseline;
-  font-size: 0.85rem;
-  line-height: 1.45;
-}
-
-.craft-snippet-jump {
-  flex: 0 0 auto;
-  font-variant-numeric: tabular-nums;
-  font-size: 0.78rem;
-  padding: 0;
-}
-
 .craft-snippet-text {
   flex: 1 1 auto;
   min-width: 0;
   overflow-wrap: anywhere;
   color: color-mix(in srgb, var(--fg) 90%, transparent);
+  font-size: 0.85rem;
+  line-height: 1.45;
 }
 
-.craft-conflict-text {
-  font-style: italic;
-}
-
-.craft-snippet-more {
-  margin-top: 0.25rem;
-  font-size: 0.78rem;
-}
-
-.craft-character-range {
-  font-variant-numeric: tabular-nums;
-  margin-left: 0.4rem;
-}
-
+/* ── Callouts (untagged speech, etc.) ─────────────────────────────────────── */
 .craft-callout {
-  margin: 0.6rem 0 0.75rem;
-  padding: 0.6rem 0.8rem;
-  border-radius: 0.6rem;
+  margin: 0.6rem 0 0.85rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--border) 22%, transparent);
 }
 
 .craft-callout--warn {
+  border-left: 3px solid color-mix(in srgb, #d97706 70%, transparent);
   border-color: color-mix(in srgb, #d97706 45%, var(--border));
-  background: color-mix(in srgb, #d97706 8%, var(--bg));
+  background: color-mix(in srgb, #d97706 7%, var(--bg));
+}
+
+.craft-callout--info {
+  border-left: 3px solid color-mix(in srgb, var(--accent) 70%, transparent);
 }
 
 .craft-callout-title {
-  margin: 0 0 0.2rem;
-  font-weight: 600;
-  font-size: 0.88rem;
+  margin: 0 0 0.3rem;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.craft-dist {
+.craft-callout-body > * + * {
+  margin-top: 0.35rem;
+}
+
+/* ── Controls toolbar (mirrors meter-controls) ────────────────────────────── */
+.craft-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  margin: 0.55rem 0 0.55rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--border) 90%, var(--accent));
+  background: color-mix(in srgb, var(--accent) 5%, var(--bg));
+}
+
+.craft-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.craft-toggle input {
+  accent-color: var(--accent);
+}
+
+.craft-controls-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.craft-controls-legend .craft-beat--legend {
+  margin: 0 0.15rem 0 0.6rem;
+}
+
+/* ── Filter field ─────────────────────────────────────────────────────────── */
+.craft-filter-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.35rem 0 0.55rem;
+}
+
+.craft-filter-label {
+  font-weight: 600;
+}
+
+.craft-filter-field input {
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.22rem 0.55rem;
+  font: inherit;
+  font-size: 0.85rem;
+  background: var(--bg);
+  color: var(--fg);
+  min-width: 8rem;
+  flex: 1 1 auto;
+}
+
+.craft-filter-field input:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  outline-offset: 1px;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+}
+
+/* ── Paragraph reference pill ─────────────────────────────────────────────── */
+.craft-para-pill {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 0.05rem 0.4rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 0.74rem;
+  border-radius: 0.4rem;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: color-mix(in srgb, var(--accent) 92%, var(--fg));
+  white-space: nowrap;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.craft-para-pill:hover {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.craft-para-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+/* ── Section grouping (mirrors rhyme-stanza-group) ────────────────────────── */
+.craft-group {
+  margin: 0.65rem 0 0.9rem;
+}
+
+.craft-group-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.craft-group-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.craft-group-detail {
+  margin: 0;
+}
+
+/* ── Cluster card (mirrors rhyme-cluster-card) ────────────────────────────── */
+.craft-cluster-card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.craft-cluster-card {
+  --card-color: var(--accent);
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  margin: 0.75rem 0 0.5rem;
+  padding: 0.55rem 0.7rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--card-color) 38%, var(--border));
+  background: color-mix(in srgb, var(--card-color) 6%, var(--bg));
+}
+
+.craft-cluster-card-a { --card-color: #4c8eff; }
+.craft-cluster-card-b { --card-color: #27ae60; }
+.craft-cluster-card-c { --card-color: #e67e22; }
+.craft-cluster-card-d { --card-color: #9b59b6; }
+.craft-cluster-card-e { --card-color: #e74c3c; }
+.craft-cluster-card-f { --card-color: #1abc9c; }
+.craft-cluster-card-g { --card-color: #f39c12; }
+.craft-cluster-card-h { --card-color: #5d8ecc; }
+.craft-cluster-card-i { --card-color: #e056a0; }
+.craft-cluster-card-j { --card-color: #00bcd4; }
+.craft-cluster-card-k { --card-color: #8bc34a; }
+.craft-cluster-card-l { --card-color: #ff7043; }
+.craft-cluster-card-m { --card-color: #7c4dff; }
+.craft-cluster-card-n { --card-color: #26c6da; }
+.craft-cluster-card-o { --card-color: #ec407a; }
+.craft-cluster-card-p { --card-color: #66bb6a; }
+.craft-cluster-card-q { --card-color: #ab47bc; }
+.craft-cluster-card-r { --card-color: #ffa726; }
+.craft-cluster-card-s { --card-color: #42a5f5; }
+.craft-cluster-card-t { --card-color: #d4a017; }
+.craft-cluster-card-u { --card-color: #5c6bc0; }
+.craft-cluster-card-v { --card-color: #26a69a; }
+.craft-cluster-card-w { --card-color: #ef5350; }
+.craft-cluster-card-x { --card-color: #78909c; }
+.craft-cluster-card-y { --card-color: #c0ca33; }
+.craft-cluster-card-z { --card-color: #8d6e63; }
+
+.craft-cluster-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.craft-cluster-tag {
+  flex-shrink: 0;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.craft-cluster-label {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.005em;
+}
+
+.craft-cluster-count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.craft-cluster-pill {
+  margin-left: 0.15rem;
+  display: inline-flex;
+  padding: 0.04rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.craft-cluster-pill--warn {
+  background: color-mix(in srgb, #d97706 22%, transparent);
+  color: color-mix(in srgb, #d97706 90%, var(--fg));
+}
+
+.craft-cluster-reject {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.4rem;
+  margin-left: auto;
+  cursor: pointer;
+  border-radius: 999px;
+  opacity: 0.55;
+  transition: opacity 0.13s, color 0.13s, background 0.13s;
+}
+
+.craft-cluster-reject:hover {
+  opacity: 1;
+  color: #d95f5f;
+  background: color-mix(in srgb, #d95f5f 12%, transparent);
+}
+
+.craft-cluster-hint {
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Cluster chips (mirrors rhyme-cluster-chips / rhyme-word-chip) ────────── */
+.craft-cluster-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.craft-word-chip {
+  --cat-color: var(--accent);
+  appearance: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.32rem;
+  padding: 0.22rem 0.5rem 0.22rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--cat-color) 38%, var(--border));
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, transform 0.08s;
+}
+
+.craft-word-chip:hover {
+  background: color-mix(in srgb, var(--cat-color) 14%, var(--bg));
+  border-color: var(--cat-color);
+}
+
+.craft-word-chip:active {
+  transform: translateY(1px);
+}
+
+.craft-word-chip:focus-visible {
+  outline: 2px solid var(--cat-color);
+  outline-offset: 1px;
+}
+
+.craft-word-chip-word {
+  font-weight: 600;
+}
+
+.craft-word-chip-line {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--cat-color);
+  background: color-mix(in srgb, var(--cat-color) 14%, transparent);
+  border-radius: 999px;
+  padding: 0.04rem 0.4rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.craft-cluster-overflow {
+  align-self: center;
+  margin-left: 0.1rem;
+}
+
+.craft-cluster-preview {
+  display: flex;
+  gap: 0.45rem;
+  align-items: baseline;
+  margin-top: 0.05rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed color-mix(in srgb, var(--card-color) 24%, transparent);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--fg) 88%, transparent);
+}
+
+/* ── Beat rows (mirrors meter-bar-row) ────────────────────────────────────── */
+.craft-beat-list {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.4rem 0.5rem;
+  background: color-mix(in srgb, var(--bg) 95%, transparent);
+}
+
+.craft-beat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.28rem 0.45rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.13s ease;
+}
+
+.craft-beat-row:hover {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.craft-beat-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.craft-beat-para {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  min-width: 2.4rem;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.craft-beat-strip {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 1.25rem;
+  overflow: hidden;
+}
+
+.craft-beat {
+  flex-shrink: 0;
+  width: 5px;
+  border-radius: 2px;
+  height: 0.9rem;
+}
+
+.craft-beat--primary {
+  background: var(--accent);
+  opacity: 0.8;
+}
+
+.craft-beat--warn {
+  background: #d97706;
+  opacity: 0.85;
+}
+
+.craft-beat--accent {
+  background: #7c4dff;
+  opacity: 0.8;
+}
+
+.craft-beat--neutral {
+  background: var(--muted);
+  opacity: 0.42;
+  height: 0.45rem;
+}
+
+.craft-beat--legend {
+  display: inline-block;
+  vertical-align: middle;
+  width: 6px;
+  height: 0.85rem;
+  margin-right: 0.1rem;
+}
+
+.craft-beat-empty {
+  font-size: 0.78rem;
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.craft-beat-badge {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.04rem 0.42rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, #d97706 22%, transparent);
+  color: color-mix(in srgb, #d97706 90%, var(--fg));
+}
+
+.craft-beat-fit {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 2.6rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.craft-beat-fit-label {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: lowercase;
+  letter-spacing: 0.04em;
+}
+
+.craft-beat-fit--high { color: #5fba7d; }
+.craft-beat-fit--mid  { color: var(--muted); }
+.craft-beat-fit--low  { color: #d95f5f; }
+.craft-beat-fit--none { color: var(--muted); opacity: 0.4; }
+
+.craft-list-footer {
+  margin: 0.45rem 0 0;
+  line-height: 1.4;
+}
+
+/* Distribution bar with inline labels */
+.craft-dist {
+  margin: 0.75rem 0 0.65rem;
 }
 
 .craft-dist-bar {
   display: flex;
   width: 100%;
-  height: 0.7rem;
-  border-radius: 0.45rem;
+  height: 1.45rem;
+  border-radius: 0.55rem;
   overflow: hidden;
   background: color-mix(in srgb, var(--border) 40%, transparent);
   border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
 }
 
 .craft-dist-seg {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 100%;
   transition: width 0.2s ease;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.craft-dist-seg-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--bg);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+  padding: 0 0.4rem;
 }
 
 .craft-dist-seg--primary {
-  background: color-mix(in srgb, var(--accent) 75%, transparent);
+  background: color-mix(in srgb, var(--accent) 78%, transparent);
 }
 
 .craft-dist-seg--warn {
-  background: color-mix(in srgb, #d97706 80%, transparent);
+  background: color-mix(in srgb, #d97706 82%, transparent);
 }
 
 .craft-dist-seg--accent {
-  background: color-mix(in srgb, #6366f1 75%, transparent);
-}
-
-.craft-dist-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem 1rem;
-}
-
-.craft-dist-legend > span {
-  display: inline-flex;
-  gap: 0.35rem;
+  background: color-mix(in srgb, #6366f1 78%, transparent);
 }
 
 .craft-arc {
@@ -7292,10 +7596,20 @@
   position: absolute;
   top: -2px;
   bottom: -2px;
-  width: 2px;
+  width: 3px;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
   border-radius: 1px;
-  background: color-mix(in srgb, var(--fg) 80%, transparent);
+  background: currentColor;
+  opacity: 0.85;
   transform: translateX(-1px);
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+.craft-arc-tick:hover {
+  opacity: 1;
+  transform: translateX(-1px) scaleY(1.4);
 }
 
 /* ============================================================

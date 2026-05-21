@@ -3,11 +3,13 @@ import type { DocumentStats } from "@/workshop/analysis/line-stats";
 import type { StoryCraftAnalysis } from "@/workshop/analysis/story-craft";
 import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
-  CraftCharacterCard,
-  CraftFilterRow,
+  CraftCharacterArc,
+  CraftFilterField,
+  CraftGroupSection,
   CraftHeadline,
-  CraftMetric,
+  colorLetterForIndex,
 } from "@/workshop/analysis/tools/CraftCards";
+import { buildPhraseRegex, escapeRegex, highlightInLine } from "@/workshop/analysis/tools/helpers";
 import { LiveSectionTitle } from "../ToolTabBar";
 
 export interface CharactersPanelProps {
@@ -27,7 +29,7 @@ export function CharactersPanel({
 }: CharactersPanelProps) {
   const c = craft.characters;
   const [filter, setFilter] = useState("");
-  const totalLines = Math.max(storyLines.length, docStats.totalLines);
+  const totalParas = Math.max(storyLines.length, docStats.totalLines);
 
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase();
@@ -45,14 +47,13 @@ export function CharactersPanel({
   let tone: "good" | "warn" | "info" = "info";
   let title = "";
   let detail = "";
-
   if (c.characters.length === 0) {
     title = "No named characters detected yet.";
     detail = "Capitalized names that appear at least twice will show up here.";
   } else if (vanishCount > 0) {
     tone = "warn";
     title = `${vanishCount} character${vanishCount === 1 ? "" : "s"} vanish${vanishCount === 1 ? "es" : ""} before the ending.`;
-    detail = `Appears in the first third but never returns in the last third — possible loose thread.`;
+    detail = "Appears in the opening third but never returns in the final third — possible loose thread.";
   } else {
     tone = "good";
     title = lead
@@ -61,7 +62,8 @@ export function CharactersPanel({
     detail = "Every named character returns by the final third.";
   }
 
-  // Sorted: vanishing characters first (more urgent), then by mention count.
+  // Vanishing characters first, then by mention count. Assign a stable color
+  // letter from the canonical name's hash so the chip colour matches the arc.
   const sorted = useMemo(
     () =>
       [...filtered].sort((a, b) => {
@@ -70,6 +72,17 @@ export function CharactersPanel({
       }),
     [filtered],
   );
+
+  // Stable color per character: based on its position in the sorted full list.
+  const colorByName = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof colorLetterForIndex>>();
+    const ordered = [...c.characters].sort((a, b) => {
+      if (a.vanishes !== b.vanishes) return a.vanishes ? -1 : 1;
+      return b.count - a.count;
+    });
+    ordered.forEach((ch, i) => map.set(ch.name, colorLetterForIndex(i)));
+    return map;
+  }, [c.characters]);
 
   return (
     <div
@@ -98,44 +111,85 @@ export function CharactersPanel({
         <>
           <CraftHeadline tone={tone} title={title} detail={detail} />
 
-          <div className="craft-metric-row">
-            <CraftMetric value={c.characters.length} label={c.characters.length === 1 ? "named character" : "named characters"} />
-            <CraftMetric value={c.totalMentions} label="total mentions" />
-            <CraftMetric
-              value={vanishCount}
-              label={vanishCount === 1 ? "vanishes" : "vanish"}
+          <CraftGroupSection
+            label="Cast"
+            detail={`${c.characters.length} named · ${c.totalMentions} mentions · ${totalParas} paragraph${totalParas === 1 ? "" : "s"}`}
+          >
+            <CraftFilterField
+              value={filter}
+              onChange={setFilter}
+              ariaLabel="Filter characters by name"
+              placeholder="Anna, Tom…"
             />
-          </div>
 
-          <CraftFilterRow
-            value={filter}
-            onChange={setFilter}
-            ariaLabel="Filter characters by name"
-            placeholder="Anna, Tom…"
-          />
-
-          {sorted.length === 0 ? (
-            <p className="muted small">No names match this filter.</p>
-          ) : (
-            <ul className="craft-finding-list">
-              {sorted.map((ch) => (
-                <CraftCharacterCard
-                  key={ch.name}
-                  name={ch.display}
-                  count={ch.count}
-                  firstLine={ch.firstLine}
-                  lastLine={ch.lastLine}
-                  vanishes={ch.vanishes}
-                  totalLines={totalLines}
-                  snippets={ch.mentions.slice(0, 6).map((m) => ({
-                    line: m.line,
-                    text: storyLines[m.line - 1] ?? "",
-                  }))}
-                  goToLine={goToLine}
-                />
-              ))}
-            </ul>
-          )}
+            {sorted.length === 0 ? (
+              <p className="muted small">No names match this filter.</p>
+            ) : (
+              <ul className="craft-cluster-card-list">
+                {sorted.map((ch) => {
+                  const color = colorByName.get(ch.name) ?? "a";
+                  const re = new RegExp(`\\b${escapeRegex(ch.display)}\\b`, "gi");
+                  // fall-back if name contains a space (rare)
+                  const finalRe = /\s/.test(ch.display) ? buildPhraseRegex(ch.display) : re;
+                  const first = ch.mentions[0];
+                  return (
+                    <li
+                      key={ch.name}
+                      className={`craft-cluster-card craft-cluster-card-${color}`}
+                    >
+                      <div className="craft-cluster-card-head">
+                        <span className={`craft-cluster-tag rhyme-label-${color}`}>
+                          {color.toUpperCase()}
+                        </span>
+                        <span className="craft-cluster-label">{ch.display}</span>
+                        <span className="craft-cluster-count">×{ch.count}</span>
+                        {ch.vanishes ? (
+                          <span className="craft-cluster-pill craft-cluster-pill--warn">
+                            vanishes
+                          </span>
+                        ) : null}
+                      </div>
+                      <CraftCharacterArc
+                        firstParagraph={ch.firstLine}
+                        lastParagraph={ch.lastLine}
+                        totalParagraphs={totalParas}
+                        appearances={ch.lines}
+                        color={color}
+                        goToParagraph={goToLine}
+                      />
+                      <div className="craft-cluster-chips">
+                        {ch.mentions.slice(0, 12).map((m, i) => (
+                          <button
+                            key={`${m.line}-${i}`}
+                            type="button"
+                            className={`craft-word-chip rhyme-label-${color}`}
+                            onClick={() => goToLine(m.line)}
+                            title={`Paragraph ${m.line}`}
+                            aria-label={`Jump to paragraph ${m.line}`}
+                          >
+                            <span className="craft-word-chip-word">¶</span>
+                            <span className="craft-word-chip-line">{m.line}</span>
+                          </button>
+                        ))}
+                        {ch.mentions.length > 12 ? (
+                          <span className="muted small craft-cluster-overflow">
+                            +{ch.mentions.length - 12}
+                          </span>
+                        ) : null}
+                      </div>
+                      {first ? (
+                        <div className="craft-cluster-preview">
+                          <span className="craft-snippet-text">
+                            {highlightInLine(storyLines[first.line - 1] ?? "", finalRe)}
+                          </span>
+                        </div>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </CraftGroupSection>
         </>
       )}
     </div>
