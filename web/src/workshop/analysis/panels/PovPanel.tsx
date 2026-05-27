@@ -5,7 +5,7 @@ import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
   CraftBeatList,
   CraftControls,
-  CraftHeadline,
+  CraftStatCard,
   CraftToggle,
   TripleDistributionBar,
   type BeatSegment,
@@ -49,26 +49,44 @@ export function PovPanel({
 
   const total = p.totals.first + p.totals.second + p.totals.third;
   const dominant = p.dominant;
+  const dominantTotal =
+    dominant === "first"
+      ? p.totals.first
+      : dominant === "second"
+        ? p.totals.second
+        : dominant === "third"
+          ? p.totals.third
+          : 0;
+  const dominantPct = total > 0 ? Math.round((dominantTotal / total) * 100) : 0;
 
   let tone: "good" | "warn" | "info" = "info";
-  let title = "";
-  let detail = "";
+  let title: string;
+  let metric: string | undefined;
+  let metricLabel: string | undefined;
+  let progress: number | undefined;
+  let hint: string | undefined;
   if (total === 0) {
-    title = "No personal pronouns yet.";
-    detail = "POV is detected from I/we, you, and he/she/they.";
+    title = "No POV pronouns yet";
+    hint = "Detected from I/we, you, and he/she/they.";
   } else if (dominant === "mixed") {
     tone = "warn";
-    title = "No point of view holds a clear majority.";
-    detail = "Short stories usually pick one — switching mid-story is jarring.";
+    title = "POV is split — pick one";
+    metric = "mixed";
+    hint = "Short stories usually pick one POV and hold it the whole way through.";
   } else if (p.conflicts.length === 0) {
     tone = "good";
-    title = `Consistent ${povName(dominant)} throughout.`;
-    detail = `Cue words: ${povCue(dominant)}.`;
+    title = `Consistent ${povName(dominant)}`;
+    metric = `${dominantPct}%`;
+    metricLabel = povCue(dominant);
+    progress = dominantPct / 100;
   } else {
     tone = "warn";
     const n = p.conflicts.length;
-    title = `Mostly ${povName(dominant)} — ${n} paragraph${n === 1 ? "" : "s"} slip into another POV.`;
-    detail = "Each paragraph below shows its pronoun mix and a fit %.";
+    title = `Mostly ${povName(dominant)} — ${n} slip`;
+    metric = String(n);
+    metricLabel = "off";
+    progress = dominantPct / 100;
+    hint = "Each paragraph below shows its pronoun mix and a fit %.";
   }
 
   // Build per-paragraph beat rows. Map kinds so dominant POV = primary, off = warn, third = accent.
@@ -163,7 +181,14 @@ export function PovPanel({
         </EmptyState>
       ) : (
         <>
-          <CraftHeadline tone={tone} title={title} detail={detail} />
+          <CraftStatCard
+            tone={tone}
+            title={title}
+            metric={metric}
+            metricLabel={metricLabel}
+            progress={progress}
+            hint={hint}
+          />
 
           <TripleDistributionBar
             first={{ label: "1st", value: p.totals.first }}

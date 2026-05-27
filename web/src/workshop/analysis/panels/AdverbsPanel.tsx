@@ -7,7 +7,8 @@ import {
   CraftClusterCardList,
   CraftFilterField,
   CraftGroupSection,
-  CraftHeadline,
+  CraftStatCard,
+  severityFromCount,
   type CraftCluster,
 } from "@/workshop/analysis/tools/CraftCards";
 import { LiveSectionTitle } from "../ToolTabBar";
@@ -26,24 +27,15 @@ function tierColor(count: number): "e" | "g" | "f" {
   if (count >= 2) return "g";
   return "f";
 }
-function tierTag(count: number): string {
-  if (count >= 5) return "HEAVY";
-  if (count >= 2) return "USED";
-  return "RARE";
+function adverbTip(count: number): string {
+  if (count >= 5) return "Heavy — try a stronger verb (“ran fast” → “sprinted”).";
+  if (count >= 2) return "Used a few times — check whether the verb already says it.";
+  return "Occasional use reads fine.";
 }
-function adverbHint(count: number): string {
-  if (count >= 5)
-    return "Try a stronger verb instead — “ran fast” → “sprinted.”";
-  if (count >= 2)
-    return "Each is fine — check whether the verb already says it.";
-  return "Occasional adverbs read fine.";
-}
-function fillerHint(count: number): string {
-  if (count >= 5)
-    return "Most of these can be deleted with no loss in meaning.";
-  if (count >= 2)
-    return "Often these can simply be cut — read the line without the word.";
-  return "One or two filler words read fine.";
+function fillerTip(count: number): string {
+  if (count >= 5) return "Heavy — most can be deleted with no loss in meaning.";
+  if (count >= 2) return "Used a few times — often these can simply be cut.";
+  return "Occasional use reads fine.";
 }
 
 export function AdverbsPanel({
@@ -80,7 +72,7 @@ export function AdverbsPanel({
     const q = filter.trim().toLowerCase();
     const list = sub === "adverbs" ? a.topAdverbs : a.topWeasels;
     const byWord = sub === "adverbs" ? adverbsByWord : weaselsByWord;
-    const hint = sub === "adverbs" ? adverbHint : fillerHint;
+    const tip = sub === "adverbs" ? adverbTip : fillerTip;
     return list
       .filter((w) => !q || w.word.toLowerCase().includes(q))
       .map((w) => {
@@ -90,8 +82,8 @@ export function AdverbsPanel({
           label: w.word,
           count: w.count,
           color: tierColor(w.count),
-          tag: tierTag(w.count),
-          hint: hint(w.count),
+          severity: severityFromCount(w.count),
+          hint: tip(w.count),
           mentions: occ.map((o) => ({ paragraph: o.paragraph })),
           preview: occ[0] ? { paragraph: occ[0].paragraph, text: occ[0].text } : undefined,
         };
@@ -103,22 +95,31 @@ export function AdverbsPanel({
 
   let tone: "good" | "warn" | "info" = "info";
   let title = "";
-  let detail = "";
+  let metric: string | undefined;
+  let metricLabel: string | undefined;
+  let hint: string | undefined;
   if (empty) {
     tone = "good";
-    title = "No -ly adverbs or filler words spotted.";
-    detail = "Strong verbs and concrete nouns are doing the work — nice.";
+    title = "Clean — strong verbs doing the work";
+    metric = "0";
+    metricLabel = "flagged";
   } else if (density >= 4) {
     tone = "warn";
-    title = `Heavy adverb use — ${density.toFixed(1)} per 100 words.`;
-    detail = "A strong verb usually beats verb + adverb.";
+    title = "Heavy adverb use";
+    metric = density.toFixed(1);
+    metricLabel = "per 100w";
+    hint = "A strong verb usually beats verb + adverb.";
   } else if (a.weaselTotal >= 6) {
     tone = "warn";
-    title = `${a.weaselTotal} filler words add noise without meaning.`;
-    detail = "Words like “very”, “really”, “just” can usually be deleted.";
+    title = "Filler words adding noise";
+    metric = String(a.weaselTotal);
+    metricLabel = "fillers";
+    hint = "Words like “very”, “really”, “just” can usually be deleted.";
   } else {
-    title = `Light touch — ${density.toFixed(1)} adverbs per 100 words.`;
-    detail = "Looks fine. Tap any chip to jump to that paragraph.";
+    title = "Light touch";
+    metric = density.toFixed(1);
+    metricLabel = "per 100w";
+    hint = "Looks fine. Tap any chip to jump to that paragraph.";
   }
 
   return (
@@ -138,7 +139,7 @@ export function AdverbsPanel({
 
       {empty ? (
         <>
-          <CraftHeadline tone="good" title={title} detail={detail} />
+          <CraftStatCard tone="good" title={title} metric={metric} metricLabel={metricLabel} hint={hint} />
           <EmptyState title="No adverbs or filler words">
             <p className="muted small">
               No <em>-ly</em> adverbs or weasel words (<em>very</em>, <em>really</em>,{" "}
@@ -148,7 +149,13 @@ export function AdverbsPanel({
         </>
       ) : (
         <>
-          <CraftHeadline tone={tone} title={title} detail={detail} />
+          <CraftStatCard
+            tone={tone}
+            title={title}
+            metric={metric}
+            metricLabel={metricLabel}
+            hint={hint}
+          />
 
           <div className="rep-subtabs" role="tablist" aria-label="Adverb categories">
             <button
@@ -179,7 +186,6 @@ export function AdverbsPanel({
 
           <CraftGroupSection
             label={sub === "adverbs" ? "-ly adverbs" : "Filler words"}
-            detail="Color = how often each appears"
           >
             <CraftFilterField
               value={filter}

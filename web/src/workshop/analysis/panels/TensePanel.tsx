@@ -5,7 +5,7 @@ import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
   CraftBeatList,
   CraftControls,
-  CraftHeadline,
+  CraftStatCard,
   CraftToggle,
   DistributionBar,
   type BeatSegment,
@@ -35,27 +35,43 @@ export function TensePanel({
 
   const total = t.totals.past + t.totals.present;
   const dominant = t.dominant;
+  const dominantTotal =
+    dominant === "past"
+      ? t.totals.past
+      : dominant === "present"
+        ? t.totals.present
+        : 0;
+  const dominantPct = total > 0 ? Math.round((dominantTotal / total) * 100) : 0;
 
   let tone: "good" | "warn" | "info" = "info";
-  let title = "";
-  let detail = "";
+  let title: string;
+  let metric: string | undefined;
+  let metricLabel: string | undefined;
+  let progress: number | undefined;
+  let hint: string | undefined;
   if (total === 0) {
-    title = "No verbs detected yet.";
-    detail = "Past- and present-tense verbs are spotted by common forms and -ed suffixes.";
+    title = "No verbs yet";
+    hint = "Detected by common forms (was, is, walked, walks) and the -ed suffix.";
   } else if (dominant === "mixed") {
     tone = "warn";
-    title = "Tense is mixed.";
-    detail = "Short stories usually pick one tense and hold it the whole way through.";
+    title = "Tense is split — pick one";
+    metric = "mixed";
+    hint = "Short stories usually pick one tense and hold it the whole way through.";
   } else if (t.conflicts.length === 0) {
     tone = "good";
-    title = `Consistent ${dominant} tense throughout.`;
-    detail = "Every paragraph that uses a verb stays in the same tense.";
+    title = `Consistent ${dominant} tense`;
+    metric = `${dominantPct}%`;
+    metricLabel = dominant;
+    progress = dominantPct / 100;
   } else {
     tone = "warn";
     const off = dominant === "past" ? "present" : "past";
     const n = t.conflicts.length;
-    title = `Mostly ${dominant} tense — ${n} paragraph${n === 1 ? "" : "s"} slip into ${off}.`;
-    detail = "Each paragraph below shows its past/present mix and a fit %.";
+    title = `Mostly ${dominant} — ${n} slip into ${off}`;
+    metric = String(n);
+    metricLabel = "off";
+    progress = dominantPct / 100;
+    hint = "Each paragraph below shows its past/present mix and a fit %.";
   }
 
   const rows = useMemo(() => {
@@ -142,7 +158,14 @@ export function TensePanel({
         </EmptyState>
       ) : (
         <>
-          <CraftHeadline tone={tone} title={title} detail={detail} />
+          <CraftStatCard
+            tone={tone}
+            title={title}
+            metric={metric}
+            metricLabel={metricLabel}
+            progress={progress}
+            hint={hint}
+          />
 
           <DistributionBar
             left={{ label: "past", value: t.totals.past, tone: dominant === "past" ? "primary" : "warn" }}

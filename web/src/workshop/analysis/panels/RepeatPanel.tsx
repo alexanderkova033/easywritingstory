@@ -9,8 +9,8 @@ import {
   EdgeRepeatCard,
   PhraseRepeatCard,
   RepeatedWordCard,
-  RepetitionSummary,
 } from "@/workshop/analysis/tools/RepetitionCards";
+import { CraftStatCard } from "@/workshop/analysis/tools/CraftCards";
 import { LiveSectionTitle } from "../ToolTabBar";
 
 export interface RepeatPanelProps {
@@ -58,6 +58,31 @@ export function RepeatPanel({
     [repeated, repetition],
   );
 
+  const totalRepeats =
+    repetitionCounts.words +
+    repetitionCounts.phrases +
+    repetitionCounts.patterns;
+
+  let tone: "good" | "warn" | "info" = "info";
+  let title = "";
+  let metricLabel: string;
+  let hint: string | undefined;
+  if (totalRepeats === 0) {
+    tone = "good";
+    title = "No repeats";
+    metricLabel = "clean";
+    hint = "No non-stopword words, phrases, or patterns repeat in this draft.";
+  } else if (repetitionCounts.words >= 6 || repetitionCounts.phrases >= 3) {
+    tone = "warn";
+    title = "Several echoes worth a look";
+    metricLabel = "repeats";
+    hint = "A few repeated words or phrases stand out. Tap any to jump to that line.";
+  } else {
+    title = "A few echoes spotted";
+    metricLabel = "repeats";
+    hint = "Most repeats are light. Tap any to jump to that line.";
+  }
+
   return (
     <div
       className="tool-block tool-block-live"
@@ -76,7 +101,13 @@ export function RepeatPanel({
           Tools updating…
         </p>
       ) : null}
-      <RepetitionSummary counts={repetitionCounts} />
+      <CraftStatCard
+        tone={tone}
+        title={title}
+        metric={totalRepeats}
+        metricLabel={metricLabel}
+        hint={hint}
+      />
       <div className="rep-subtabs" role="tablist" aria-label="Repeats categories">
         <button
           type="button"

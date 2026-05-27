@@ -8,8 +8,9 @@ import {
   CraftClusterCardList,
   CraftFilterField,
   CraftGroupSection,
-  CraftHeadline,
+  CraftStatCard,
   ParaPillList,
+  severityFromCount,
   type CraftCluster,
 } from "@/workshop/analysis/tools/CraftCards";
 import { LiveSectionTitle } from "../ToolTabBar";
@@ -29,17 +30,10 @@ function tierColor(count: number): "e" | "g" | "f" {
   if (count >= 2) return "g"; // amber — moderate
   return "f"; // teal — light
 }
-function tierTag(count: number): string {
-  if (count >= 5) return "HEAVY";
-  if (count >= 2) return "USED";
-  return "RARE";
-}
-function tierHint(count: number): string {
-  if (count >= 5)
-    return "Try swapping a few for action beats — they pull weight without naming an emotion.";
-  if (count >= 2)
-    return "Used a few times — check whether plain “said” would disappear better.";
-  return "Once or twice is fine — singular moments can use a louder tag.";
+function tierTip(count: number): string {
+  if (count >= 5) return "Heavy use — try swapping a few for plain “said” or action beats.";
+  if (count >= 2) return "Used a few times — check whether plain “said” would disappear better.";
+  return "Used once or twice — fine.";
 }
 
 export function DialoguePanel({
@@ -80,8 +74,8 @@ export function DialoguePanel({
           label: v.verb,
           count: v.count,
           color: tierColor(v.count),
-          tag: tierTag(v.count),
-          hint: tierHint(v.count),
+          severity: severityFromCount(v.count),
+          hint: tierTip(v.count),
           mentions: occ.map((o) => ({ paragraph: o.paragraph })),
           preview: occ[0]
             ? { paragraph: occ[0].paragraph, text: occ[0].lineText }
@@ -96,24 +90,36 @@ export function DialoguePanel({
 
   let tone: "good" | "warn" | "info" = "info";
   let title = "";
-  let detail = "";
+  let metric: string | undefined;
+  let metricLabel: string | undefined;
+  let progress: number | undefined;
+  let hint: string | undefined;
   if (d.dialogueLineCount === 0) {
-    title = "No dialogue yet.";
-    detail = "Paragraphs with quoted speech will appear here.";
+    title = "No dialogue yet";
   } else if (d.unattributed.length > 0) {
     tone = "warn";
-    title = `${d.unattributed.length} speech paragraph${d.unattributed.length === 1 ? "" : "s"} without a clear speaker.`;
-    detail = `Readers may lose track of who’s talking. ${d.dialogueLineCount} dialogue paragraph${d.dialogueLineCount === 1 ? "" : "s"} total.`;
+    title = "Some speech is missing a speaker";
+    metric = String(d.unattributed.length);
+    metricLabel = "untagged";
+    hint = "Readers may lose track of who’s talking.";
   } else if (fancyHeavy) {
     tone = "warn";
-    title = `Loud tags dominate — only ${saidPct}% use plain “said.”`;
-    detail = "Most editors keep “said” the workhorse and use fancier verbs sparingly.";
+    title = "Loud tags outweigh plain “said”";
+    metric = `${saidPct}%`;
+    metricLabel = "said";
+    progress = saidPct / 100;
+    hint = "Most editors keep “said” the workhorse and use fancier verbs sparingly.";
   } else if (totalTags > 0) {
     tone = "good";
-    title = `Dialogue reads cleanly — ${saidPct}% use plain “said.”`;
-    detail = `${d.dialogueLineCount} paragraph${d.dialogueLineCount === 1 ? "" : "s"} of speech, all attributed.`;
+    title = "Dialogue reads cleanly";
+    metric = `${saidPct}%`;
+    metricLabel = "said";
+    progress = saidPct / 100;
+    hint = `${d.dialogueLineCount} paragraph${d.dialogueLineCount === 1 ? "" : "s"} of speech, all attributed.`;
   } else {
-    title = `${d.dialogueLineCount} dialogue paragraph${d.dialogueLineCount === 1 ? "" : "s"} — no attribution verbs detected.`;
+    title = `${d.dialogueLineCount} dialogue paragraph${d.dialogueLineCount === 1 ? "" : "s"}`;
+    metric = "0";
+    metricLabel = "tags";
   }
 
   return (
@@ -139,13 +145,17 @@ export function DialoguePanel({
         </EmptyState>
       ) : (
         <>
-          <CraftHeadline tone={tone} title={title} detail={detail} />
+          <CraftStatCard
+            tone={tone}
+            title={title}
+            metric={metric}
+            metricLabel={metricLabel}
+            progress={progress}
+            hint={hint}
+          />
 
           {d.unattributed.length > 0 ? (
             <CraftCallout title="Untagged speech">
-              <p className="muted small">
-                Add <em>she said</em> or an action beat so the speaker is clear.
-              </p>
               <ParaPillList
                 paragraphs={d.unattributed.slice(0, 24)}
                 goTo={goToLine}
@@ -159,10 +169,7 @@ export function DialoguePanel({
           ) : null}
 
           {fancyVerbs.length > 0 ? (
-            <CraftGroupSection
-              label="Fancy attribution verbs"
-              detail={`${fancyVerbs.length} distinct · color = how often each appears`}
-            >
+            <CraftGroupSection label={`Attribution verbs · ${fancyVerbs.length}`}>
               <CraftFilterField
                 value={filter}
                 onChange={setFilter}

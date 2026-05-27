@@ -6959,6 +6959,125 @@
    paragraph timeline, conflict rows, cast cards
    ============================================================ */
 
+/* ── Compact visual stat card (new, replaces verbose CraftHeadline) ───────── */
+.craft-stat {
+  --stat-color: var(--accent);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.55rem 0.75rem;
+  padding: 0.55rem 0.75rem 0.6rem;
+  margin: 0.35rem 0 0.85rem;
+  border-radius: 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--stat-color) 32%, var(--border));
+  background: color-mix(in srgb, var(--stat-color) 5%, var(--bg));
+}
+
+.craft-stat--good { --stat-color: #16a34a; }
+.craft-stat--warn { --stat-color: #d97706; }
+.craft-stat--info { --stat-color: var(--accent); }
+
+.craft-stat-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--stat-color) 18%, transparent);
+  color: var(--stat-color);
+}
+
+.craft-stat-icon-svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.craft-stat-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.005em;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.craft-stat-metric {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-self: end;
+  line-height: 1.05;
+  color: var(--stat-color);
+}
+
+.craft-stat-metric-num {
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.craft-stat-metric-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--stat-color) 80%, var(--muted));
+  margin-top: 0.05rem;
+}
+
+.craft-stat-progress {
+  grid-column: 1 / -1;
+  position: relative;
+  display: block;
+  height: 4px;
+  width: 100%;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--stat-color) 14%, transparent);
+  overflow: hidden;
+}
+
+.craft-stat-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: var(--craft-stat-pct, 0%);
+  background: color-mix(in srgb, var(--stat-color) 75%, transparent);
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+/* ── Severity dots (visual replacement for HEAVY/USED/RARE) ───────────────── */
+.craft-sev {
+  --sev-color: var(--muted);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0.18rem 0.35rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sev-color) 12%, transparent);
+}
+
+.craft-sev--1 { --sev-color: #1abc9c; }
+.craft-sev--2 { --sev-color: #d97706; }
+.craft-sev--3 { --sev-color: #d95f5f; }
+
+.craft-sev-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sev-color) 25%, transparent);
+}
+
+.craft-sev-dot.is-on {
+  background: var(--sev-color);
+}
+
 .craft-headline {
   display: flex;
   align-items: flex-start;

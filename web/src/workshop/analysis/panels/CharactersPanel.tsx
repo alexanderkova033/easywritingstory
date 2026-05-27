@@ -6,7 +6,7 @@ import {
   CraftCharacterArc,
   CraftFilterField,
   CraftGroupSection,
-  CraftHeadline,
+  CraftStatCard,
   colorLetterForIndex,
 } from "@/workshop/analysis/tools/CraftCards";
 import { buildPhraseRegex, escapeRegex, highlightInLine } from "@/workshop/analysis/tools/helpers";
@@ -46,20 +46,24 @@ export function CharactersPanel({
 
   let tone: "good" | "warn" | "info" = "info";
   let title = "";
-  let detail = "";
+  let metric: string | undefined;
+  let metricLabel: string | undefined;
+  let hint: string | undefined;
   if (c.characters.length === 0) {
-    title = "No named characters detected yet.";
-    detail = "Capitalized names that appear at least twice will show up here.";
+    title = "No named characters yet";
+    hint = "Capitalized names that appear at least twice will show up here.";
   } else if (vanishCount > 0) {
     tone = "warn";
-    title = `${vanishCount} character${vanishCount === 1 ? "" : "s"} vanish${vanishCount === 1 ? "es" : ""} before the ending.`;
-    detail = "Appears in the opening third but never returns in the final third — possible loose thread.";
+    title = `${vanishCount} vanish${vanishCount === 1 ? "es" : ""} before the ending`;
+    metric = String(vanishCount);
+    metricLabel = "loose";
+    hint = "Appears in the opening third but never returns in the final third — possible loose thread.";
   } else {
     tone = "good";
-    title = lead
-      ? `${c.characters.length} named character${c.characters.length === 1 ? "" : "s"} — ${lead.display} is the lead (${lead.count} mentions).`
-      : `${c.characters.length} named character${c.characters.length === 1 ? "" : "s"}.`;
-    detail = "Every named character returns by the final third.";
+    title = lead ? `${lead.display} leads` : "All named characters return";
+    metric = String(c.characters.length);
+    metricLabel = c.characters.length === 1 ? "named" : "cast";
+    hint = "Every named character returns by the final third.";
   }
 
   // Vanishing characters first, then by mention count. Assign a stable color
@@ -109,11 +113,11 @@ export function CharactersPanel({
         </EmptyState>
       ) : (
         <>
-          <CraftHeadline tone={tone} title={title} detail={detail} />
+          <CraftStatCard tone={tone} title={title} metric={metric} metricLabel={metricLabel} hint={hint} />
 
           <CraftGroupSection
-            label="Cast"
-            detail={`${c.characters.length} named · ${c.totalMentions} mentions · ${totalParas} paragraph${totalParas === 1 ? "" : "s"}`}
+            label={`Cast · ${c.characters.length}`}
+            detail={`${c.totalMentions} mentions · ${totalParas} paragraph${totalParas === 1 ? "" : "s"}`}
           >
             <CraftFilterField
               value={filter}

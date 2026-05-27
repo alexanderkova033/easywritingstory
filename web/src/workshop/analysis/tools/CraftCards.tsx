@@ -33,6 +33,122 @@ export function CraftHeadline({
   );
 }
 
+// ─── Stat card (new, more visual replacement for CraftHeadline) ──────────────
+
+function CraftStatIcon({ tone }: { tone: CraftTone }) {
+  if (tone === "good") {
+    return (
+      <svg viewBox="0 0 24 24" className="craft-stat-icon-svg" aria-hidden>
+        <path
+          d="M5 12.5l4 4 10-10"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+  if (tone === "warn") {
+    return (
+      <svg viewBox="0 0 24 24" className="craft-stat-icon-svg" aria-hidden>
+        <path d="M12 5v9" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+        <circle cx="12" cy="18" r="1.4" fill="currentColor" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" className="craft-stat-icon-svg" aria-hidden>
+      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="2" />
+      <circle cx="12" cy="12" r="2.5" fill="currentColor" />
+    </svg>
+  );
+}
+
+/**
+ * Compact visual stat-card. Replaces the verbose CraftHeadline:
+ * - Big colour-coded status icon on the left.
+ * - Single-line title (no paragraph copy).
+ * - Optional KPI badge on the right (e.g. "62%", "3", "1.8/100").
+ * - Optional inline progress bar underneath for ratios.
+ */
+export function CraftStatCard({
+  tone = "info",
+  title,
+  metric,
+  metricLabel,
+  progress,
+  hint,
+}: {
+  tone?: CraftTone;
+  title: ReactNode;
+  metric?: ReactNode;
+  metricLabel?: ReactNode;
+  /** 0..1 progress fraction; rendered as a thin bar underneath. */
+  progress?: number;
+  /** Optional hover tooltip with more context. */
+  hint?: string;
+}) {
+  return (
+    <div
+      className={`craft-stat craft-stat--${tone}`}
+      role="status"
+      title={hint}
+    >
+      <span className={`craft-stat-icon craft-stat-icon--${tone}`} aria-hidden>
+        <CraftStatIcon tone={tone} />
+      </span>
+      <p className="craft-stat-title">{title}</p>
+      {metric != null ? (
+        <span className="craft-stat-metric">
+          <span className="craft-stat-metric-num">{metric}</span>
+          {metricLabel ? (
+            <span className="craft-stat-metric-label">{metricLabel}</span>
+          ) : null}
+        </span>
+      ) : null}
+      {progress != null ? (
+        <span
+          className="craft-stat-progress"
+          aria-hidden
+          style={{ ["--craft-stat-pct" as never]: `${Math.round(Math.max(0, Math.min(1, progress)) * 100)}%` }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+// ─── Severity dots (visual replacement for HEAVY/USED/RARE tags) ─────────────
+
+export type Severity = 1 | 2 | 3;
+
+export function severityFromCount(count: number): Severity {
+  if (count >= 5) return 3;
+  if (count >= 2) return 2;
+  return 1;
+}
+
+export function CraftSeverityDots({
+  severity,
+  ariaLabel,
+}: {
+  severity: Severity;
+  ariaLabel?: string;
+}) {
+  return (
+    <span
+      className={`craft-sev craft-sev--${severity}`}
+      role="img"
+      aria-label={ariaLabel ?? `severity ${severity} of 3`}
+    >
+      <span className={`craft-sev-dot ${severity >= 1 ? "is-on" : ""}`} />
+      <span className={`craft-sev-dot ${severity >= 2 ? "is-on" : ""}`} />
+      <span className={`craft-sev-dot ${severity >= 3 ? "is-on" : ""}`} />
+    </span>
+  );
+}
+
 // ─── Distribution bars ───────────────────────────────────────────────────────
 
 export function DistributionBar({
@@ -223,6 +339,11 @@ export interface CraftCluster {
   color?: ColorLetter;
   /** Short tag text shown in the colored badge (e.g. "verb", "filter", "A"). */
   tag?: string;
+  /**
+   * Visual severity 1..3 — when set, shows three dots instead of a text tag.
+   * Preferred over `tag` for "how often does this appear" kind of indicators.
+   */
+  severity?: Severity;
   /** Optional one-line hint shown under the chip row. */
   hint?: ReactNode;
   /** Mentions: one chip per occurrence. */
@@ -250,12 +371,21 @@ export function CraftClusterCard({
     },
     [cluster.label],
   );
+  const hintTip =
+    cluster.hint && typeof cluster.hint === "string" ? cluster.hint : undefined;
   return (
     <li className={`craft-cluster-card craft-cluster-card-${color}`}>
-      <div className="craft-cluster-card-head">
-        <span className={`craft-cluster-tag rhyme-label-${color}`}>
-          {cluster.tag ?? color.toUpperCase()}
-        </span>
+      <div className="craft-cluster-card-head" title={hintTip}>
+        {cluster.severity != null ? (
+          <CraftSeverityDots
+            severity={cluster.severity}
+            ariaLabel={`Used ${cluster.count} time${cluster.count === 1 ? "" : "s"} — severity ${cluster.severity} of 3`}
+          />
+        ) : (
+          <span className={`craft-cluster-tag rhyme-label-${color}`}>
+            {cluster.tag ?? color.toUpperCase()}
+          </span>
+        )}
         <span className="craft-cluster-label">{cluster.label}</span>
         <span className="craft-cluster-count">×{cluster.count}</span>
         {cluster.onReject ? (
@@ -270,9 +400,6 @@ export function CraftClusterCard({
           </button>
         ) : null}
       </div>
-      {cluster.hint ? (
-        <p className="craft-cluster-hint muted small">{cluster.hint}</p>
-      ) : null}
       <div className="craft-cluster-chips">
         {cluster.mentions.map((m, i) => (
           <button

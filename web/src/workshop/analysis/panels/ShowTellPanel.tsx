@@ -7,7 +7,8 @@ import {
   CraftClusterCardList,
   CraftFilterField,
   CraftGroupSection,
-  CraftHeadline,
+  CraftStatCard,
+  severityFromCount,
   type CraftCluster,
 } from "@/workshop/analysis/tools/CraftCards";
 import { LiveSectionTitle } from "../ToolTabBar";
@@ -24,17 +25,10 @@ function tierColor(count: number): "e" | "g" | "f" {
   if (count >= 2) return "g";
   return "f";
 }
-function tierTag(count: number): string {
-  if (count >= 5) return "HEAVY";
-  if (count >= 2) return "USED";
-  return "RARE";
-}
-function tierHint(count: number): string {
-  if (count >= 5)
-    return "Pick the few moments where filtering matters — cut the rest by showing the sensation directly.";
-  if (count >= 2)
-    return "A handful — see whether any can become a direct image instead.";
-  return "One or two filter words usually read fine.";
+function tierTip(count: number): string {
+  if (count >= 5) return "Heavy use — cut by showing the sensation directly.";
+  if (count >= 2) return "Used a few times — see if any can become a direct image.";
+  return "Once or twice is fine.";
 }
 
 export function ShowTellPanel({
@@ -67,8 +61,8 @@ export function ShowTellPanel({
           label: w.word,
           count: w.count,
           color: tierColor(w.count),
-          tag: tierTag(w.count),
-          hint: tierHint(w.count),
+          severity: severityFromCount(w.count),
+          hint: tierTip(w.count),
           mentions: occ.map((o) => ({ paragraph: o.paragraph })),
           preview: occ[0] ? { paragraph: occ[0].paragraph, text: occ[0].text } : undefined,
         };
@@ -79,19 +73,26 @@ export function ShowTellPanel({
 
   let tone: "good" | "warn" | "info" = "info";
   let title = "";
-  let detail = "";
+  let metric: string | undefined;
+  let metricLabel: string | undefined;
+  let hint: string | undefined;
   if (s.total === 0) {
     tone = "good";
-    title = "No filter words spotted.";
-    detail = "Words like “felt”, “knew”, “noticed” distance the reader — this draft skips them.";
+    title = "No filter words";
+    metric = "0";
+    metricLabel = "filters";
+    hint = "Words like felt, knew, noticed distance the reader — this draft skips them.";
   } else if (s.total >= 8) {
     tone = "warn";
-    title = `${s.total} filter words${top ? ` — mostly ${top}` : ""}.`;
-    detail =
-      "Filter words signal telling. Try showing the sensation: “she felt cold” → “she pulled her coat tighter.”";
+    title = top ? `Mostly ${top}` : "Heavy filtering";
+    metric = String(s.total);
+    metricLabel = "filters";
+    hint = "Try showing the sensation: “she felt cold” → “she pulled her coat tighter.”";
   } else {
-    title = `${s.total} filter word${s.total === 1 ? "" : "s"}${top ? ` — ${top}` : ""}.`;
-    detail = "A handful is fine. Tap any chip to jump to that paragraph.";
+    title = top ? `Mostly ${top}` : "Some filter words";
+    metric = String(s.total);
+    metricLabel = `filter${s.total === 1 ? "" : "s"}`;
+    hint = "A handful is fine. Tap any chip to jump to that paragraph.";
   }
 
   return (
@@ -111,7 +112,7 @@ export function ShowTellPanel({
 
       {s.total === 0 ? (
         <>
-          <CraftHeadline tone="good" title={title} detail={detail} />
+          <CraftStatCard tone="good" title={title} metric={metric} metricLabel={metricLabel} hint={hint} />
           <EmptyState title="No filter words found">
             <p className="muted small">
               Filter words like <em>felt</em>, <em>knew</em>, and <em>noticed</em>{" "}
@@ -121,12 +122,15 @@ export function ShowTellPanel({
         </>
       ) : (
         <>
-          <CraftHeadline tone={tone} title={title} detail={detail} />
+          <CraftStatCard
+            tone={tone}
+            title={title}
+            metric={metric}
+            metricLabel={metricLabel}
+            hint={hint}
+          />
 
-          <CraftGroupSection
-            label="Filter words"
-            detail={`${s.byWord.length} distinct · ${s.total} total · color = how often each appears`}
-          >
+          <CraftGroupSection label={`Filter words · ${s.byWord.length}`}>
             <CraftFilterField
               value={filter}
               onChange={setFilter}
