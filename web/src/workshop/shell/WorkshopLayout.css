@@ -209,6 +209,8 @@
 
 .story-workshop.is-focus-mode .cm-issue-gutter,
 .story-workshop.is-focus-mode .cm-issue-dot,
+.story-workshop.is-focus-mode .cm-craft-gutter,
+.story-workshop.is-focus-mode .cm-craft-dot,
 .story-workshop.is-focus-mode .cm-syllable-wrap,
 .story-workshop.is-focus-mode .cm-rhyme-scheme,
 .story-workshop.is-focus-mode .ai-line-ribbons,
@@ -766,5 +768,63 @@
 .tools-analyse-btn:hover {
   background: color-mix(in srgb, var(--accent) 16%, var(--surface));
   border-color: var(--accent);
+}
+
+/* ── Last-AI-score chip in tools panel header ── */
+.tools-ai-score-chip {
+  --score-color: var(--accent);
+  appearance: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  padding: 0.22rem 0.55rem;
+  margin-left: auto;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--score-color) 45%, var(--border));
+  background: color-mix(in srgb, var(--score-color) 10%, var(--surface));
+  color: color-mix(in srgb, var(--score-color) 90%, var(--fg));
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: background 0.14s, border-color 0.14s, transform 0.08s;
+}
+
+/* Score chip pushes itself right with margin-left: auto; the following
+   Analyse button should sit immediately beside it, not push to far edge. */
+.tools-ai-score-chip + .tools-analyse-btn {
+  margin-left: 0;
+}
+
+.tools-ai-score-chip:hover {
+  background: color-mix(in srgb, var(--score-color) 18%, var(--surface));
+  border-color: var(--score-color);
+}
+
+.tools-ai-score-chip:active {
+  transform: translateY(1px);
+}
+
+.tools-ai-score-chip.is-high { --score-color: #16a34a; }
+.tools-ai-score-chip.is-mid  { --score-color: #d97706; }
+.tools-ai-score-chip.is-low  { --score-color: #d95f5f; }
+
+.tools-ai-score-glyph {
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.tools-ai-score-val {
+  font-size: 0.86rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tools-ai-score-denom {
+  font-size: 0.66rem;
+  font-weight: 600;
+  opacity: 0.7;
 }
 

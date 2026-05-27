@@ -487,6 +487,27 @@ export function StoryWorkshop() {
   }, [peekToLine]);
   const [mobileAiOpen, setMobileAiOpen] = useState(false);
   const [mobileIsAnalyzing, setMobileIsAnalyzing] = useState(false);
+  // Desktop: track whether the AI Analysis section (below the editor grid) is
+  // visible so we can offer a "jump to AI" floating button when it's off-screen.
+  const [aiSectionVisible, setAiSectionVisible] = useState(false);
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
+    const el = document.querySelector(".ai-analysis-section");
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry) setAiSectionVisible(entry.isIntersecting);
+      },
+      { rootMargin: "-80px 0px 0px 0px", threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [m.activeStoryId]);
+  const scrollToAi = useCallback(() => {
+    const el = document.querySelector(".ai-analysis-section") as HTMLElement | null;
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   // Safety net: when the sheet flips open, force-fire the analyze fn after a
   // short delay if the autoTrigger path didn't catch it (e.g. AiAnalysis hadn't
@@ -791,6 +812,62 @@ export function StoryWorkshop() {
     m.spellHits.length,
     m.wordlist,
   ]);
+
+  /**
+   * Per-line craft signal markers for the editor's craft gutter. Aggregated
+   * from POV/tense conflicts, untagged dialogue, show/tell hits, and adverb/
+   * weasel hits. Each entry carries a weight so the editor can collapse
+   * multiple signals on the same line into a single visually-tiered dot.
+   */
+  const craftGutterSignals = useMemo(() => {
+    const out: Array<{ line: number; kind: string; weight: number }> = [];
+    for (const c of m.craft.pov.conflicts) {
+      out.push({ line: c.line, kind: "pov", weight: 2 });
+    }
+    for (const c of m.craft.tense.conflicts) {
+      out.push({ line: c.line, kind: "tense", weight: 2 });
+    }
+    for (const line of m.craft.dialogue.unattributed) {
+      out.push({ line, kind: "dialogue", weight: 3 });
+    }
+    for (const h of m.craft.showVsTell.hits) {
+      out.push({ line: h.line, kind: "showtell", weight: 1 });
+    }
+    for (const h of m.craft.adverbs.adverbHits) {
+      out.push({ line: h.line, kind: "adverb", weight: 1 });
+    }
+    for (const h of m.craft.adverbs.weaselHits) {
+      out.push({ line: h.line, kind: "adverb", weight: 1 });
+    }
+    return out;
+  }, [m.craft]);
+
+  /**
+   * Per-craft-tab "needs attention" flags — surfaced as a small dot on each
+   * sub-tab so the user doesn't have to open every tool to see which ones
+   * have something worth reviewing. Thresholds mirror the warn states the
+   * individual panels use (e.g. POV dominant=mixed, heavy adverb density).
+   */
+  const craftTabAttn = useMemo(() => {
+    const d = m.craft.dialogue;
+    const totalTags = d.saidCount + d.strongTagCount;
+    const fancyHeavy = d.strongTagCount > d.saidCount && totalTags >= 4;
+    const p = m.craft.pov;
+    const t = m.craft.tense;
+    const sv = m.craft.showVsTell;
+    const a = m.craft.adverbs;
+    const ch = m.craft.characters;
+    return {
+      repeat:
+        m.repeated.length >= 6 || m.repetition.phrases.length >= 3,
+      dialogue: d.unattributed.length > 0 || fancyHeavy,
+      pov: p.dominant === "mixed" || p.conflicts.length > 0,
+      tense: t.dominant === "mixed" || t.conflicts.length > 0,
+      showtell: sv.total >= 8,
+      adverbs: a.adverbPer100 >= 4 || a.weaselTotal >= 6,
+      characters: ch.characters.some((c) => c.vanishes),
+    };
+  }, [m.craft, m.repeated, m.repetition.phrases.length]);
 
   const libraryListRows = useMemo(() => {
     const q = libraryQuery.trim().toLowerCase();
@@ -1693,6 +1770,7 @@ export function StoryWorkshop() {
                       issueHighlight={issueHighlight}
                       persistentIssueHighlights={persistentIssueHighlights}
                       issueGutterMarkers={persistentIssueHighlights}
+                      craftGutterSignals={craftGutterSignals}
                       onGutterDotClick={(line) => openIssueAtLineRef.current?.(line, true)}
                       onCursorLineChange={(line) => {
                         setCursorLine(line);
@@ -1887,6 +1965,24 @@ export function StoryWorkshop() {
             />
             <div className="tools-head-row tools-head-row-simple">
               <h2 className="tools-heading">Tools</h2>
+              {m.lastAiScore != null && (
+                <button
+                  type="button"
+                  className={`tools-ai-score-chip ${
+                    m.lastAiScore >= 8
+                      ? "is-high"
+                      : m.lastAiScore >= 5
+                        ? "is-mid"
+                        : "is-low"
+                  }`}
+                  onClick={scrollToAi}
+                  {...hint(`Last AI analysis score: ${m.lastAiScore}/10 — jump to results`)}
+                >
+                  <span className="tools-ai-score-glyph" aria-hidden>✦</span>
+                  <span className="tools-ai-score-val">{m.lastAiScore}</span>
+                  <span className="tools-ai-score-denom" aria-hidden>/10</span>
+                </button>
+              )}
               <button
                 type="button"
                 className="tools-analyse-btn"
@@ -1920,6 +2016,14 @@ export function StoryWorkshop() {
             >
               {TOOL_BUCKET_ORDER.map((b) => {
                 const active = toolTabBucket(m.toolTab) === b;
+                const bucketAttn =
+                  b === "overview"
+                    ? issuesQueueCount > 0 ||
+                      (m.wordlist && m.spellHits.length > 0) ||
+                      m.goalEvaluation.warnings.length > 0
+                    : b === "craft"
+                      ? Object.values(craftTabAttn).some(Boolean)
+                      : false;
                 return (
                   <button
                     key={b}
@@ -1931,6 +2035,9 @@ export function StoryWorkshop() {
                     onClick={() => m.setToolTab(defaultTabForBucket(b))}
                   >
                     {TOOL_BUCKET_LABEL[b]}
+                    {bucketAttn && !active && (
+                      <span className="goal-tab-dot" aria-label="needs attention" />
+                    )}
                   </button>
                 );
               })}
@@ -1974,6 +2081,27 @@ export function StoryWorkshop() {
                         )}
                         {id === "goals" && m.goalEvaluation.warnings.length > 0 && (
                           <span className="goal-tab-dot" aria-label="goals not met" />
+                        )}
+                        {id === "repeat" && craftTabAttn.repeat && (
+                          <span className="goal-tab-dot" aria-label="repeats worth a look" />
+                        )}
+                        {id === "dialogue" && craftTabAttn.dialogue && (
+                          <span className="goal-tab-dot" aria-label="dialogue worth a look" />
+                        )}
+                        {id === "pov" && craftTabAttn.pov && (
+                          <span className="goal-tab-dot" aria-label="POV worth a look" />
+                        )}
+                        {id === "tense" && craftTabAttn.tense && (
+                          <span className="goal-tab-dot" aria-label="tense worth a look" />
+                        )}
+                        {id === "showtell" && craftTabAttn.showtell && (
+                          <span className="goal-tab-dot" aria-label="filter words worth a look" />
+                        )}
+                        {id === "adverbs" && craftTabAttn.adverbs && (
+                          <span className="goal-tab-dot" aria-label="adverbs worth a look" />
+                        )}
+                        {id === "characters" && craftTabAttn.characters && (
+                          <span className="goal-tab-dot" aria-label="character thread worth a look" />
                         )}
                       </button>
                     ))}
@@ -2229,6 +2357,19 @@ export function StoryWorkshop() {
           </div>
         </div>
       )}
+
+      {/* Floating Jump-to-AI button — desktop only, hidden once AI is in view */}
+      <button
+        type="button"
+        className={`jump-to-ai-fab ${aiSectionVisible ? "is-hidden" : ""}`}
+        onClick={scrollToAi}
+        aria-label="Jump to AI analysis"
+        title="Jump to AI analysis"
+      >
+        <span className="jump-to-ai-fab-icon" aria-hidden>✦</span>
+        <span className="jump-to-ai-fab-label">AI</span>
+        <span className="jump-to-ai-fab-arrow" aria-hidden>↓</span>
+      </button>
 
       <WorkshopModals
         isTemplatesOpen={isTemplatesOpen}

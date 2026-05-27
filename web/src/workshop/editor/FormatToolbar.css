@@ -923,6 +923,55 @@ button.primary:disabled {
   border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
+/* ---- Craft-signal gutter dots (POV/tense slips, filter words, adverbs) ---- */
+.cm-craft-gutter {
+  width: 10px;
+  padding: 0 2px;
+}
+
+.cm-craft-gutter .cm-gutterElement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: inherit;
+  height: auto;
+  padding: 0;
+}
+
+.cm-craft-dot {
+  display: inline-block;
+  border-radius: 2px;
+  flex-shrink: 0;
+  vertical-align: middle;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.cm-craft-gutter .cm-gutterElement:hover .cm-craft-dot {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* Tier = how many signals stack on one line. Width grows with severity so
+   heavy lines look chunkier without dominating the gutter. */
+.cm-craft-dot-low {
+  width: 3px;
+  height: 8px;
+  background: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.cm-craft-dot-med {
+  width: 4px;
+  height: 10px;
+  background: color-mix(in srgb, #d97706 65%, transparent);
+}
+
+.cm-craft-dot-high {
+  width: 5px;
+  height: 12px;
+  background: color-mix(in srgb, #d95f5f 70%, transparent);
+}
+
 /* ---- Left-gutter AI chip — minimal ✦ glyph on active cursor line ---- */
 .cm-ai-chip-gutter {
   width: 1.25rem;

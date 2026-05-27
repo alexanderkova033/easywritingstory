@@ -280,6 +280,65 @@ const issueGutterExtension = gutter({
   },
 });
 
+// ---- Craft-signal gutter markers (POV/tense slips, filter words, adverbs) ---
+class CraftDot extends GutterMarker {
+  constructor(readonly kind: string, readonly weight: number) { super(); }
+  eq(other: CraftDot) { return other.kind === this.kind && other.weight === this.weight; }
+  toDOM() {
+    const el = document.createElement("span");
+    const tier = this.weight >= 3 ? "high" : this.weight >= 2 ? "med" : "low";
+    el.className = `cm-craft-dot cm-craft-dot-${tier}`;
+    el.dataset.kind = this.kind;
+    el.setAttribute("aria-hidden", "true");
+    el.title = craftDotLabel(this.kind, this.weight);
+    return el;
+  }
+}
+
+function craftDotLabel(kind: string, weight: number) {
+  const what =
+    kind === "pov"
+      ? "POV slip"
+      : kind === "tense"
+        ? "Tense slip"
+        : kind === "showtell"
+          ? "Filter word"
+          : kind === "adverb"
+            ? "Adverb / filler"
+            : kind === "dialogue"
+              ? "Untagged speech"
+              : "Craft signal";
+  return weight > 1 ? `${what} (×${weight})` : what;
+}
+
+const setCraftGutter = StateEffect.define<Array<{ pos: number; kind: string; weight: number }>>();
+const clearCraftGutter = StateEffect.define<void>();
+
+const craftGutterField = StateField.define<RangeSet<GutterMarker>>({
+  create() { return RangeSet.empty; },
+  update(value, tr) {
+    let next = value.map(tr.changes);
+    for (const e of tr.effects) {
+      if (e.is(clearCraftGutter)) next = RangeSet.empty;
+      if (e.is(setCraftGutter)) {
+        const builder = new RangeSetBuilder<GutterMarker>();
+        const sorted = [...e.value].sort((a, b) => a.pos - b.pos);
+        for (const { pos, kind, weight } of sorted) {
+          builder.add(pos, pos, new CraftDot(kind, weight));
+        }
+        next = builder.finish();
+      }
+    }
+    return next;
+  },
+});
+
+const craftGutterExtension = gutter({
+  class: "cm-craft-gutter",
+  markers: (view) => view.state.field(craftGutterField),
+  initialSpacer: () => new CraftDot("pov", 1),
+});
+
 // ---- Rhyme scheme letter gutter (A/B/A/B per line) ---- //
 class SchemeLetterMarker extends GutterMarker {
   constructor(readonly letter: string, readonly colorIdx: number) { super(); }
@@ -465,6 +524,12 @@ export interface StoryBodyEditorProps {
   onSelectionText?: (text: string | null, rect: DOMRect | null) => void;
   /** Severity dot markers in the gutter for lines with AI issues. */
   issueGutterMarkers?: Array<[number, number, string?]>;
+  /**
+   * Craft-signal markers (POV/tense slips, filter words, heavy adverbs, untagged
+   * speech). Rendered in a separate gutter from the AI dots so they read as
+   * "machine-detected craft signals" vs. "AI editor's flagged issues".
+   */
+  craftGutterSignals?: Array<{ line: number; kind: string; weight: number }>;
   /** Called when the user clicks a severity dot in the gutter. */
   onGutterDotClick?: (line: number) => void;
   /** Called when the cursor parks on a different line for ~400ms. */
@@ -618,6 +683,54 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
     }
     try { view.dispatch({ effects: setWordHighlights.of(wh) }); } catch { /* ignore */ }
   }, [props.editorViewRef, props.wordHighlights]);
+
+  // Craft-signal gutter dots (POV/tense slips, filter words, heavy adverbs).
+  useEffect(() => {
+    const view = props.editorViewRef.current;
+    if (!view) return;
+    const signals = props.craftGutterSignals;
+    if (!signals || signals.length === 0) {
+      try { view.dispatch({ effects: clearCraftGutter.of(undefined) }); } catch { /* ignore */ }
+      return;
+    }
+    const entries: Array<{ pos: number; kind: string; weight: number }> = [];
+    try {
+      const lineCount = view.state.doc.lines;
+      // Pick the most severe signal per line (highest weight, then a fixed
+      // priority order). Lots of light signals on one line still surface as a
+      // single dot rather than blanket the gutter.
+      const byLine = new Map<number, { kind: string; weight: number }>();
+      const kindPriority: Record<string, number> = {
+        dialogue: 5,
+        pov: 4,
+        tense: 3,
+        showtell: 2,
+        adverb: 1,
+      };
+      for (const s of signals) {
+        if (s.line < 1 || s.line > lineCount) continue;
+        const cur = byLine.get(s.line);
+        if (!cur) {
+          byLine.set(s.line, { kind: s.kind, weight: s.weight });
+          continue;
+        }
+        // Aggregate weight (caps at 5), keep the highest-priority kind.
+        const merged = Math.min(5, cur.weight + s.weight);
+        const winner =
+          (kindPriority[s.kind] ?? 0) > (kindPriority[cur.kind] ?? 0)
+            ? s.kind
+            : cur.kind;
+        byLine.set(s.line, { kind: winner, weight: merged });
+      }
+      for (const [lineNo, { kind, weight }] of byLine) {
+        const line = view.state.doc.line(lineNo);
+        entries.push({ pos: line.from, kind, weight });
+      }
+    } catch { /* ignore */ }
+    try {
+      view.dispatch({ effects: setCraftGutter.of(entries) });
+    } catch { /* ignore */ }
+  }, [props.editorViewRef, props.craftGutterSignals]);
 
   // Rhyme end-word highlights
   useEffect(() => {
@@ -782,6 +895,8 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
       persistentIssueDecosField,
       issueGutterField,
       issueGutterExtension,
+      craftGutterField,
+      craftGutterExtension,
       schemeLetterField,
       wordHighlightField,
       rhymeEndField,
