@@ -11,13 +11,19 @@ import {
   severityFromCount,
   type CraftCluster,
 } from "@/workshop/analysis/tools/CraftCards";
+import { useIgnoredCraftItems } from "@/workshop/analysis/craft-ignored-storage";
 import { LiveSectionTitle } from "../ToolTabBar";
 
+const IGNORE_CATEGORY = "showtell";
+
 export interface ShowTellPanelProps {
+  storyId: string;
   docStats: DocumentStats;
   craft: StoryCraftAnalysis;
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
+  goToWordInLine: (line1Based: number, word: string) => void;
+  peekToLine: (line1Based: number) => void;
 }
 
 function tierColor(count: number): "e" | "g" | "f" {
@@ -32,13 +38,19 @@ function tierTip(count: number): string {
 }
 
 export function ShowTellPanel({
+  storyId,
   docStats,
   craft,
   heavyToolsStale,
   goToLine,
+  goToWordInLine,
+  peekToLine,
 }: ShowTellPanelProps) {
   const s = craft.showVsTell;
   const [filter, setFilter] = useState("");
+  const { ignore, restoreAll, isIgnored, countInCategory } =
+    useIgnoredCraftItems(storyId);
+  const ignoredCount = countInCategory(IGNORE_CATEGORY);
 
   const hitsByWord = useMemo(() => {
     const map = new Map<string, Array<{ paragraph: number; text: string }>>();
@@ -53,6 +65,7 @@ export function ShowTellPanel({
   const clusters: CraftCluster[] = useMemo(() => {
     const q = filter.trim().toLowerCase();
     return s.byWord
+      .filter((w) => !isIgnored(IGNORE_CATEGORY, w.word))
       .filter((w) => !q || w.word.toLowerCase().includes(q))
       .map((w) => {
         const occ = hitsByWord.get(w.word) ?? [];
@@ -65,9 +78,10 @@ export function ShowTellPanel({
           hint: tierTip(w.count),
           mentions: occ.map((o) => ({ paragraph: o.paragraph })),
           preview: occ[0] ? { paragraph: occ[0].paragraph, text: occ[0].text } : undefined,
+          onReject: () => ignore(IGNORE_CATEGORY, w.word),
         };
       });
-  }, [s.byWord, filter, hitsByWord]);
+  }, [s.byWord, filter, hitsByWord, isIgnored, ignore]);
 
   const top = s.byWord.slice(0, 2).map((w) => `“${w.word}”`).join(" and ");
 
@@ -138,7 +152,11 @@ export function ShowTellPanel({
               placeholder="felt, knew…"
             />
             {clusters.length === 0 ? (
-              <p className="muted small">No words match this filter.</p>
+              <p className="muted small">
+                {ignoredCount > 0
+                  ? "No words left — everything you flagged is hidden."
+                  : "No words match this filter."}
+              </p>
             ) : (
               <CraftClusterCardList>
                 {clusters.map((c) => (
@@ -146,10 +164,21 @@ export function ShowTellPanel({
                     key={c.key}
                     cluster={c}
                     goToParagraph={goToLine}
+                    goToWord={goToWordInLine}
+                    peekParagraph={peekToLine}
                   />
                 ))}
               </CraftClusterCardList>
             )}
+            {ignoredCount > 0 ? (
+              <button
+                type="button"
+                className="craft-restore-link linkish small"
+                onClick={() => restoreAll(IGNORE_CATEGORY)}
+              >
+                Show {ignoredCount} hidden
+              </button>
+            ) : null}
           </CraftGroupSection>
         </>
       )}

@@ -1,16 +1,33 @@
-import type { EditorView } from "@codemirror/view";
+import { EditorView } from "@codemirror/view";
+
+export interface FocusOpts {
+  /**
+   * When true (default), scroll the target into the vertical center of the
+   * editor viewport instead of CodeMirror's "minimum movement" default.
+   * Centring matches what users expect when they jump from a side panel —
+   * the target lands where their eye is already focused.
+   */
+  center?: boolean;
+}
+
+function centerEffect(pos: number) {
+  return EditorView.scrollIntoView(pos, { y: "center" });
+}
 
 /** Select a logical line in a CodeMirror 6 view (1-based line numbers). */
 export function focusLineInEditor(
   view: EditorView,
   line1Based: number,
+  opts: FocusOpts = {},
 ): void {
   const doc = view.state.doc;
   const n = Math.max(1, Math.min(line1Based, doc.lines));
   const line = doc.line(n);
+  const center = opts.center !== false;
   view.dispatch({
     selection: { anchor: line.from, head: line.to },
-    scrollIntoView: true,
+    effects: center ? centerEffect(line.from) : undefined,
+    scrollIntoView: !center,
   });
   view.focus();
 }
@@ -20,14 +37,17 @@ export function focusCharacterRangeInEditor(
   view: EditorView,
   from: number,
   to: number,
+  opts: FocusOpts = {},
 ): void {
   const doc = view.state.doc;
   const len = doc.length;
   const a = Math.max(0, Math.min(from, len));
   const b = Math.max(0, Math.min(to, len));
+  const center = opts.center !== false;
   view.dispatch({
     selection: { anchor: a, head: b },
-    scrollIntoView: true,
+    effects: center ? centerEffect(a) : undefined,
+    scrollIntoView: !center,
   });
   view.focus();
 }
@@ -36,6 +56,7 @@ export function focusCharacterRangeInEditor(
 export function focusLastWordInLine(
   view: EditorView,
   line1Based: number,
+  opts: FocusOpts = {},
 ): void {
   const doc = view.state.doc;
   const n = Math.max(1, Math.min(line1Based, doc.lines));
@@ -47,10 +68,12 @@ export function focusLastWordInLine(
   while ((m = re.exec(text)) !== null) {
     last = { start: m.index, end: m.index + m[0].length };
   }
+  const center = opts.center !== false;
   if (!last) {
     view.dispatch({
       selection: { anchor: line.from, head: line.to },
-      scrollIntoView: true,
+      effects: center ? centerEffect(line.from) : undefined,
+      scrollIntoView: !center,
     });
   } else {
     view.dispatch({
@@ -58,7 +81,8 @@ export function focusLastWordInLine(
         anchor: line.from + last.start,
         head: line.from + last.end,
       },
-      scrollIntoView: true,
+      effects: center ? centerEffect(line.from + last.start) : undefined,
+      scrollIntoView: !center,
     });
   }
   view.focus();

@@ -2125,6 +2125,7 @@ export function StoryWorkshop() {
           <Suspense fallback={<div className="tools-loading-fallback" aria-hidden />}>
           <WorkshopToolPanels
             toolTab={m.toolTab}
+            storyId={m.activeStoryId}
             docStats={m.docStats}
             meterHints={m.meterHints}
             goals={m.goals}
@@ -2145,6 +2146,8 @@ export function StoryWorkshop() {
             onSpellModeChange={m.setSpellMode}
             goToLine={m.goToLine}
             goToLineEnd={m.goToLineEnd}
+            goToWordInLine={m.goToWordInLine}
+            peekToLine={peekToLine}
             goToSpellHitAt={m.goToSpellHitAt}
             cycleSpellHit={m.cycleSpellHit}
             spellNavIndex={m.spellNavIndex}

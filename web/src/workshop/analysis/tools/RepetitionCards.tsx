@@ -5,6 +5,7 @@ import type {
 import {
   buildPhraseRegex,
   buildPhraseRegexSource,
+  cropAroundMatch,
   escapeRegex,
   highlightInLine,
 } from "./helpers";
@@ -34,9 +35,13 @@ export function RepetitionSummary({
 export function RepeatedWordCard({
   item,
   goToLine,
+  peekToLine,
+  onReject,
 }: {
   item: RepeatedWord;
   goToLine: (line1Based: number) => void;
+  peekToLine?: (line1Based: number) => void;
+  onReject?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const variantList =
@@ -69,20 +74,37 @@ export function RepeatedWordCard({
                 ? "adjacent lines"
                 : `${item.minGap} lines apart`}
         </span>
+        {onReject ? (
+          <button
+            type="button"
+            className="craft-cluster-reject"
+            onClick={onReject}
+            title="Hide this repeat"
+            aria-label={`Hide “${item.display}”`}
+          >
+            ×
+          </button>
+        ) : null}
       </div>
       <ul className="rep-snippets">
         {previewOccurrences.map((o, i) => (
-          <li key={`${o.line}-${o.start}-${i}`} className="rep-snippet">
+          <li
+            key={`${o.line}-${o.start}-${i}`}
+            className="rep-snippet"
+            onMouseEnter={() => peekToLine?.(o.line)}
+          >
             <button
               type="button"
               className="rep-line-jump linkish"
               onClick={() => goToLine(o.line)}
+              onFocus={() => peekToLine?.(o.line)}
               aria-label={`Go to line ${o.line}`}
+              title="Click to jump, hover to peek"
             >
               L{o.line}
             </button>
             <span className="rep-snippet-text">
-              {highlightInLine(o.lineText, wordRe)}
+              {highlightInLine(cropAroundMatch(o.lineText, wordRe, 36), wordRe)}
             </span>
           </li>
         ))}
@@ -103,9 +125,11 @@ export function RepeatedWordCard({
 export function PhraseRepeatCard({
   item,
   goToLine,
+  peekToLine,
 }: {
   item: import("@/workshop/analysis/repeated-words").PhraseRepeat;
   goToLine: (line1Based: number) => void;
+  peekToLine?: (line1Based: number) => void;
 }) {
   const [open, setOpen] = useState(false);
   const previewSnippets = open ? item.snippets : item.snippets.slice(0, 2);
@@ -119,17 +143,23 @@ export function PhraseRepeatCard({
       </div>
       <ul className="rep-snippets">
         {previewSnippets.map((s, i) => (
-          <li key={`${s.line}-${i}`} className="rep-snippet">
+          <li
+            key={`${s.line}-${i}`}
+            className="rep-snippet"
+            onMouseEnter={() => peekToLine?.(s.line)}
+          >
             <button
               type="button"
               className="rep-line-jump linkish"
               onClick={() => goToLine(s.line)}
+              onFocus={() => peekToLine?.(s.line)}
               aria-label={`Go to line ${s.line}`}
+              title="Click to jump, hover to peek"
             >
               L{s.line}
             </button>
             <span className="rep-snippet-text">
-              {highlightInLine(s.text, phraseRe)}
+              {highlightInLine(cropAroundMatch(s.text, phraseRe, 36), phraseRe)}
             </span>
           </li>
         ))}
@@ -151,10 +181,12 @@ export function EdgeRepeatCard({
   group,
   edge,
   goToLine,
+  peekToLine,
 }: {
   group: import("@/workshop/analysis/repeated-words").AnaphoraGroup;
   edge: "start" | "end";
   goToLine: (line1Based: number) => void;
+  peekToLine?: (line1Based: number) => void;
 }) {
   const [open, setOpen] = useState(false);
   const previewSnippets = open ? group.snippets : group.snippets.slice(0, 3);
@@ -178,17 +210,23 @@ export function EdgeRepeatCard({
       </div>
       <ul className="rep-snippets">
         {previewSnippets.map((s, i) => (
-          <li key={`${s.line}-${i}`} className="rep-snippet">
+          <li
+            key={`${s.line}-${i}`}
+            className="rep-snippet"
+            onMouseEnter={() => peekToLine?.(s.line)}
+          >
             <button
               type="button"
               className="rep-line-jump linkish"
               onClick={() => goToLine(s.line)}
+              onFocus={() => peekToLine?.(s.line)}
               aria-label={`Go to line ${s.line}`}
+              title="Click to jump, hover to peek"
             >
               L{s.line}
             </button>
             <span className="rep-snippet-text">
-              {highlightInLine(s.text, matchRe)}
+              {highlightInLine(cropAroundMatch(s.text, matchRe, 36), matchRe)}
             </span>
           </li>
         ))}

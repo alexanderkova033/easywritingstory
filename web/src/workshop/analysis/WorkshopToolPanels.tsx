@@ -39,6 +39,8 @@ import { CharactersPanel } from "./panels/CharactersPanel";
 
 export interface WorkshopToolPanelsProps {
   toolTab: ToolTab;
+  /** Used to namespace per-story persisted state (e.g. ignored craft items). */
+  storyId: string;
   docStats: DocumentStats;
   meterHints: LineMeterHint[];
   goals: WorkshopGoals;
@@ -60,6 +62,10 @@ export interface WorkshopToolPanelsProps {
   onSpellModeChange: (mode: SpellMode) => void;
   goToLine: (line1Based: number) => void;
   goToLineEnd: (line1Based: number) => void;
+  /** Select just the matched word range inside a line; falls back to whole-line. */
+  goToWordInLine: (line1Based: number, word: string) => void;
+  /** Live-scroll the editor to a line on hover/focus — no focus, no cursor move. */
+  peekToLine: (line1Based: number) => void;
   goToSpellHitAt: (hit: SpellHit) => void;
   cycleSpellHit: (delta: number) => void;
   spellNavIndex: number;
@@ -169,20 +175,25 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
 
       {toolTab === "repeat" ? (
         <RepeatPanel
+          storyId={props.storyId}
           docStats={props.docStats}
           repeated={props.repeated}
           repetition={props.repetition}
           heavyToolsStale={props.heavyToolsStale}
           goToLine={props.goToLine}
+          peekToLine={props.peekToLine}
         />
       ) : null}
 
       {toolTab === "dialogue" ? (
         <DialoguePanel
+          storyId={props.storyId}
           docStats={props.docStats}
           craft={props.craft}
           heavyToolsStale={props.heavyToolsStale}
           goToLine={props.goToLine}
+          goToWordInLine={props.goToWordInLine}
+          peekToLine={props.peekToLine}
         />
       ) : null}
 
@@ -208,19 +219,25 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
 
       {toolTab === "showtell" ? (
         <ShowTellPanel
+          storyId={props.storyId}
           docStats={props.docStats}
           craft={props.craft}
           heavyToolsStale={props.heavyToolsStale}
           goToLine={props.goToLine}
+          goToWordInLine={props.goToWordInLine}
+          peekToLine={props.peekToLine}
         />
       ) : null}
 
       {toolTab === "adverbs" ? (
         <AdverbsPanel
+          storyId={props.storyId}
           docStats={props.docStats}
           craft={props.craft}
           heavyToolsStale={props.heavyToolsStale}
           goToLine={props.goToLine}
+          goToWordInLine={props.goToWordInLine}
+          peekToLine={props.peekToLine}
         />
       ) : null}
 
@@ -231,6 +248,8 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           storyLines={props.storyLines}
           heavyToolsStale={props.heavyToolsStale}
           goToLine={props.goToLine}
+          goToWordInLine={props.goToWordInLine}
+          peekToLine={props.peekToLine}
         />
       ) : null}
 

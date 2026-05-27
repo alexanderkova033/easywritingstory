@@ -9,7 +9,7 @@ import {
   CraftStatCard,
   colorLetterForIndex,
 } from "@/workshop/analysis/tools/CraftCards";
-import { buildPhraseRegex, escapeRegex, highlightInLine } from "@/workshop/analysis/tools/helpers";
+import { buildPhraseRegex, cropAroundMatch, escapeRegex, highlightInLine } from "@/workshop/analysis/tools/helpers";
 import { LiveSectionTitle } from "../ToolTabBar";
 
 export interface CharactersPanelProps {
@@ -18,6 +18,8 @@ export interface CharactersPanelProps {
   storyLines: string[];
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
+  goToWordInLine: (line1Based: number, word: string) => void;
+  peekToLine: (line1Based: number) => void;
 }
 
 export function CharactersPanel({
@@ -26,6 +28,8 @@ export function CharactersPanel({
   storyLines,
   heavyToolsStale,
   goToLine,
+  goToWordInLine,
+  peekToLine,
 }: CharactersPanelProps) {
   const c = craft.characters;
   const [filter, setFilter] = useState("");
@@ -160,6 +164,7 @@ export function CharactersPanel({
                         appearances={ch.lines}
                         color={color}
                         goToParagraph={goToLine}
+                        peekParagraph={peekToLine}
                       />
                       <div className="craft-cluster-chips">
                         {ch.mentions.slice(0, 12).map((m, i) => (
@@ -167,9 +172,11 @@ export function CharactersPanel({
                             key={`${m.line}-${i}`}
                             type="button"
                             className={`craft-word-chip rhyme-label-${color}`}
-                            onClick={() => goToLine(m.line)}
-                            title={`Paragraph ${m.line}`}
-                            aria-label={`Jump to paragraph ${m.line}`}
+                            onClick={() => goToWordInLine(m.line, ch.display)}
+                            onMouseEnter={() => peekToLine(m.line)}
+                            onFocus={() => peekToLine(m.line)}
+                            title={`Paragraph ${m.line} — click to jump, hover to peek`}
+                            aria-label={`Jump to “${ch.display}” in paragraph ${m.line}`}
                           >
                             <span className="craft-word-chip-word">¶</span>
                             <span className="craft-word-chip-line">{m.line}</span>
@@ -184,7 +191,10 @@ export function CharactersPanel({
                       {first ? (
                         <div className="craft-cluster-preview">
                           <span className="craft-snippet-text">
-                            {highlightInLine(storyLines[first.line - 1] ?? "", finalRe)}
+                            {highlightInLine(
+                              cropAroundMatch(storyLines[first.line - 1] ?? "", finalRe, 36),
+                              finalRe,
+                            )}
                           </span>
                         </div>
                       ) : null}

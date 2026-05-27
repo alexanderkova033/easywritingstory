@@ -13,13 +13,19 @@ import {
   severityFromCount,
   type CraftCluster,
 } from "@/workshop/analysis/tools/CraftCards";
+import { useIgnoredCraftItems } from "@/workshop/analysis/craft-ignored-storage";
 import { LiveSectionTitle } from "../ToolTabBar";
 
+const IGNORE_CATEGORY = "dialogue";
+
 export interface DialoguePanelProps {
+  storyId: string;
   docStats: DocumentStats;
   craft: StoryCraftAnalysis;
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
+  goToWordInLine: (line1Based: number, word: string) => void;
+  peekToLine: (line1Based: number) => void;
 }
 
 const NEUTRAL = new Set(["said", "says", "saying"]);
@@ -37,13 +43,19 @@ function tierTip(count: number): string {
 }
 
 export function DialoguePanel({
+  storyId,
   docStats,
   craft,
   heavyToolsStale,
   goToLine,
+  goToWordInLine,
+  peekToLine,
 }: DialoguePanelProps) {
   const d = craft.dialogue;
   const [filter, setFilter] = useState("");
+  const { ignore, restoreAll, isIgnored, countInCategory } =
+    useIgnoredCraftItems(storyId);
+  const ignoredCount = countInCategory(IGNORE_CATEGORY);
 
   const occurrencesByVerb = useMemo(() => {
     const map = new Map<
@@ -66,6 +78,7 @@ export function DialoguePanel({
   const clusters: CraftCluster[] = useMemo(() => {
     const q = filter.trim().toLowerCase();
     return fancyVerbs
+      .filter((v) => !isIgnored(IGNORE_CATEGORY, v.verb))
       .filter((v) => !q || v.verb.toLowerCase().includes(q))
       .map((v) => {
         const occ = occurrencesByVerb.get(v.verb) ?? [];
@@ -80,9 +93,10 @@ export function DialoguePanel({
           preview: occ[0]
             ? { paragraph: occ[0].paragraph, text: occ[0].lineText }
             : undefined,
+          onReject: () => ignore(IGNORE_CATEGORY, v.verb),
         };
       });
-  }, [fancyVerbs, filter, occurrencesByVerb]);
+  }, [fancyVerbs, filter, occurrencesByVerb, isIgnored, ignore]);
 
   const totalTags = d.saidCount + d.strongTagCount;
   const saidPct = totalTags > 0 ? Math.round((d.saidCount / totalTags) * 100) : 0;
@@ -159,6 +173,7 @@ export function DialoguePanel({
               <ParaPillList
                 paragraphs={d.unattributed.slice(0, 24)}
                 goTo={goToLine}
+                peek={peekToLine}
               />
               {d.unattributed.length > 24 ? (
                 <p className="muted small">
@@ -177,7 +192,11 @@ export function DialoguePanel({
                 placeholder="whispered, yelled…"
               />
               {clusters.length === 0 ? (
-                <p className="muted small">No verbs match this filter.</p>
+                <p className="muted small">
+                  {ignoredCount > 0
+                    ? "No verbs left — everything you flagged is hidden."
+                    : "No verbs match this filter."}
+                </p>
               ) : (
                 <CraftClusterCardList>
                   {clusters.map((c) => (
@@ -185,10 +204,21 @@ export function DialoguePanel({
                       key={c.key}
                       cluster={c}
                       goToParagraph={goToLine}
+                      goToWord={goToWordInLine}
+                      peekParagraph={peekToLine}
                     />
                   ))}
                 </CraftClusterCardList>
               )}
+              {ignoredCount > 0 ? (
+                <button
+                  type="button"
+                  className="craft-restore-link linkish small"
+                  onClick={() => restoreAll(IGNORE_CATEGORY)}
+                >
+                  Show {ignoredCount} hidden
+                </button>
+              ) : null}
             </CraftGroupSection>
           ) : null}
         </>

@@ -7428,6 +7428,32 @@
   line-height: 1.4;
 }
 
+/* "Show N hidden" restore link shown below a cluster list when ignores exist. */
+.craft-restore-link {
+  display: inline-block;
+  margin-top: 0.6rem;
+  padding: 0.18rem 0.55rem;
+  border: 1px dashed color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: 999px;
+  background: transparent;
+  color: color-mix(in srgb, var(--accent) 85%, var(--fg));
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.craft-restore-link:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-color: var(--accent);
+}
+
+/* Show the reject button in repeat cards too — same visual as cluster cards. */
+.rep-card .craft-cluster-reject {
+  margin-left: auto;
+}
+
 /* ── Cluster chips (mirrors rhyme-cluster-chips / rhyme-word-chip) ────────── */
 .craft-cluster-chips {
   display: flex;

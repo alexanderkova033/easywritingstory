@@ -499,6 +499,48 @@ export function useStoryWorkshopModel(
     focusLastWordInLine(view, line1Based);
   }, []);
 
+  /**
+   * Select the first match of `word` on the given line. Falls back to the
+   * whole line if the match can't be found (e.g. the source paragraph drifted
+   * after analysis). Used by Craft cluster cards so clicking "felt" puts the
+   * cursor on that word, ready for the user to rewrite.
+   */
+  const goToWordInLine = useCallback(
+    (line1Based: number, word: string) => {
+      const view = editorViewRef.current;
+      if (!view) return;
+      setJumpLine(line1Based);
+      setJumpBump((n) => n + 1);
+      try {
+        const doc = view.state.doc;
+        const lineNo = Math.max(1, Math.min(line1Based, doc.lines));
+        const line = doc.line(lineNo);
+        const trimmed = word.trim();
+        if (!trimmed) {
+          focusLineInEditor(view, lineNo);
+          return;
+        }
+        // Whole-word match when the word is a single token, otherwise treat
+        // as a phrase and match the literal substring (whitespace flexible).
+        const escaped = trimmed.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
+        const re = /\s/.test(trimmed)
+          ? new RegExp(escaped.replace(/\\\s+/g, "\\s+"), "i")
+          : new RegExp(`\\b${escaped}\\b`, "i");
+        const m = re.exec(line.text);
+        if (!m) {
+          focusLineInEditor(view, lineNo);
+          return;
+        }
+        const from = line.from + m.index;
+        const to = from + m[0].length;
+        focusCharacterRangeInEditor(view, from, to);
+      } catch {
+        focusLineInEditor(view, line1Based);
+      }
+    },
+    [],
+  );
+
   const goToSpellHit = useCallback((hit: SpellHit) => {
     const view = editorViewRef.current;
     if (!view) return;
@@ -1169,6 +1211,7 @@ export function useStoryWorkshopModel(
     goToLineEnd,
     goToSpellHit,
     goToSpellHitAt,
+    goToWordInLine,
     cycleSpellHit,
     spellNavIndex,
     applySpellSuggestion,

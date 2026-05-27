@@ -11,37 +11,49 @@ import {
   RepeatedWordCard,
 } from "@/workshop/analysis/tools/RepetitionCards";
 import { CraftStatCard } from "@/workshop/analysis/tools/CraftCards";
+import { useIgnoredCraftItems } from "@/workshop/analysis/craft-ignored-storage";
 import { LiveSectionTitle } from "../ToolTabBar";
 
+const IGNORE_CATEGORY = "repeats";
+
 export interface RepeatPanelProps {
+  storyId: string;
   docStats: DocumentStats;
   repeated: RepeatedWord[];
   repetition: RepetitionAnalysis;
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
+  peekToLine: (line1Based: number) => void;
 }
 
 export function RepeatPanel({
+  storyId,
   docStats,
   repeated,
   repetition,
   heavyToolsStale,
   goToLine,
+  peekToLine,
 }: RepeatPanelProps) {
   const [repeatWordFilter, setRepeatWordFilter] = useState("");
   const [repeatSubTab, setRepeatSubTab] = useState<
     "words" | "phrases" | "patterns"
   >("words");
+  const { ignore, restoreAll, isIgnored, countInCategory } =
+    useIgnoredCraftItems(storyId);
+  const ignoredCount = countInCategory(IGNORE_CATEGORY);
 
   const filteredRepeated = useMemo(() => {
     const t = repeatWordFilter.trim().toLowerCase();
-    if (!t) return repeated;
-    return repeated.filter(
-      (r) =>
-        r.word.toLowerCase().includes(t) ||
-        r.variants.some((v) => v.toLowerCase().includes(t)),
-    );
-  }, [repeated, repeatWordFilter]);
+    return repeated
+      .filter((r) => !isIgnored(IGNORE_CATEGORY, r.word))
+      .filter(
+        (r) =>
+          !t ||
+          r.word.toLowerCase().includes(t) ||
+          r.variants.some((v) => v.toLowerCase().includes(t)),
+      );
+  }, [repeated, repeatWordFilter, isIgnored]);
 
   const filteredPhrases = useMemo(() => {
     const t = repeatWordFilter.trim().toLowerCase();
@@ -161,17 +173,34 @@ export function RepeatPanel({
             </p>
           </EmptyState>
         ) : filteredRepeated.length === 0 ? (
-          <p className="muted small">No words match this filter.</p>
+          <p className="muted small">
+            {ignoredCount > 0
+              ? "No words left — everything you flagged is hidden."
+              : "No words match this filter."}
+          </p>
         ) : (
-          <ul className="rep-card-list">
-            {filteredRepeated.map((r) => (
-              <RepeatedWordCard
-                key={r.word}
-                item={r}
-                goToLine={goToLine}
-              />
-            ))}
-          </ul>
+          <>
+            <ul className="rep-card-list">
+              {filteredRepeated.map((r) => (
+                <RepeatedWordCard
+                  key={r.word}
+                  item={r}
+                  goToLine={goToLine}
+                  peekToLine={peekToLine}
+                  onReject={() => ignore(IGNORE_CATEGORY, r.word)}
+                />
+              ))}
+            </ul>
+            {ignoredCount > 0 ? (
+              <button
+                type="button"
+                className="craft-restore-link linkish small"
+                onClick={() => restoreAll(IGNORE_CATEGORY)}
+              >
+                Show {ignoredCount} hidden
+              </button>
+            ) : null}
+          </>
         )
       ) : null}
 
@@ -191,6 +220,7 @@ export function RepeatPanel({
                 key={`${p.n}:${p.phrase}`}
                 item={p}
                 goToLine={goToLine}
+                peekToLine={peekToLine}
               />
             ))}
           </ul>
@@ -220,6 +250,7 @@ export function RepeatPanel({
                       group={g}
                       edge="start"
                       goToLine={goToLine}
+                      peekToLine={peekToLine}
                     />
                   ))}
                 </ul>
@@ -237,6 +268,7 @@ export function RepeatPanel({
                       group={g}
                       edge="end"
                       goToLine={goToLine}
+                      peekToLine={peekToLine}
                     />
                   ))}
                 </ul>

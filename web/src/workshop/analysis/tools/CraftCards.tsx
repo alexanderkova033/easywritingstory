@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useMemo } from "react";
-import { buildPhraseRegex, escapeRegex, highlightInLine } from "./helpers";
+import { buildPhraseRegex, cropAroundMatch, escapeRegex, highlightInLine } from "./helpers";
 
 export type CraftSeverity = "now" | "soon" | "optional";
 export type CraftTone = "warn" | "good" | "info";
@@ -284,10 +284,13 @@ export function CraftFilterField({
 export function ParaPill({
   paragraph,
   goTo,
+  peek,
   ariaLabel,
 }: {
   paragraph: number;
   goTo: (p: number) => void;
+  /** Live-scroll the editor to this paragraph on hover/focus, no cursor move. */
+  peek?: (p: number) => void;
   ariaLabel?: string;
 }) {
   return (
@@ -295,8 +298,10 @@ export function ParaPill({
       type="button"
       className="craft-para-pill"
       onClick={() => goTo(paragraph)}
+      onMouseEnter={() => peek?.(paragraph)}
+      onFocus={() => peek?.(paragraph)}
       aria-label={ariaLabel ?? `Jump to paragraph ${paragraph}`}
-      title={`Paragraph ${paragraph}`}
+      title={`Paragraph ${paragraph} — click to jump, hover to peek`}
     >
       ¶&nbsp;{paragraph}
     </button>
@@ -306,14 +311,16 @@ export function ParaPill({
 export function ParaPillList({
   paragraphs,
   goTo,
+  peek,
 }: {
   paragraphs: number[];
   goTo: (p: number) => void;
+  peek?: (p: number) => void;
 }) {
   return (
     <div className="craft-para-pill-row">
       {paragraphs.map((p, i) => (
-        <ParaPill key={`${p}-${i}`} paragraph={p} goTo={goTo} />
+        <ParaPill key={`${p}-${i}`} paragraph={p} goTo={goTo} peek={peek} />
       ))}
     </div>
   );
@@ -357,9 +364,15 @@ export interface CraftCluster {
 export function CraftClusterCard({
   cluster,
   goToParagraph,
+  goToWord,
+  peekParagraph,
 }: {
   cluster: CraftCluster;
   goToParagraph: (p: number) => void;
+  /** When provided, chips select the matched word range instead of the whole line. */
+  goToWord?: (paragraph: number, word: string) => void;
+  /** Live-scroll the editor to a paragraph on hover, without moving the cursor. */
+  peekParagraph?: (paragraph: number) => void;
 }) {
   const color = cluster.color ?? "a";
   const re = useMemo(
@@ -401,25 +414,39 @@ export function CraftClusterCard({
         ) : null}
       </div>
       <div className="craft-cluster-chips">
-        {cluster.mentions.map((m, i) => (
-          <button
-            key={`${m.paragraph}-${i}`}
-            type="button"
-            className={`craft-word-chip rhyme-label-${color}`}
-            onClick={() => goToParagraph(m.paragraph)}
-            title={`Paragraph ${m.paragraph}`}
-            aria-label={`Jump to paragraph ${m.paragraph}`}
-          >
-            <span className="craft-word-chip-word">{m.surface ?? cluster.label}</span>
-            <span className="craft-word-chip-line">{m.paragraph}</span>
-          </button>
-        ))}
+        {cluster.mentions.map((m, i) => {
+          const word = m.surface ?? cluster.label;
+          return (
+            <button
+              key={`${m.paragraph}-${i}`}
+              type="button"
+              className={`craft-word-chip rhyme-label-${color}`}
+              onClick={() =>
+                goToWord ? goToWord(m.paragraph, word) : goToParagraph(m.paragraph)
+              }
+              onMouseEnter={() => peekParagraph?.(m.paragraph)}
+              onFocus={() => peekParagraph?.(m.paragraph)}
+              title={`Paragraph ${m.paragraph} — click to jump, hover to peek`}
+              aria-label={`Jump to “${word}” in paragraph ${m.paragraph}`}
+            >
+              <span className="craft-word-chip-word">{word}</span>
+              <span className="craft-word-chip-line">{m.paragraph}</span>
+            </button>
+          );
+        })}
       </div>
       {cluster.preview ? (
-        <div className="craft-cluster-preview">
-          <ParaPill paragraph={cluster.preview.paragraph} goTo={goToParagraph} />
+        <div
+          className="craft-cluster-preview"
+          onMouseEnter={() => peekParagraph?.(cluster.preview!.paragraph)}
+        >
+          <ParaPill
+            paragraph={cluster.preview.paragraph}
+            goTo={goToParagraph}
+            peek={peekParagraph}
+          />
           <span className="craft-snippet-text">
-            {highlightInLine(cluster.preview.text, re)}
+            {highlightInLine(cropAroundMatch(cluster.preview.text, re, 36), re)}
           </span>
         </div>
       ) : null}
@@ -548,6 +575,7 @@ export function CraftCharacterArc({
   appearances,
   color = "a",
   goToParagraph,
+  peekParagraph,
 }: {
   firstParagraph: number;
   lastParagraph: number;
@@ -555,6 +583,7 @@ export function CraftCharacterArc({
   appearances: number[];
   color?: ColorLetter;
   goToParagraph: (p: number) => void;
+  peekParagraph?: (p: number) => void;
 }) {
   if (totalParagraphs <= 0) return null;
   const denom = Math.max(1, totalParagraphs);
@@ -580,6 +609,8 @@ export function CraftCharacterArc({
           className="craft-arc-tick"
           style={{ left: `${((p - 1) / denom) * 100}%` }}
           onClick={() => goToParagraph(p)}
+          onMouseEnter={() => peekParagraph?.(p)}
+          onFocus={() => peekParagraph?.(p)}
           aria-label={`Jump to paragraph ${p}`}
           title={`¶ ${p}`}
         />

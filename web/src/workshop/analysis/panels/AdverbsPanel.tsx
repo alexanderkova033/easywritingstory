@@ -11,13 +11,17 @@ import {
   severityFromCount,
   type CraftCluster,
 } from "@/workshop/analysis/tools/CraftCards";
+import { useIgnoredCraftItems } from "@/workshop/analysis/craft-ignored-storage";
 import { LiveSectionTitle } from "../ToolTabBar";
 
 export interface AdverbsPanelProps {
+  storyId: string;
   docStats: DocumentStats;
   craft: StoryCraftAnalysis;
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
+  goToWordInLine: (line1Based: number, word: string) => void;
+  peekToLine: (line1Based: number) => void;
 }
 
 type AdverbsSubTab = "adverbs" | "weasels";
@@ -39,14 +43,21 @@ function fillerTip(count: number): string {
 }
 
 export function AdverbsPanel({
+  storyId,
   docStats,
   craft,
   heavyToolsStale,
   goToLine,
+  goToWordInLine,
+  peekToLine,
 }: AdverbsPanelProps) {
   const a = craft.adverbs;
   const [sub, setSub] = useState<AdverbsSubTab>("adverbs");
   const [filter, setFilter] = useState("");
+  const { ignore, restoreAll, isIgnored, countInCategory } =
+    useIgnoredCraftItems(storyId);
+  const ignoreCategory = sub === "adverbs" ? "adverbs" : "weasels";
+  const ignoredCount = countInCategory(ignoreCategory);
 
   const adverbsByWord = useMemo(() => {
     const map = new Map<string, Array<{ paragraph: number; text: string }>>();
@@ -74,6 +85,7 @@ export function AdverbsPanel({
     const byWord = sub === "adverbs" ? adverbsByWord : weaselsByWord;
     const tip = sub === "adverbs" ? adverbTip : fillerTip;
     return list
+      .filter((w) => !isIgnored(ignoreCategory, w.word))
       .filter((w) => !q || w.word.toLowerCase().includes(q))
       .map((w) => {
         const occ = byWord.get(w.word) ?? [];
@@ -86,9 +98,20 @@ export function AdverbsPanel({
           hint: tip(w.count),
           mentions: occ.map((o) => ({ paragraph: o.paragraph })),
           preview: occ[0] ? { paragraph: occ[0].paragraph, text: occ[0].text } : undefined,
+          onReject: () => ignore(ignoreCategory, w.word),
         };
       });
-  }, [sub, a.topAdverbs, a.topWeasels, adverbsByWord, weaselsByWord, filter]);
+  }, [
+    sub,
+    a.topAdverbs,
+    a.topWeasels,
+    adverbsByWord,
+    weaselsByWord,
+    filter,
+    isIgnored,
+    ignore,
+    ignoreCategory,
+  ]);
 
   const empty = a.adverbTotal === 0 && a.weaselTotal === 0;
   const density = a.adverbPer100;
@@ -197,9 +220,11 @@ export function AdverbsPanel({
               <p className="muted small">
                 {filter.trim()
                   ? "No words match this filter."
-                  : sub === "adverbs"
-                    ? "No -ly adverbs in this draft."
-                    : "No filler words in this draft."}
+                  : ignoredCount > 0
+                    ? "Everything here is hidden."
+                    : sub === "adverbs"
+                      ? "No -ly adverbs in this draft."
+                      : "No filler words in this draft."}
               </p>
             ) : (
               <CraftClusterCardList>
@@ -208,10 +233,21 @@ export function AdverbsPanel({
                     key={c.key}
                     cluster={c}
                     goToParagraph={goToLine}
+                    goToWord={goToWordInLine}
+                    peekParagraph={peekToLine}
                   />
                 ))}
               </CraftClusterCardList>
             )}
+            {ignoredCount > 0 ? (
+              <button
+                type="button"
+                className="craft-restore-link linkish small"
+                onClick={() => restoreAll(ignoreCategory)}
+              >
+                Show {ignoredCount} hidden
+              </button>
+            ) : null}
           </CraftGroupSection>
         </>
       )}
