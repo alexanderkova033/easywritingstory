@@ -102,9 +102,9 @@ export function ParagraphsPanel({
           title="Per-paragraph stats; click a row to jump in the editor."
         >
           <caption className="sr-only">
-            Per paragraph: paragraph number, opening text preview, word count,
-            and line count. Activate a row to move the cursor to the start of
-            that paragraph.
+            Per paragraph: paragraph number, opening text preview, and word
+            count. Activate a row to move the cursor to the start of that
+            paragraph.
           </caption>
           <thead>
             <tr>
@@ -117,7 +117,6 @@ export function ParagraphsPanel({
                   Words
                 </abbr>
               </th>
-              <th scope="col">Lines</th>
             </tr>
           </thead>
           <tbody>
@@ -140,7 +139,7 @@ export function ParagraphsPanel({
                   key={s.stanzaIndex}
                   className={`line-table-data-row line-table-row-jump${outlier ? " is-syll-outlier" : ""}`}
                   tabIndex={0}
-                  aria-label={`Paragraph ${s.stanzaIndex} starting at line ${s.startLine}: ${s.words} words, ${s.nonEmptyLines} lines${outlier ? " (length outlier)" : ""}. Open in editor.`}
+                  aria-label={`Paragraph ${s.stanzaIndex} at line ${s.startLine}: ${s.words} words${outlier ? " (length outlier)" : ""}. Open in editor.`}
                   onClick={() => goToLine(s.startLine)}
                   onKeyDown={(e: KeyboardEvent<HTMLTableRowElement>) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -180,7 +179,6 @@ export function ParagraphsPanel({
                       ) : null}
                     </span>
                   </td>
-                  <td className="line-table-metric">{s.nonEmptyLines}</td>
                 </tr>
               );
             })}

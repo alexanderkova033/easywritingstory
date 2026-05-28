@@ -57,19 +57,12 @@ export function computeQuickDocumentStats(body: string): QuickDocumentStats {
       totalWords += wordsInLine(text).length;
     }
   }
-  let stanzaCount = 0;
-  let prevBlank = true;
-  for (const text of rawLines) {
-    const blank = text.trim().length === 0;
-    if (!blank && prevBlank) stanzaCount++;
-    prevBlank = blank;
-  }
   return {
     totalLines: rawLines.length,
     nonEmptyLines: nonEmpty,
     totalWords,
     totalChars: body.length,
-    stanzaCount,
+    stanzaCount: nonEmpty,
   };
 }
 
@@ -260,51 +253,28 @@ export function computeDocumentStats(body: string): DocumentStats {
     lineCounts.push({ text, words: wn, syllables });
   }
 
-  let stanzaCount = 0;
-  let prevBlank = true;
-  for (const text of rawLines) {
-    const blank = text.trim().length === 0;
-    if (!blank && prevBlank) stanzaCount++;
-    prevBlank = blank;
-  }
-
   const avgWordsPerNonEmptyLine =
     nonEmpty > 0 ? Math.round((10 * totalWords) / nonEmpty) / 10 : 0;
 
+  // Treat every non-empty document line as its own paragraph (prose
+  // convention: one Enter = new paragraph). Blank lines are skipped.
   const stanzaStats: StanzaStat[] = [];
-  let si = 0;
-  while (si < rawLines.length) {
-    while (si < rawLines.length && rawLines[si]!.trim() === "") si++;
-    if (si >= rawLines.length) break;
-    const startLine = si + 1;
-    let end = si;
-    let stNonEmpty = 0;
-    let stWords = 0;
-    let stSyl = 0;
-    let stLines = 0;
-    while (end < rawLines.length && rawLines[end]!.trim() !== "") {
-      const row = lineCounts[end]!;
-      stLines++;
-      if (row.text.trim().length > 0) {
-        stNonEmpty++;
-        stWords += row.words;
-        stSyl += row.syllables;
-      }
-      end++;
-    }
+  for (let i = 0; i < rawLines.length; i++) {
+    const row = lineCounts[i]!;
+    if (row.text.trim().length === 0) continue;
+    const lineNo = i + 1;
     stanzaStats.push({
       stanzaIndex: stanzaStats.length + 1,
-      startLine,
-      endLine: end,
-      lineCountInStanza: stLines,
-      nonEmptyLines: stNonEmpty,
-      words: stWords,
-      syllables: stSyl,
-      avgSyllablesPerNonEmptyLine:
-        stNonEmpty > 0 ? Math.round((10 * stSyl) / stNonEmpty) / 10 : 0,
+      startLine: lineNo,
+      endLine: lineNo,
+      lineCountInStanza: 1,
+      nonEmptyLines: 1,
+      words: row.words,
+      syllables: row.syllables,
+      avgSyllablesPerNonEmptyLine: row.syllables,
     });
-    si = end;
   }
+  const stanzaCount = stanzaStats.length;
 
   const estimatedReadingMinutes =
     totalWords <= 0

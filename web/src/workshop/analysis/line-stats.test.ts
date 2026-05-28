@@ -19,9 +19,9 @@ describe("computeQuickDocumentStats", () => {
 });
 
 describe("computeDocumentStats", () => {
-  it("counts stanzas separated by blank lines", () => {
+  it("counts every non-empty line as its own paragraph", () => {
     const s = computeDocumentStats("a\nb\n\nc\n\n\nd");
-    expect(s.stanzaCount).toBe(3);
+    expect(s.stanzaCount).toBe(4);
   });
 
   it("computes avg words per non-empty line", () => {
@@ -39,21 +39,29 @@ describe("computeDocumentStats", () => {
     expect(minute.estimatedReadingMinutes).toBe(1);
   });
 
-  it("builds stanza stats with line ranges and aggregates", () => {
+  it("builds one stanza-stat entry per non-empty line", () => {
     const s = computeDocumentStats("one two\nthree\n\nfour\n");
-    expect(s.stanzaStats).toHaveLength(2);
+    expect(s.stanzaStats).toHaveLength(3);
     expect(s.stanzaStats[0]).toMatchObject({
       stanzaIndex: 1,
       startLine: 1,
-      endLine: 2,
-      lineCountInStanza: 2,
-      nonEmptyLines: 2,
-      words: 3,
+      endLine: 1,
+      lineCountInStanza: 1,
+      nonEmptyLines: 1,
+      words: 2,
       avgSyllablesPerNonEmptyLine: expect.any(Number),
     });
     expect(s.stanzaStats[0]!.avgSyllablesPerNonEmptyLine).toBeGreaterThan(0);
     expect(s.stanzaStats[1]).toMatchObject({
       stanzaIndex: 2,
+      startLine: 2,
+      endLine: 2,
+      lineCountInStanza: 1,
+      nonEmptyLines: 1,
+      words: 1,
+    });
+    expect(s.stanzaStats[2]).toMatchObject({
+      stanzaIndex: 3,
       startLine: 4,
       endLine: 4,
       lineCountInStanza: 1,
