@@ -609,6 +609,57 @@ const internalRhymeField = StateField.define<DecorationSet>({
   provide: (f) => EditorView.decorations.from(f),
 });
 
+// ---- Cliché phrase highlights (active when Queue/Issues tab is open) ---- //
+const setClicheHighlights = StateEffect.define<Array<{ phrase: string; lineNumber: number }>>();
+const clearClicheHighlights = StateEffect.define<void>();
+
+const clicheHighlightField = StateField.define<DecorationSet>({
+  create() { return Decoration.none; },
+  update(value, tr) {
+    let next = value.map(tr.changes);
+    for (const e of tr.effects) {
+      if (e.is(clearClicheHighlights)) { next = Decoration.none; }
+      if (e.is(setClicheHighlights)) {
+        const decos: Range<Decoration>[] = [];
+        const doc = tr.state.doc;
+        for (const { phrase, lineNumber } of e.value) {
+          if (lineNumber < 1 || lineNumber > doc.lines) continue;
+          const line = doc.line(lineNumber);
+          const text = line.text;
+          const needle = phrase.toLowerCase();
+          const haystack = text.toLowerCase();
+          let pos = 0;
+          while (pos <= haystack.length - needle.length) {
+            const idx = haystack.indexOf(needle, pos);
+            if (idx === -1) break;
+            const before = idx > 0 ? haystack[idx - 1]! : "";
+            const after =
+              idx + needle.length < haystack.length
+                ? haystack[idx + needle.length]!
+                : "";
+            const isWord = (c: string) => /[a-z0-9']/.test(c);
+            const boundaryStart = !isWord(before) || !isWord(needle[0]!);
+            const boundaryEnd = !isWord(after) || !isWord(needle[needle.length - 1]!);
+            if (boundaryStart && boundaryEnd) {
+              decos.push(
+                Decoration.mark({ class: "cm-cliche-highlight" }).range(
+                  line.from + idx,
+                  line.from + idx + needle.length,
+                ),
+              );
+            }
+            pos = idx + needle.length;
+          }
+        }
+        decos.sort((a, b) => a.from - b.from || a.to - b.to);
+        try { next = Decoration.set(decos, true); } catch { next = Decoration.none; }
+      }
+    }
+    return next;
+  },
+  provide: (f) => EditorView.decorations.from(f),
+});
+
 // ---- Word-level problem highlights ---- //
 const setWordHighlights = StateEffect.define<Array<{ words: string[]; lineStart: number; lineEnd: number; severity?: string }>>();
 const clearWordHighlights = StateEffect.define<void>();
@@ -722,6 +773,8 @@ export interface StoryBodyEditorProps {
   onApplyRewriteAtCursor?: (line: number) => boolean;
   /** Word-level problem highlights from AI issues. */
   wordHighlights?: Array<{ words: string[]; lineStart: number; lineEnd: number; severity?: string }>;
+  /** Cliché phrase positions to mark inline. Driven by the Queue/Issues tab. */
+  clicheHighlights?: Array<{ phrase: string; lineNumber: number }>;
   /** Per-line rhyme end-word highlights — colors the last word in each listed line by cluster index. */
   rhymeEndHighlights?: Array<{ line: number; colorKey: string }>;
   /** Internal-rhyme highlights — subtle marks on word ranges that rhyme with another word in the same line. */
@@ -924,6 +977,18 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
     }
     try { view.dispatch({ effects: setWordHighlights.of(wh) }); } catch { /* ignore */ }
   }, [props.editorViewRef, props.wordHighlights]);
+
+  // Cliché highlights (active only when Queue/Issues tab is open).
+  useEffect(() => {
+    const view = props.editorViewRef.current;
+    if (!view) return;
+    const ch = props.clicheHighlights;
+    if (!ch || ch.length === 0) {
+      try { view.dispatch({ effects: clearClicheHighlights.of(undefined) }); } catch { /* ignore */ }
+      return;
+    }
+    try { view.dispatch({ effects: setClicheHighlights.of(ch) }); } catch { /* ignore */ }
+  }, [props.editorViewRef, props.clicheHighlights]);
 
   // Craft-signal gutter dots (POV/tense slips, filter words, heavy adverbs).
   useEffect(() => {
@@ -1193,6 +1258,7 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
       craftGutterExtension,
       schemeLetterField,
       wordHighlightField,
+      clicheHighlightField,
       rhymeEndField,
       internalRhymeField,
       diffOverlayField,

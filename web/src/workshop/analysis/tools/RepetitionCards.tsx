@@ -36,6 +36,7 @@ export function RepeatedWordCard({
   item,
   cardId,
   goToLine,
+  goToWordInLine,
   peekToLine,
   clearHoverPeek,
   onReject,
@@ -43,6 +44,7 @@ export function RepeatedWordCard({
   item: RepeatedWord;
   cardId?: string;
   goToLine: (line1Based: number) => void;
+  goToWordInLine?: (line1Based: number, word: string) => void;
   peekToLine?: (line1Based: number, word?: string) => void;
   clearHoverPeek?: () => void;
   onReject?: () => void;
@@ -101,13 +103,17 @@ export function RepeatedWordCard({
             <button
               type="button"
               className="rep-line-jump linkish"
-              onClick={() => goToLine(o.line)}
+              onClick={() => {
+                const token = o.surface || item.display;
+                if (goToWordInLine) goToWordInLine(o.line, token);
+                else goToLine(o.line);
+              }}
               onFocus={() => peekToLine?.(o.line, o.surface || item.display)}
               onBlur={() => clearHoverPeek?.()}
-              aria-label={`Go to line ${o.line}`}
-              title="Click to jump, hover to peek"
+              aria-label={`Go to paragraph ${o.line}`}
+              title="Click to jump to this word, hover to peek"
             >
-              L{o.line}
+              ¶{o.line}
             </button>
             <span className="rep-snippet-text">
               {highlightInLine(cropAroundMatch(o.lineText, wordRe, 36), wordRe)}
@@ -132,12 +138,14 @@ export function PhraseRepeatCard({
   item,
   cardId,
   goToLine,
+  goToWordInLine,
   peekToLine,
   clearHoverPeek,
 }: {
   item: import("@/workshop/analysis/repeated-words").PhraseRepeat;
   cardId?: string;
   goToLine: (line1Based: number) => void;
+  goToWordInLine?: (line1Based: number, word: string) => void;
   peekToLine?: (line1Based: number, word?: string) => void;
   clearHoverPeek?: () => void;
 }) {
@@ -162,13 +170,16 @@ export function PhraseRepeatCard({
             <button
               type="button"
               className="rep-line-jump linkish"
-              onClick={() => goToLine(s.line)}
+              onClick={() => {
+                if (goToWordInLine) goToWordInLine(s.line, item.display);
+                else goToLine(s.line);
+              }}
               onFocus={() => peekToLine?.(s.line, item.display)}
               onBlur={() => clearHoverPeek?.()}
-              aria-label={`Go to line ${s.line}`}
-              title="Click to jump, hover to peek"
+              aria-label={`Go to paragraph ${s.line}`}
+              title="Click to jump to this phrase, hover to peek"
             >
-              L{s.line}
+              ¶{s.line}
             </button>
             <span className="rep-snippet-text">
               {highlightInLine(cropAroundMatch(s.text, phraseRe, 36), phraseRe)}
@@ -194,6 +205,7 @@ export function EdgeRepeatCard({
   cardId,
   edge,
   goToLine,
+  goToWordInLine,
   peekToLine,
   clearHoverPeek,
 }: {
@@ -201,6 +213,7 @@ export function EdgeRepeatCard({
   cardId?: string;
   edge: "start" | "end";
   goToLine: (line1Based: number) => void;
+  goToWordInLine?: (line1Based: number, word: string) => void;
   peekToLine?: (line1Based: number, word?: string) => void;
   clearHoverPeek?: () => void;
 }) {
@@ -235,13 +248,16 @@ export function EdgeRepeatCard({
             <button
               type="button"
               className="rep-line-jump linkish"
-              onClick={() => goToLine(s.line)}
+              onClick={() => {
+                if (goToWordInLine) goToWordInLine(s.line, group.display);
+                else goToLine(s.line);
+              }}
               onFocus={() => peekToLine?.(s.line, group.display)}
               onBlur={() => clearHoverPeek?.()}
-              aria-label={`Go to line ${s.line}`}
-              title="Click to jump, hover to peek"
+              aria-label={`Go to paragraph ${s.line}`}
+              title="Click to jump to this pattern, hover to peek"
             >
-              L{s.line}
+              ¶{s.line}
             </button>
             <span className="rep-snippet-text">
               {highlightInLine(cropAroundMatch(s.text, matchRe, 36), matchRe)}

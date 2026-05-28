@@ -335,6 +335,17 @@
   border-radius: 2px;
 }
 
+.cm-cliche-highlight {
+  background: color-mix(in srgb, var(--ai-score-mid, #e6a817) 14%, transparent);
+  border-bottom: 1.5px dotted color-mix(in srgb, var(--ai-score-mid, #e6a817) 70%, transparent);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.cm-cliche-highlight:hover {
+  background: color-mix(in srgb, var(--ai-score-mid, #e6a817) 22%, transparent);
+}
+
 .cm-line-flash {
   background: color-mix(in srgb, var(--accent) 16%, transparent) !important;
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 26%, transparent);

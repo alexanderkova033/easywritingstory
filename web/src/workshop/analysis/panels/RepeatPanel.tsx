@@ -24,6 +24,8 @@ export interface RepeatPanelProps {
   repetition: RepetitionAnalysis;
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
+  /** Place the caret on the matched word/phrase within the paragraph. */
+  goToWordInLine: (line1Based: number, word: string) => void;
   peekToLine: (line1Based: number, word?: string) => void;
   clearHoverPeek: () => void;
   subTab: RepeatSubTab;
@@ -37,6 +39,7 @@ export function RepeatPanel({
   repetition,
   heavyToolsStale,
   goToLine,
+  goToWordInLine,
   peekToLine,
   clearHoverPeek,
   subTab: repeatSubTab,
@@ -191,6 +194,7 @@ export function RepeatPanel({
                   item={r}
                   cardId={`w:${r.word}`}
                   goToLine={goToLine}
+                  goToWordInLine={goToWordInLine}
                   peekToLine={peekToLine}
                   clearHoverPeek={clearHoverPeek}
                   onReject={() => ignore(IGNORE_CATEGORY, r.word)}
@@ -227,6 +231,7 @@ export function RepeatPanel({
                 item={p}
                 cardId={`p${p.n}:${p.phrase}`}
                 goToLine={goToLine}
+                goToWordInLine={goToWordInLine}
                 peekToLine={peekToLine}
                 clearHoverPeek={clearHoverPeek}
               />
@@ -259,6 +264,7 @@ export function RepeatPanel({
                       cardId={`a${g.n}:${g.prefix}`}
                       edge="start"
                       goToLine={goToLine}
+                      goToWordInLine={goToWordInLine}
                       peekToLine={peekToLine}
                       clearHoverPeek={clearHoverPeek}
                     />
@@ -279,6 +285,7 @@ export function RepeatPanel({
                       cardId={`e${g.n}:${g.prefix}`}
                       edge="end"
                       goToLine={goToLine}
+                      goToWordInLine={goToWordInLine}
                       peekToLine={peekToLine}
                       clearHoverPeek={clearHoverPeek}
                     />

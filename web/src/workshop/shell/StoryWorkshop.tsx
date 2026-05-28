@@ -1878,6 +1878,7 @@ export function StoryWorkshop() {
                       }}
                       onApplyRewriteAtCursor={handleApplyRewriteAtCursor}
                       wordHighlights={wordHighlights}
+                      clicheHighlights={m.toolTab === "issues" ? m.clicheHits : undefined}
                       rhymeEndHighlights={rhymeEndHighlights}
                       internalRhymes={undefined}
                       rhymeSchemeLabels={null}

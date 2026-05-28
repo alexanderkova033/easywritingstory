@@ -195,6 +195,7 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           repetition={props.repetition}
           heavyToolsStale={props.heavyToolsStale}
           goToLine={props.goToLine}
+          goToWordInLine={props.goToWordInLine}
           peekToLine={props.peekToLine}
           clearHoverPeek={props.clearHoverPeek}
           subTab={props.repeatSubTab}
