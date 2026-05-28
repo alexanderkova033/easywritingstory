@@ -27,7 +27,7 @@ import type { ToolTab } from "@/workshop/shell/workshop-helpers";
 import type { RhymeBreadth } from "@/workshop/analysis/use-heavy-analysis";
 import { IssuesPanel } from "./panels/IssuesPanel";
 import { GoalsPanel } from "./panels/GoalsPanel";
-import { RepeatPanel } from "./panels/RepeatPanel";
+import { RepeatPanel, type RepeatSubTab } from "./panels/RepeatPanel";
 import { SpellPanel } from "./panels/SpellPanel";
 import { DialoguePanel } from "./panels/DialoguePanel";
 import { PovPanel } from "./panels/PovPanel";
@@ -54,6 +54,8 @@ export interface WorkshopToolPanelsProps {
   clicheHits: ClicheHit[];
   repeated: RepeatedWord[];
   repetition: RepetitionAnalysis;
+  repeatSubTab: RepeatSubTab;
+  setRepeatSubTab: (t: RepeatSubTab) => void;
   craft: StoryCraftAnalysis;
   spellHits: SpellHit[];
   wordlist: Set<string> | null;
@@ -65,7 +67,9 @@ export interface WorkshopToolPanelsProps {
   /** Select just the matched word range inside a line; falls back to whole-line. */
   goToWordInLine: (line1Based: number, word: string) => void;
   /** Live-scroll the editor to a line on hover/focus — no focus, no cursor move. */
-  peekToLine: (line1Based: number) => void;
+  peekToLine: (line1Based: number, word?: string) => void;
+  /** Clear the hover-peek highlight (called on mouseleave / blur). */
+  clearHoverPeek: () => void;
   goToSpellHitAt: (hit: SpellHit) => void;
   cycleSpellHit: (delta: number) => void;
   spellNavIndex: number;
@@ -182,6 +186,9 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           heavyToolsStale={props.heavyToolsStale}
           goToLine={props.goToLine}
           peekToLine={props.peekToLine}
+          clearHoverPeek={props.clearHoverPeek}
+          subTab={props.repeatSubTab}
+          setSubTab={props.setRepeatSubTab}
         />
       ) : null}
 
@@ -194,6 +201,7 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           goToLine={props.goToLine}
           goToWordInLine={props.goToWordInLine}
           peekToLine={props.peekToLine}
+          clearHoverPeek={props.clearHoverPeek}
         />
       ) : null}
 
@@ -226,6 +234,7 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           goToLine={props.goToLine}
           goToWordInLine={props.goToWordInLine}
           peekToLine={props.peekToLine}
+          clearHoverPeek={props.clearHoverPeek}
         />
       ) : null}
 
@@ -238,6 +247,7 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           goToLine={props.goToLine}
           goToWordInLine={props.goToWordInLine}
           peekToLine={props.peekToLine}
+          clearHoverPeek={props.clearHoverPeek}
         />
       ) : null}
 
@@ -250,6 +260,7 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           goToLine={props.goToLine}
           goToWordInLine={props.goToWordInLine}
           peekToLine={props.peekToLine}
+          clearHoverPeek={props.clearHoverPeek}
         />
       ) : null}
 

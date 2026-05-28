@@ -25,7 +25,8 @@ export interface DialoguePanelProps {
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
   goToWordInLine: (line1Based: number, word: string) => void;
-  peekToLine: (line1Based: number) => void;
+  peekToLine: (line1Based: number, word?: string) => void;
+  clearHoverPeek: () => void;
 }
 
 const NEUTRAL = new Set(["said", "says", "saying"]);
@@ -50,6 +51,7 @@ export function DialoguePanel({
   goToLine,
   goToWordInLine,
   peekToLine,
+  clearHoverPeek,
 }: DialoguePanelProps) {
   const d = craft.dialogue;
   const [filter, setFilter] = useState("");
@@ -174,6 +176,7 @@ export function DialoguePanel({
                 paragraphs={d.unattributed.slice(0, 24)}
                 goTo={goToLine}
                 peek={peekToLine}
+                clearPeek={clearHoverPeek}
               />
               {d.unattributed.length > 24 ? (
                 <p className="muted small">
@@ -206,6 +209,7 @@ export function DialoguePanel({
                       goToParagraph={goToLine}
                       goToWord={goToWordInLine}
                       peekParagraph={peekToLine}
+                      clearPeek={clearHoverPeek}
                     />
                   ))}
                 </CraftClusterCardList>

@@ -21,7 +21,8 @@ export interface AdverbsPanelProps {
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
   goToWordInLine: (line1Based: number, word: string) => void;
-  peekToLine: (line1Based: number) => void;
+  peekToLine: (line1Based: number, word?: string) => void;
+  clearHoverPeek: () => void;
 }
 
 type AdverbsSubTab = "adverbs" | "weasels";
@@ -50,6 +51,7 @@ export function AdverbsPanel({
   goToLine,
   goToWordInLine,
   peekToLine,
+  clearHoverPeek,
 }: AdverbsPanelProps) {
   const a = craft.adverbs;
   const [sub, setSub] = useState<AdverbsSubTab>("adverbs");
@@ -235,6 +237,7 @@ export function AdverbsPanel({
                     goToParagraph={goToLine}
                     goToWord={goToWordInLine}
                     peekParagraph={peekToLine}
+                    clearPeek={clearHoverPeek}
                   />
                 ))}
               </CraftClusterCardList>

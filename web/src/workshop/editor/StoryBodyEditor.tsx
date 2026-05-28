@@ -175,6 +175,43 @@ const issueHighlightField = StateField.define<DecorationSet>({
   provide: (f) => EditorView.decorations.from(f),
 });
 
+// Hover-peek highlight — line tint + matched-word underline shown while the
+// user hovers a chip in the tools panel. Cleared when the cursor leaves.
+const setHoverHighlight = StateEffect.define<DecorationSet>();
+const clearHoverHighlight = StateEffect.define<void>();
+
+const hoverHighlightField = StateField.define<DecorationSet>({
+  create() { return Decoration.none; },
+  update(value, tr) {
+    let next = value.map(tr.changes);
+    for (const e of tr.effects) {
+      if (e.is(setHoverHighlight)) next = e.value;
+      if (e.is(clearHoverHighlight)) next = Decoration.none;
+    }
+    return next;
+  },
+  provide: (f) => EditorView.decorations.from(f),
+});
+
+// Repeat-tool persistent highlights — shown whenever the Repeats tool is open.
+// Content depends on the active subtab (words / phrases / patterns); severity
+// drives the tint strength. Cleared when the tool closes or the array empties.
+const setRepeatHighlights = StateEffect.define<DecorationSet>();
+const clearRepeatHighlights = StateEffect.define<void>();
+
+const repeatHighlightField = StateField.define<DecorationSet>({
+  create() { return Decoration.none; },
+  update(value, tr) {
+    let next = value.map(tr.changes);
+    for (const e of tr.effects) {
+      if (e.is(setRepeatHighlights)) next = e.value;
+      if (e.is(clearRepeatHighlights)) next = Decoration.none;
+    }
+    return next;
+  },
+  provide: (f) => EditorView.decorations.from(f),
+});
+
 // Strongest-line decoration — subtle gold accent for the best line in the story.
 const setStrongestLine = StateEffect.define<DecorationSet>();
 const clearStrongestLine = StateEffect.define<void>();
@@ -508,6 +545,12 @@ export interface StoryBodyEditorProps {
   /** Scroll a line into view WITHOUT moving the cursor or focusing. */
   peekLine?: number | null;
   peekBump?: number;
+  /**
+   * Live highlight shown while the user hovers a panel chip. The whole line
+   * gets a tint; if `word` is provided, that token also gets a stronger pulse.
+   * Set to null to clear (e.g. on mouseleave).
+   */
+  hoverHighlight?: { line: number; word?: string } | null;
   /** Subtly highlight the strongest line in the story (from AI analysis). */
   strongestLine?: number | null;
   issueHighlight?: [number, number, string?] | null;
@@ -530,6 +573,18 @@ export interface StoryBodyEditorProps {
    * "machine-detected craft signals" vs. "AI editor's flagged issues".
    */
   craftGutterSignals?: Array<{ line: number; kind: string; weight: number }>;
+  /**
+   * Persistent repeat-tool highlights. Each entry tints a character range with
+   * a severity-graded background; `kind` lets CSS distinguish word/phrase/pattern
+   * if it wants per-category styling. Empty/undefined clears all repeat marks.
+   */
+  repeatHighlights?: Array<{
+    line: number;
+    start: number;
+    end: number;
+    severity: "low" | "med" | "high";
+    kind: "word" | "phrase" | "pattern";
+  }>;
   /** Called when the user clicks a severity dot in the gutter. */
   onGutterDotClick?: (line: number) => void;
   /** Called when the cursor parks on a different line for ~400ms. */
@@ -592,7 +647,11 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
     }
   }, [props.editorViewRef, props.jumpBump, props.jumpLine]);
 
-  // peekLine: scroll a line into view (centered) WITHOUT focusing or moving cursor.
+  // peekLine: smooth-scroll a line into the vertical center of the editor
+  // WITHOUT focusing or moving the cursor. Unlike CodeMirror's built-in
+  // scrollIntoView (instant snap), this animates via the browser's native
+  // smooth scroll on the scrollDOM so sweeping the cursor across panel chips
+  // glides between targets instead of jittering.
   useEffect(() => {
     if (!props.peekBump) return;
     const view = props.editorViewRef.current;
@@ -600,9 +659,62 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
     if (!view || !n || n < 1) return;
     try {
       const line = view.state.doc.line(n);
-      view.dispatch({ effects: EditorView.scrollIntoView(line.from, { y: "center" }) });
+      const coords = view.coordsAtPos(line.from);
+      if (!coords) return;
+      const scrollDOM = view.scrollDOM;
+      const rect = scrollDOM.getBoundingClientRect();
+      const lineMid = (coords.top + coords.bottom) / 2;
+      const viewMid = rect.top + rect.height / 2;
+      const delta = lineMid - viewMid;
+      if (Math.abs(delta) < 2) return;
+      const prefersReducedMotion =
+        typeof window !== "undefined" &&
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      scrollDOM.scrollBy({
+        top: delta,
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
     } catch { /* ignore */ }
   }, [props.editorViewRef, props.peekBump, props.peekLine]);
+
+  // Hover-peek highlight: tint the target line and underline the matched word
+  // while the user hovers a panel chip. Cleared when hoverHighlight becomes
+  // null (mouseleave / focus blur).
+  useEffect(() => {
+    const view = props.editorViewRef.current;
+    if (!view) return;
+    const hh = props.hoverHighlight;
+    if (!hh || !hh.line || hh.line < 1) {
+      try { view.dispatch({ effects: clearHoverHighlight.of(undefined) }); }
+      catch { /* ignore */ }
+      return;
+    }
+    try {
+      const lineCount = view.state.doc.lines;
+      const lineNo = Math.max(1, Math.min(hh.line, lineCount));
+      const line = view.state.doc.line(lineNo);
+      const decos: Range<Decoration>[] = [
+        Decoration.line({ class: "cm-hover-peek-line" }).range(line.from),
+      ];
+      const word = hh.word?.trim();
+      if (word) {
+        const escaped = word.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
+        const re = /\s/.test(word)
+          ? new RegExp(escaped.replace(/\\\s+/g, "\\s+"), "i")
+          : new RegExp(`\\b${escaped}\\b`, "i");
+        const m = re.exec(line.text);
+        if (m) {
+          const from = line.from + m.index;
+          const to = from + m[0].length;
+          decos.push(
+            Decoration.mark({ class: "cm-hover-peek-word" }).range(from, to),
+          );
+        }
+      }
+      view.dispatch({ effects: setHoverHighlight.of(Decoration.set(decos, true)) });
+    } catch { /* ignore */ }
+  }, [props.editorViewRef, props.hoverHighlight]);
 
   // Strongest-line decoration: subtle gold accent on the best line.
   useEffect(() => {
@@ -731,6 +843,35 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
       view.dispatch({ effects: setCraftGutter.of(entries) });
     } catch { /* ignore */ }
   }, [props.editorViewRef, props.craftGutterSignals]);
+
+  // Repeat-tool highlights — persistent severity-tinted marks for every
+  // occurrence of the active Repeats subtab (words / phrases / patterns).
+  useEffect(() => {
+    const view = props.editorViewRef.current;
+    if (!view) return;
+    const rh = props.repeatHighlights;
+    if (!rh || rh.length === 0) {
+      try { view.dispatch({ effects: clearRepeatHighlights.of(undefined) }); } catch { /* ignore */ }
+      return;
+    }
+    try {
+      const doc = view.state.doc;
+      const lineCount = doc.lines;
+      const decos: Range<Decoration>[] = [];
+      for (const r of rh) {
+        if (r.line < 1 || r.line > lineCount) continue;
+        const line = doc.line(r.line);
+        const lineLen = line.to - line.from;
+        const a = Math.max(0, Math.min(r.start, lineLen));
+        const b = Math.max(a, Math.min(r.end, lineLen));
+        if (b <= a) continue;
+        const cls = `cm-repeat-mark cm-repeat-mark-${r.severity} cm-repeat-mark-${r.kind}`;
+        decos.push(Decoration.mark({ class: cls }).range(line.from + a, line.from + b));
+      }
+      decos.sort((a, b) => a.from - b.from || a.to - b.to);
+      view.dispatch({ effects: setRepeatHighlights.of(Decoration.set(decos, true)) });
+    } catch { /* ignore */ }
+  }, [props.editorViewRef, props.repeatHighlights]);
 
   // Rhyme end-word highlights
   useEffect(() => {
@@ -892,6 +1033,8 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
       lineFlashField,
       strongestLineField,
       issueHighlightField,
+      hoverHighlightField,
+      repeatHighlightField,
       persistentIssueDecosField,
       issueGutterField,
       issueGutterExtension,

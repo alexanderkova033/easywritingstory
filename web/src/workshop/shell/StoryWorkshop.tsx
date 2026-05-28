@@ -468,11 +468,33 @@ export function StoryWorkshop() {
   const cursorLineGetterRef = useRef<(() => number) | null>(null);
   const [peekLine, setPeekLine] = useState<number | null>(null);
   const [peekBump, setPeekBump] = useState(0);
+  /** Live word/line highlight in the editor while a panel chip is hovered. */
+  const [hoverPeek, setHoverPeek] = useState<{ line: number; word?: string } | null>(null);
+  /** Tracks last-issued clear so quickly moving across chips doesn't flicker. */
+  const hoverPeekClearTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /** Scroll a line into view without moving the cursor. */
-  const peekToLine = useCallback((line: number) => {
+  const peekToLine = useCallback((line: number, word?: string) => {
     setPeekLine(line);
     setPeekBump((n) => n + 1);
+    if (hoverPeekClearTimer.current) {
+      clearTimeout(hoverPeekClearTimer.current);
+      hoverPeekClearTimer.current = null;
+    }
+    setHoverPeek({ line, word });
+  }, []);
+
+  /**
+   * Clear the hover-peek highlight. Debounced ~140ms so quickly sliding the
+   * cursor from one chip to the next doesn't flash a blank gap between them —
+   * the next peekToLine cancels this pending clear.
+   */
+  const clearHoverPeek = useCallback(() => {
+    if (hoverPeekClearTimer.current) clearTimeout(hoverPeekClearTimer.current);
+    hoverPeekClearTimer.current = setTimeout(() => {
+      setHoverPeek(null);
+      hoverPeekClearTimer.current = null;
+    }, 140);
   }, []);
 
   /**
@@ -819,6 +841,63 @@ export function StoryWorkshop() {
    * weasel hits. Each entry carries a weight so the editor can collapse
    * multiple signals on the same line into a single visually-tiered dot.
    */
+  // Persistent editor highlights driven by the Repeats tool. Empty unless the
+  // tool is the active panel; content depends on the active subtab so the
+  // editor mirrors exactly what the panel is showing — words, phrase echoes,
+  // or anaphora/epistrophe lines.
+  const repeatHighlights = useMemo(() => {
+    if (m.toolTab !== "repeat") return undefined;
+    const out: Array<{
+      line: number;
+      start: number;
+      end: number;
+      severity: "low" | "med" | "high";
+      kind: "word" | "phrase" | "pattern";
+    }> = [];
+    if (m.repeatSubTab === "words") {
+      for (const r of m.repeated) {
+        for (const o of r.occurrences) {
+          out.push({
+            line: o.line,
+            start: o.start,
+            end: o.end,
+            severity: r.severity,
+            kind: "word",
+          });
+        }
+      }
+    } else if (m.repeatSubTab === "phrases") {
+      for (const p of m.repetition.phrases) {
+        for (const o of p.occurrences) {
+          out.push({
+            line: o.line,
+            start: o.start,
+            end: o.end,
+            severity: p.severity,
+            kind: "phrase",
+          });
+        }
+      }
+    } else {
+      // patterns — anaphora + epistrophe. Severity grades by group size.
+      const gradeEdge = (count: number): "low" | "med" | "high" =>
+        count >= 4 ? "high" : count >= 3 ? "med" : "low";
+      for (const g of m.repetition.anaphora) {
+        const sev = gradeEdge(g.lines.length);
+        for (const o of g.occurrences) {
+          out.push({ line: o.line, start: o.start, end: o.end, severity: sev, kind: "pattern" });
+        }
+      }
+      for (const g of m.repetition.epistrophe) {
+        const sev = gradeEdge(g.lines.length);
+        for (const o of g.occurrences) {
+          out.push({ line: o.line, start: o.start, end: o.end, severity: sev, kind: "pattern" });
+        }
+      }
+    }
+    return out;
+  }, [m.toolTab, m.repeatSubTab, m.repeated, m.repetition]);
+
   const craftGutterSignals = useMemo(() => {
     const out: Array<{ line: number; kind: string; weight: number }> = [];
     for (const c of m.craft.pov.conflicts) {
@@ -1766,11 +1845,13 @@ export function StoryWorkshop() {
                       jumpBump={m.jumpBump}
                       peekLine={peekLine}
                       peekBump={peekBump}
+                      hoverHighlight={hoverPeek}
                       strongestLine={aiResult?.strongest_line?.line ?? null}
                       issueHighlight={issueHighlight}
                       persistentIssueHighlights={persistentIssueHighlights}
                       issueGutterMarkers={persistentIssueHighlights}
                       craftGutterSignals={craftGutterSignals}
+                      repeatHighlights={repeatHighlights}
                       onGutterDotClick={(line) => openIssueAtLineRef.current?.(line, true)}
                       onCursorLineChange={(line) => {
                         setCursorLine(line);
@@ -2138,6 +2219,8 @@ export function StoryWorkshop() {
             stanzaRhymeGroups={m.stanzaRhymeGroups}
             repeated={m.repeated}
             repetition={m.repetition}
+            repeatSubTab={m.repeatSubTab}
+            setRepeatSubTab={m.setRepeatSubTab}
             craft={m.craft}
             spellHits={m.spellHits}
             wordlist={m.wordlist}
@@ -2148,6 +2231,7 @@ export function StoryWorkshop() {
             goToLineEnd={m.goToLineEnd}
             goToWordInLine={m.goToWordInLine}
             peekToLine={peekToLine}
+            clearHoverPeek={clearHoverPeek}
             goToSpellHitAt={m.goToSpellHitAt}
             cycleSpellHit={m.cycleSpellHit}
             spellNavIndex={m.spellNavIndex}

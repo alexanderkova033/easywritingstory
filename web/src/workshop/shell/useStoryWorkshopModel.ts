@@ -208,6 +208,9 @@ export function useStoryWorkshopModel(
       /* ignore */
     }
   }, []);
+  // Lifted so StoryWorkshop can mirror the active Repeats subtab into editor
+  // highlights without prop drilling a callback back up from RepeatPanel.
+  const [repeatSubTab, setRepeatSubTab] = useState<"words" | "phrases" | "patterns">("words");
 
   const activeStoryId = library.activeId;
 
@@ -1183,6 +1186,8 @@ export function useStoryWorkshopModel(
     onQuickCopyPlain,
     toolTab,
     setToolTab,
+    repeatSubTab,
+    setRepeatSubTab,
     lines,
     quickDocStats,
     docStats,

@@ -285,12 +285,14 @@ export function ParaPill({
   paragraph,
   goTo,
   peek,
+  clearPeek,
   ariaLabel,
 }: {
   paragraph: number;
   goTo: (p: number) => void;
   /** Live-scroll the editor to this paragraph on hover/focus, no cursor move. */
   peek?: (p: number) => void;
+  clearPeek?: () => void;
   ariaLabel?: string;
 }) {
   return (
@@ -299,7 +301,9 @@ export function ParaPill({
       className="craft-para-pill"
       onClick={() => goTo(paragraph)}
       onMouseEnter={() => peek?.(paragraph)}
+      onMouseLeave={() => clearPeek?.()}
       onFocus={() => peek?.(paragraph)}
+      onBlur={() => clearPeek?.()}
       aria-label={ariaLabel ?? `Jump to paragraph ${paragraph}`}
       title={`Paragraph ${paragraph} — click to jump, hover to peek`}
     >
@@ -312,15 +316,23 @@ export function ParaPillList({
   paragraphs,
   goTo,
   peek,
+  clearPeek,
 }: {
   paragraphs: number[];
   goTo: (p: number) => void;
   peek?: (p: number) => void;
+  clearPeek?: () => void;
 }) {
   return (
     <div className="craft-para-pill-row">
       {paragraphs.map((p, i) => (
-        <ParaPill key={`${p}-${i}`} paragraph={p} goTo={goTo} peek={peek} />
+        <ParaPill
+          key={`${p}-${i}`}
+          paragraph={p}
+          goTo={goTo}
+          peek={peek}
+          clearPeek={clearPeek}
+        />
       ))}
     </div>
   );
@@ -366,13 +378,17 @@ export function CraftClusterCard({
   goToParagraph,
   goToWord,
   peekParagraph,
+  clearPeek,
 }: {
   cluster: CraftCluster;
   goToParagraph: (p: number) => void;
   /** When provided, chips select the matched word range instead of the whole line. */
   goToWord?: (paragraph: number, word: string) => void;
-  /** Live-scroll the editor to a paragraph on hover, without moving the cursor. */
-  peekParagraph?: (paragraph: number) => void;
+  /** Live-scroll the editor to a paragraph on hover, without moving the cursor.
+   *  When `word` is given, the matched word is highlighted in the editor too. */
+  peekParagraph?: (paragraph: number, word?: string) => void;
+  /** Clear the hover highlight on mouseleave / blur. */
+  clearPeek?: () => void;
 }) {
   const color = cluster.color ?? "a";
   const re = useMemo(
@@ -424,8 +440,10 @@ export function CraftClusterCard({
               onClick={() =>
                 goToWord ? goToWord(m.paragraph, word) : goToParagraph(m.paragraph)
               }
-              onMouseEnter={() => peekParagraph?.(m.paragraph)}
-              onFocus={() => peekParagraph?.(m.paragraph)}
+              onMouseEnter={() => peekParagraph?.(m.paragraph, word)}
+              onMouseLeave={() => clearPeek?.()}
+              onFocus={() => peekParagraph?.(m.paragraph, word)}
+              onBlur={() => clearPeek?.()}
               title={`Paragraph ${m.paragraph} — click to jump, hover to peek`}
               aria-label={`Jump to “${word}” in paragraph ${m.paragraph}`}
             >
@@ -438,12 +456,14 @@ export function CraftClusterCard({
       {cluster.preview ? (
         <div
           className="craft-cluster-preview"
-          onMouseEnter={() => peekParagraph?.(cluster.preview!.paragraph)}
+          onMouseEnter={() => peekParagraph?.(cluster.preview!.paragraph, cluster.label)}
+          onMouseLeave={() => clearPeek?.()}
         >
           <ParaPill
             paragraph={cluster.preview.paragraph}
             goTo={goToParagraph}
-            peek={peekParagraph}
+            peek={(p) => peekParagraph?.(p, cluster.label)}
+            clearPeek={clearPeek}
           />
           <span className="craft-snippet-text">
             {highlightInLine(cropAroundMatch(cluster.preview.text, re, 36), re)}
@@ -576,6 +596,7 @@ export function CraftCharacterArc({
   color = "a",
   goToParagraph,
   peekParagraph,
+  clearPeek,
 }: {
   firstParagraph: number;
   lastParagraph: number;
@@ -584,6 +605,7 @@ export function CraftCharacterArc({
   color?: ColorLetter;
   goToParagraph: (p: number) => void;
   peekParagraph?: (p: number) => void;
+  clearPeek?: () => void;
 }) {
   if (totalParagraphs <= 0) return null;
   const denom = Math.max(1, totalParagraphs);
@@ -610,7 +632,9 @@ export function CraftCharacterArc({
           style={{ left: `${((p - 1) / denom) * 100}%` }}
           onClick={() => goToParagraph(p)}
           onMouseEnter={() => peekParagraph?.(p)}
+          onMouseLeave={() => clearPeek?.()}
           onFocus={() => peekParagraph?.(p)}
+          onBlur={() => clearPeek?.()}
           aria-label={`Jump to paragraph ${p}`}
           title={`¶ ${p}`}
         />

@@ -200,7 +200,8 @@
 .story-workshop.is-focus-mode .cm-line-issue-highlight,
 .story-workshop.is-focus-mode .cm-line-strongest,
 .story-workshop.is-focus-mode .cm-rhyme-end,
-.story-workshop.is-focus-mode .cm-rhyme-internal {
+.story-workshop.is-focus-mode .cm-rhyme-internal,
+.story-workshop.is-focus-mode .cm-repeat-mark {
   background: none !important;
   text-decoration: none !important;
   box-shadow: none !important;

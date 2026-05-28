@@ -36,11 +36,13 @@ export function RepeatedWordCard({
   item,
   goToLine,
   peekToLine,
+  clearHoverPeek,
   onReject,
 }: {
   item: RepeatedWord;
   goToLine: (line1Based: number) => void;
-  peekToLine?: (line1Based: number) => void;
+  peekToLine?: (line1Based: number, word?: string) => void;
+  clearHoverPeek?: () => void;
   onReject?: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -91,13 +93,15 @@ export function RepeatedWordCard({
           <li
             key={`${o.line}-${o.start}-${i}`}
             className="rep-snippet"
-            onMouseEnter={() => peekToLine?.(o.line)}
+            onMouseEnter={() => peekToLine?.(o.line, o.surface || item.display)}
+            onMouseLeave={() => clearHoverPeek?.()}
           >
             <button
               type="button"
               className="rep-line-jump linkish"
               onClick={() => goToLine(o.line)}
-              onFocus={() => peekToLine?.(o.line)}
+              onFocus={() => peekToLine?.(o.line, o.surface || item.display)}
+              onBlur={() => clearHoverPeek?.()}
               aria-label={`Go to line ${o.line}`}
               title="Click to jump, hover to peek"
             >
@@ -126,10 +130,12 @@ export function PhraseRepeatCard({
   item,
   goToLine,
   peekToLine,
+  clearHoverPeek,
 }: {
   item: import("@/workshop/analysis/repeated-words").PhraseRepeat;
   goToLine: (line1Based: number) => void;
-  peekToLine?: (line1Based: number) => void;
+  peekToLine?: (line1Based: number, word?: string) => void;
+  clearHoverPeek?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const previewSnippets = open ? item.snippets : item.snippets.slice(0, 2);
@@ -146,13 +152,15 @@ export function PhraseRepeatCard({
           <li
             key={`${s.line}-${i}`}
             className="rep-snippet"
-            onMouseEnter={() => peekToLine?.(s.line)}
+            onMouseEnter={() => peekToLine?.(s.line, item.display)}
+            onMouseLeave={() => clearHoverPeek?.()}
           >
             <button
               type="button"
               className="rep-line-jump linkish"
               onClick={() => goToLine(s.line)}
-              onFocus={() => peekToLine?.(s.line)}
+              onFocus={() => peekToLine?.(s.line, item.display)}
+              onBlur={() => clearHoverPeek?.()}
               aria-label={`Go to line ${s.line}`}
               title="Click to jump, hover to peek"
             >
@@ -182,11 +190,13 @@ export function EdgeRepeatCard({
   edge,
   goToLine,
   peekToLine,
+  clearHoverPeek,
 }: {
   group: import("@/workshop/analysis/repeated-words").AnaphoraGroup;
   edge: "start" | "end";
   goToLine: (line1Based: number) => void;
-  peekToLine?: (line1Based: number) => void;
+  peekToLine?: (line1Based: number, word?: string) => void;
+  clearHoverPeek?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const previewSnippets = open ? group.snippets : group.snippets.slice(0, 3);
@@ -213,13 +223,15 @@ export function EdgeRepeatCard({
           <li
             key={`${s.line}-${i}`}
             className="rep-snippet"
-            onMouseEnter={() => peekToLine?.(s.line)}
+            onMouseEnter={() => peekToLine?.(s.line, group.display)}
+            onMouseLeave={() => clearHoverPeek?.()}
           >
             <button
               type="button"
               className="rep-line-jump linkish"
               onClick={() => goToLine(s.line)}
-              onFocus={() => peekToLine?.(s.line)}
+              onFocus={() => peekToLine?.(s.line, group.display)}
+              onBlur={() => clearHoverPeek?.()}
               aria-label={`Go to line ${s.line}`}
               title="Click to jump, hover to peek"
             >

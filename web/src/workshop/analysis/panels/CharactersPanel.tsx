@@ -19,7 +19,8 @@ export interface CharactersPanelProps {
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
   goToWordInLine: (line1Based: number, word: string) => void;
-  peekToLine: (line1Based: number) => void;
+  peekToLine: (line1Based: number, word?: string) => void;
+  clearHoverPeek: () => void;
 }
 
 export function CharactersPanel({
@@ -30,6 +31,7 @@ export function CharactersPanel({
   goToLine,
   goToWordInLine,
   peekToLine,
+  clearHoverPeek,
 }: CharactersPanelProps) {
   const c = craft.characters;
   const [filter, setFilter] = useState("");
@@ -165,6 +167,7 @@ export function CharactersPanel({
                         color={color}
                         goToParagraph={goToLine}
                         peekParagraph={peekToLine}
+                        clearPeek={clearHoverPeek}
                       />
                       <div className="craft-cluster-chips">
                         {ch.mentions.slice(0, 12).map((m, i) => (
@@ -173,8 +176,10 @@ export function CharactersPanel({
                             type="button"
                             className={`craft-word-chip rhyme-label-${color}`}
                             onClick={() => goToWordInLine(m.line, ch.display)}
-                            onMouseEnter={() => peekToLine(m.line)}
-                            onFocus={() => peekToLine(m.line)}
+                            onMouseEnter={() => peekToLine(m.line, ch.display)}
+                            onMouseLeave={() => clearHoverPeek()}
+                            onFocus={() => peekToLine(m.line, ch.display)}
+                            onBlur={() => clearHoverPeek()}
                             title={`Paragraph ${m.line} — click to jump, hover to peek`}
                             aria-label={`Jump to “${ch.display}” in paragraph ${m.line}`}
                           >

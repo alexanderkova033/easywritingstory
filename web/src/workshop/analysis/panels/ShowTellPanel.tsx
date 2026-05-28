@@ -23,7 +23,8 @@ export interface ShowTellPanelProps {
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
   goToWordInLine: (line1Based: number, word: string) => void;
-  peekToLine: (line1Based: number) => void;
+  peekToLine: (line1Based: number, word?: string) => void;
+  clearHoverPeek: () => void;
 }
 
 function tierColor(count: number): "e" | "g" | "f" {
@@ -45,6 +46,7 @@ export function ShowTellPanel({
   goToLine,
   goToWordInLine,
   peekToLine,
+  clearHoverPeek,
 }: ShowTellPanelProps) {
   const s = craft.showVsTell;
   const [filter, setFilter] = useState("");
@@ -166,6 +168,7 @@ export function ShowTellPanel({
                     goToParagraph={goToLine}
                     goToWord={goToWordInLine}
                     peekParagraph={peekToLine}
+                    clearPeek={clearHoverPeek}
                   />
                 ))}
               </CraftClusterCardList>
