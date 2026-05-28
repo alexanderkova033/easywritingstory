@@ -35,13 +35,17 @@ export function ToolsOverviewStrip(props: ToolsOverviewStripProps) {
   } = props;
 
   void heavyToolsStale;
-  void docStats;
 
   const goalIssue = goalEvaluation.warnings.length > 0;
   const spellIssue = wordlistReady && spellHitCount > 0;
   const checklistIssue = checklistOpenCount > 0;
 
   const issuesIssue = issuesQueueCount > 0;
+
+  const paragraphsTitle =
+    docStats.stanzaCount > 0
+      ? `${docStats.stanzaCount} paragraph(s) · ${docStats.totalWords} words total`
+      : "No paragraphs yet";
 
   const issuesPillHint = issuesIssue
     ? `${issuesQueueCount} item(s) in revision queue (checklist, goals, spelling)`
@@ -64,6 +68,15 @@ export function ToolsOverviewStrip(props: ToolsOverviewStripProps) {
           {issuesIssue ? issuesQueueCount : "✓"}
         </span>
         <span className="tools-overview-pill-l">issues</span>
+      </button>
+      <button
+        type="button"
+        className={`tools-overview-pill ${activeTab === "paragraphs" ? "is-current" : ""}`}
+        onClick={() => onOpenTab("paragraphs")}
+        {...hint(`${paragraphsTitle} — jump to paragraph tools`)}
+      >
+        <span className="tools-overview-pill-k">{docStats.stanzaCount}</span>
+        <span className="tools-overview-pill-l">paragraphs</span>
       </button>
       <button
         type="button"

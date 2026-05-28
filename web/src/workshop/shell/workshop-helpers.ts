@@ -5,6 +5,7 @@ export const COMPARE_CURRENT_ID = "__current__";
 export type ToolTab =
   | "issues"
   | "goals"
+  | "paragraphs"
   | "repeat"
   | "dialogue"
   | "pov"
@@ -56,6 +57,7 @@ export function tabsForBucket(bucket: ToolBucket): ToolTab[] {
       return [
         "issues",
         "spell",
+        "paragraphs",
         "goals",
         "snapshots",
       ];

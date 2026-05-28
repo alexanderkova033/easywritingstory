@@ -34,12 +34,14 @@ export function RepetitionSummary({
 
 export function RepeatedWordCard({
   item,
+  cardId,
   goToLine,
   peekToLine,
   clearHoverPeek,
   onReject,
 }: {
   item: RepeatedWord;
+  cardId?: string;
   goToLine: (line1Based: number) => void;
   peekToLine?: (line1Based: number, word?: string) => void;
   clearHoverPeek?: () => void;
@@ -58,7 +60,7 @@ export function RepeatedWordCard({
   }, [item.word, item.variants]);
   const previewOccurrences = open ? item.occurrences : item.occurrences.slice(0, 2);
   return (
-    <li className="rep-card">
+    <li className="rep-card" data-repeat-card-id={cardId}>
       <div className="rep-card-header">
         <span className="rep-card-title">{item.display}</span>
         <span className="rep-card-count">×{item.count}</span>
@@ -128,11 +130,13 @@ export function RepeatedWordCard({
 
 export function PhraseRepeatCard({
   item,
+  cardId,
   goToLine,
   peekToLine,
   clearHoverPeek,
 }: {
   item: import("@/workshop/analysis/repeated-words").PhraseRepeat;
+  cardId?: string;
   goToLine: (line1Based: number) => void;
   peekToLine?: (line1Based: number, word?: string) => void;
   clearHoverPeek?: () => void;
@@ -141,7 +145,7 @@ export function PhraseRepeatCard({
   const previewSnippets = open ? item.snippets : item.snippets.slice(0, 2);
   const phraseRe = useMemo(() => buildPhraseRegex(item.phrase), [item.phrase]);
   return (
-    <li className="rep-card">
+    <li className="rep-card" data-repeat-card-id={cardId}>
       <div className="rep-card-header">
         <span className="rep-card-title">"{item.display}"</span>
         <span className="rep-card-count">×{item.count}</span>
@@ -187,12 +191,14 @@ export function PhraseRepeatCard({
 
 export function EdgeRepeatCard({
   group,
+  cardId,
   edge,
   goToLine,
   peekToLine,
   clearHoverPeek,
 }: {
   group: import("@/workshop/analysis/repeated-words").AnaphoraGroup;
+  cardId?: string;
   edge: "start" | "end";
   goToLine: (line1Based: number) => void;
   peekToLine?: (line1Based: number, word?: string) => void;
@@ -207,7 +213,7 @@ export function EdgeRepeatCard({
       : new RegExp(`${body}[^A-Za-z']*$`, "gi");
   }, [group.prefix, edge]);
   return (
-    <li className="rep-card rep-card-pattern">
+    <li className="rep-card rep-card-pattern" data-repeat-card-id={cardId}>
       <div className="rep-card-header">
         <span className="rep-pattern-icon" aria-hidden="true">
           {edge === "start" ? "↦" : "↤"}

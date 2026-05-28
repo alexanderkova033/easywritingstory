@@ -189,6 +189,7 @@ export function RepeatPanel({
                 <RepeatedWordCard
                   key={r.word}
                   item={r}
+                  cardId={`w:${r.word}`}
                   goToLine={goToLine}
                   peekToLine={peekToLine}
                   clearHoverPeek={clearHoverPeek}
@@ -224,6 +225,7 @@ export function RepeatPanel({
               <PhraseRepeatCard
                 key={`${p.n}:${p.phrase}`}
                 item={p}
+                cardId={`p${p.n}:${p.phrase}`}
                 goToLine={goToLine}
                 peekToLine={peekToLine}
                 clearHoverPeek={clearHoverPeek}
@@ -254,6 +256,7 @@ export function RepeatPanel({
                     <EdgeRepeatCard
                       key={`a:${g.prefix}`}
                       group={g}
+                      cardId={`a${g.n}:${g.prefix}`}
                       edge="start"
                       goToLine={goToLine}
                       peekToLine={peekToLine}
@@ -273,6 +276,7 @@ export function RepeatPanel({
                     <EdgeRepeatCard
                       key={`e:${g.prefix}`}
                       group={g}
+                      cardId={`e${g.n}:${g.prefix}`}
                       edge="end"
                       goToLine={goToLine}
                       peekToLine={peekToLine}

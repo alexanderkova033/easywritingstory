@@ -35,6 +35,7 @@ import { TensePanel } from "./panels/TensePanel";
 import { ShowTellPanel } from "./panels/ShowTellPanel";
 import { AdverbsPanel } from "./panels/AdverbsPanel";
 import { CharactersPanel } from "./panels/CharactersPanel";
+import { ParagraphsPanel } from "./panels/ParagraphsPanel";
 
 
 export interface WorkshopToolPanelsProps {
@@ -159,6 +160,15 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           refreshSpell={props.refreshSpell}
           onOpenToolTab={props.onOpenToolTab}
           focusStoryTitle={props.focusStoryTitle}
+        />
+      ) : null}
+
+      {toolTab === "paragraphs" ? (
+        <ParagraphsPanel
+          docStats={props.docStats}
+          storyLines={props.storyLines}
+          heavyToolsStale={props.heavyToolsStale}
+          goToLine={props.goToLine}
         />
       ) : null}
 

@@ -224,6 +224,30 @@ function cssAttrEscape(s: string): string {
   return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
+// Bring the matching card in the Repeats tool panel into view and give it a
+// brief flash. Looks up by `data-repeat-card-id` (set in RepetitionCards), so
+// no React plumbing is needed — the panel and the editor share the DOM.
+function revealRepeatCard(group: string) {
+  if (typeof document === "undefined") return;
+  const sel = `[data-repeat-card-id="${cssAttrEscape(group)}"]`;
+  let card: HTMLElement | null;
+  try { card = document.querySelector<HTMLElement>(sel); }
+  catch { return; }
+  if (!card) return;
+  try {
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    card.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "nearest",
+    });
+  } catch { /* ignore */ }
+  card.classList.add("rep-card-jumped");
+  setTimeout(() => card!.classList.remove("rep-card-jumped"), 900);
+}
+
 function setActiveRepeatGroup(view: EditorView, group: string | null) {
   const root = view.contentDOM;
   const prev = root.querySelectorAll<HTMLElement>(".cm-repeat-mark-sibling-active");
@@ -253,6 +277,7 @@ function cycleRepeatSibling(
   try {
     view.dispatch({ effects: EditorView.scrollIntoView(next.from, { y: "center" }) });
   } catch { /* ignore out-of-range */ }
+  revealRepeatCard(group);
   // After scroll, the destination span exists; brief flash so the eye lands.
   requestAnimationFrame(() => {
     const sel = `.cm-repeat-mark[data-repeat-group="${cssAttrEscape(group)}"]`;
@@ -271,21 +296,23 @@ function cycleRepeatSibling(
 
 const repeatInteractionExtension = EditorView.domEventHandlers({
   mousedown(event, _view) {
+    // Plain click keeps CodeMirror's default caret placement so the user can
+    // edit a flagged word normally. The cycle gesture is Alt+click, which we
+    // suppress here so the caret doesn't move before the jump.
+    if (!event.altKey) return false;
     const target = event.target as HTMLElement | null;
     if (!target) return false;
     const mark = target.closest(".cm-repeat-mark") as HTMLElement | null;
     if (!mark) return false;
-    // Let users still position the caret with modifier+click.
-    if (event.altKey || event.ctrlKey || event.metaKey) return false;
     event.preventDefault();
     return true;
   },
   click(event, view) {
+    if (!event.altKey) return false;
     const target = event.target as HTMLElement | null;
     if (!target) return false;
     const mark = target.closest(".cm-repeat-mark") as HTMLElement | null;
     if (!mark) return false;
-    if (event.altKey || event.ctrlKey || event.metaKey) return false;
     const group = mark.getAttribute("data-repeat-group");
     if (!group) return false;
     let fromPos: number;
@@ -976,7 +1003,7 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
           `cm-repeat-mark cm-repeat-mark-${r.severity} cm-repeat-mark-${r.kind} cm-repeat-mark-c${colorIdx}`;
         const title =
           r.siblingCount > 1
-            ? `${r.siblingIndex + 1} of ${r.siblingCount} — click to jump to next (shift+click for previous)`
+            ? `${r.siblingIndex + 1} of ${r.siblingCount} — Alt+click to jump to next (Shift+Alt+click for previous)`
             : undefined;
         const attributes: Record<string, string> = { "data-repeat-group": r.groupId };
         if (title) attributes.title = title;

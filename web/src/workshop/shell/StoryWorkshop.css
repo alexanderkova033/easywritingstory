@@ -6770,6 +6770,27 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
+/* Brief flash applied when an Alt+click in the editor jumps to a sibling
+ * occurrence — the matching card in the panel scrolls into view and pulses
+ * so the user's eye lands on it without scanning. */
+.rep-card-jumped {
+  animation: rep-card-jump-flash 0.9s ease-out;
+}
+
+@keyframes rep-card-jump-flash {
+  0% {
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--accent, #5fba7d) 65%, transparent),
+      0 4px 12px color-mix(in srgb, var(--accent, #5fba7d) 25%, transparent);
+    background: color-mix(in srgb, var(--accent, #5fba7d) 12%, var(--bg-elev, var(--bg, #fff)));
+  }
+  100% { /* settle back to the resting style */ }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rep-card-jumped { animation: none; }
+}
+
 .rep-card-sev-low {
   border-left-color: color-mix(in srgb, var(--accent, #5fba7d) 35%, var(--border));
 }

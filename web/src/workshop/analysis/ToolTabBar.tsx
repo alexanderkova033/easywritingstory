@@ -173,6 +173,21 @@ function IconTabSnapshots() {
   );
 }
 
+function IconTabParagraphs() {
+  return (
+    <svg className="tool-tab-svg" viewBox="0 0 24 24" aria-hidden>
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.65"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 6.5h14M5 11h14M5 15.5h9"
+      />
+    </svg>
+  );
+}
+
 function IconTabSuggest() {
   return (
     <svg className="tool-tab-svg" viewBox="0 0 24 24" aria-hidden>
@@ -197,6 +212,7 @@ export const TOOL_TABS: {
 }[] = [
   { id: "issues",     label: "Queue",      desc: "Spelling flags, checklist gaps & goal warnings in one list",   Icon: IconTabIssues },
   { id: "spell",      label: "Spell",      desc: "Find and fix misspelled words",                                Icon: IconTabSpell },
+  { id: "paragraphs", label: "Paragraphs", desc: "Per-paragraph word counts, length, and jump-to-line",          Icon: IconTabParagraphs },
   { id: "repeat",     label: "Repeats",    desc: "Words that appear more than once",                             Icon: IconTabRepeat },
   { id: "dialogue",   label: "Dialogue",   desc: "Speech tags, attribution verbs, and unattributed lines",       Icon: IconTabDialogue },
   { id: "pov",        label: "POV",        desc: "First/second/third-person consistency and off-POV lines",      Icon: IconTabPov },
