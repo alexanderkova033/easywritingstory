@@ -954,49 +954,98 @@ button.primary:disabled {
   .cm-hover-peek-line { transition: none; }
 }
 
-/* ---- Repeats-tool persistent marks (severity-tinted, kind-aware) ----
- * Shown for every flagged occurrence while the Repeats tool is open. Tint
- * uses the accent colour so it reads as the tool's own signal, not as a
- * spell/issue mark. Phrase/pattern marks use a top+bottom border tint so
- * they read as a contiguous block rather than a series of underlined tokens. */
+/* ---- Repeats-tool persistent marks (group-coloured, severity-tinted) ----
+ * Every occurrence of a single repeated word/phrase/pattern shares one hue,
+ * so the eye can instantly cluster siblings without reading them. Severity
+ * controls the alpha (low/med/high). Hovering any mark glows ALL siblings,
+ * and clicking cycles to the next sibling (shift+click for previous).      */
 .cm-repeat-mark {
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  --repeat-hue: var(--repeat-c0);
   border-radius: 2px;
-  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--accent) 35%, transparent);
-  transition: background 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  background: hsl(var(--repeat-hue) / 0.10);
+  box-shadow: inset 0 -1px 0 hsl(var(--repeat-hue) / 0.35);
+  transition: background 0.12s ease, box-shadow 0.12s ease;
 }
 
+/* Six-hue rotation. Stable per repeat group; the workshop assigns indices in
+ * encounter order (highest-severity groups first), so the most-noisy items
+ * get distinct colours and lower-severity items reuse them if needed.        */
+:root {
+  --repeat-c0: 210 80% 55%; /* blue */
+  --repeat-c1: 30 85% 55%;  /* orange */
+  --repeat-c2: 145 55% 45%; /* green */
+  --repeat-c3: 280 60% 60%; /* purple */
+  --repeat-c4: 340 75% 60%; /* pink */
+  --repeat-c5: 180 60% 45%; /* teal */
+}
+
+.cm-repeat-mark-c0 { --repeat-hue: var(--repeat-c0); }
+.cm-repeat-mark-c1 { --repeat-hue: var(--repeat-c1); }
+.cm-repeat-mark-c2 { --repeat-hue: var(--repeat-c2); }
+.cm-repeat-mark-c3 { --repeat-hue: var(--repeat-c3); }
+.cm-repeat-mark-c4 { --repeat-hue: var(--repeat-c4); }
+.cm-repeat-mark-c5 { --repeat-hue: var(--repeat-c5); }
+
 .cm-repeat-mark-low {
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
-  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--accent) 25%, transparent);
+  background: hsl(var(--repeat-hue) / 0.10);
+  box-shadow: inset 0 -1px 0 hsl(var(--repeat-hue) / 0.30);
 }
 
 .cm-repeat-mark-med {
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--accent) 45%, transparent);
+  background: hsl(var(--repeat-hue) / 0.18);
+  box-shadow: inset 0 -1px 0 hsl(var(--repeat-hue) / 0.50);
 }
 
 .cm-repeat-mark-high {
-  background: color-mix(in srgb, var(--accent) 22%, transparent);
-  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--accent) 65%, transparent);
+  background: hsl(var(--repeat-hue) / 0.28);
+  box-shadow: inset 0 -2px 0 hsl(var(--repeat-hue) / 0.70);
 }
 
+/* Multi-word spans (phrases/patterns) use a top+bottom border tint so they
+ * read as one contiguous block rather than a series of underlined tokens.   */
 .cm-repeat-mark-phrase,
 .cm-repeat-mark-pattern {
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--accent) 35%, transparent),
-    inset 0 -1px 0 color-mix(in srgb, var(--accent) 35%, transparent);
+    inset 0 1px 0 hsl(var(--repeat-hue) / 0.40),
+    inset 0 -1px 0 hsl(var(--repeat-hue) / 0.40);
 }
 
 .cm-repeat-mark-phrase.cm-repeat-mark-high,
 .cm-repeat-mark-pattern.cm-repeat-mark-high {
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--accent) 60%, transparent),
-    inset 0 -1px 0 color-mix(in srgb, var(--accent) 60%, transparent);
+    inset 0 1px 0 hsl(var(--repeat-hue) / 0.65),
+    inset 0 -1px 0 hsl(var(--repeat-hue) / 0.65);
+}
+
+/* Sibling-active — hovering one mark lights up all siblings of the same
+ * group, so off-screen-but-rendered ones catch the eye and on-screen ones
+ * cluster visually.                                                          */
+.cm-repeat-mark-sibling-active {
+  background: hsl(var(--repeat-hue) / 0.40) !important;
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--repeat-hue) / 0.75),
+    0 0 0 1px hsl(var(--repeat-hue) / 0.25) !important;
+}
+
+/* Briefly flash the destination on a click-cycle jump. */
+.cm-repeat-mark-jumped {
+  animation: cm-repeat-jump-flash 0.7s ease-out;
+}
+
+@keyframes cm-repeat-jump-flash {
+  0% {
+    background: hsl(var(--repeat-hue) / 0.65);
+    box-shadow:
+      inset 0 0 0 2px hsl(var(--repeat-hue) / 0.85),
+      0 0 0 2px hsl(var(--repeat-hue) / 0.40);
+  }
+  100% { /* end at the resting style — no explicit override needed */ }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cm-repeat-mark { transition: none; }
+  .cm-repeat-mark-jumped { animation: none; }
 }
 
 /* ---- Craft-signal gutter dots (POV/tense slips, filter words, adverbs) ---- */

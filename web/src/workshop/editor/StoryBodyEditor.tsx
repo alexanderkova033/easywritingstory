@@ -194,8 +194,9 @@ const hoverHighlightField = StateField.define<DecorationSet>({
 });
 
 // Repeat-tool persistent highlights — shown whenever the Repeats tool is open.
-// Content depends on the active subtab (words / phrases / patterns); severity
-// drives the tint strength. Cleared when the tool closes or the array empties.
+// Content depends on the active subtab (words / phrases / patterns). Hue comes
+// from the group's colour index; severity controls intensity. Cleared when the
+// tool closes or the array empties.
 const setRepeatHighlights = StateEffect.define<DecorationSet>();
 const clearRepeatHighlights = StateEffect.define<void>();
 
@@ -210,6 +211,102 @@ const repeatHighlightField = StateField.define<DecorationSet>({
     return next;
   },
   provide: (f) => EditorView.decorations.from(f),
+});
+
+// Module-level group→positions map kept in sync with the active repeat marks.
+// Click-to-cycle uses this so it can jump even to a sibling whose DOM hasn't
+// been rendered yet (CodeMirror viewport-windows decorations for long docs).
+const repeatGroupPositions: { map: Map<string, Array<{ from: number; to: number }>> } = {
+  map: new Map(),
+};
+
+function cssAttrEscape(s: string): string {
+  return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function setActiveRepeatGroup(view: EditorView, group: string | null) {
+  const root = view.contentDOM;
+  const prev = root.querySelectorAll<HTMLElement>(".cm-repeat-mark-sibling-active");
+  prev.forEach((el) => el.classList.remove("cm-repeat-mark-sibling-active"));
+  if (!group) return;
+  const sel = `.cm-repeat-mark[data-repeat-group="${cssAttrEscape(group)}"]`;
+  const all = root.querySelectorAll<HTMLElement>(sel);
+  all.forEach((el) => el.classList.add("cm-repeat-mark-sibling-active"));
+}
+
+function cycleRepeatSibling(
+  view: EditorView,
+  group: string,
+  fromPos: number,
+  dir: 1 | -1,
+) {
+  const arr = repeatGroupPositions.map.get(group);
+  if (!arr || arr.length < 2) return;
+  // Find current index by exact match first, then nearest position.
+  let curIdx = arr.findIndex((e) => e.from === fromPos);
+  if (curIdx === -1) {
+    const after = arr.findIndex((e) => e.from > fromPos);
+    curIdx = after === -1 ? arr.length - 1 : Math.max(0, after - 1);
+  }
+  const nextIdx = (curIdx + dir + arr.length) % arr.length;
+  const next = arr[nextIdx]!;
+  try {
+    view.dispatch({ effects: EditorView.scrollIntoView(next.from, { y: "center" }) });
+  } catch { /* ignore out-of-range */ }
+  // After scroll, the destination span exists; brief flash so the eye lands.
+  requestAnimationFrame(() => {
+    const sel = `.cm-repeat-mark[data-repeat-group="${cssAttrEscape(group)}"]`;
+    const cands = Array.from(view.contentDOM.querySelectorAll<HTMLElement>(sel));
+    for (const el of cands) {
+      let pos: number;
+      try { pos = view.posAtDOM(el); } catch { continue; }
+      if (pos === next.from) {
+        el.classList.add("cm-repeat-mark-jumped");
+        setTimeout(() => el.classList.remove("cm-repeat-mark-jumped"), 700);
+        break;
+      }
+    }
+  });
+}
+
+const repeatInteractionExtension = EditorView.domEventHandlers({
+  mousedown(event, _view) {
+    const target = event.target as HTMLElement | null;
+    if (!target) return false;
+    const mark = target.closest(".cm-repeat-mark") as HTMLElement | null;
+    if (!mark) return false;
+    // Let users still position the caret with modifier+click.
+    if (event.altKey || event.ctrlKey || event.metaKey) return false;
+    event.preventDefault();
+    return true;
+  },
+  click(event, view) {
+    const target = event.target as HTMLElement | null;
+    if (!target) return false;
+    const mark = target.closest(".cm-repeat-mark") as HTMLElement | null;
+    if (!mark) return false;
+    if (event.altKey || event.ctrlKey || event.metaKey) return false;
+    const group = mark.getAttribute("data-repeat-group");
+    if (!group) return false;
+    let fromPos: number;
+    try { fromPos = view.posAtDOM(mark); } catch { return false; }
+    cycleRepeatSibling(view, group, fromPos, event.shiftKey ? -1 : 1);
+    return true;
+  },
+  mouseover(event, view) {
+    const target = event.target as HTMLElement | null;
+    if (!target) return false;
+    const mark = target.closest(".cm-repeat-mark") as HTMLElement | null;
+    if (!mark) return false;
+    setActiveRepeatGroup(view, mark.getAttribute("data-repeat-group"));
+    return false;
+  },
+  mouseout(event, view) {
+    const related = (event as MouseEvent).relatedTarget as HTMLElement | null;
+    if (related && related.closest(".cm-repeat-mark")) return false;
+    setActiveRepeatGroup(view, null);
+    return false;
+  },
 });
 
 // Strongest-line decoration — subtle gold accent for the best line in the story.
@@ -574,9 +671,10 @@ export interface StoryBodyEditorProps {
    */
   craftGutterSignals?: Array<{ line: number; kind: string; weight: number }>;
   /**
-   * Persistent repeat-tool highlights. Each entry tints a character range with
-   * a severity-graded background; `kind` lets CSS distinguish word/phrase/pattern
-   * if it wants per-category styling. Empty/undefined clears all repeat marks.
+   * Persistent repeat-tool highlights. Each entry tints a character range using
+   * the colour assigned to its `groupId` (siblings share the colour) with
+   * intensity from `severity`. Hovering one glows the siblings; clicking
+   * cycles to the next occurrence in the same group. Empty/undefined clears.
    */
   repeatHighlights?: Array<{
     line: number;
@@ -584,6 +682,10 @@ export interface StoryBodyEditorProps {
     end: number;
     severity: "low" | "med" | "high";
     kind: "word" | "phrase" | "pattern";
+    groupId: string;
+    colorIndex: number;
+    siblingIndex: number;
+    siblingCount: number;
   }>;
   /** Called when the user clicks a severity dot in the gutter. */
   onGutterDotClick?: (line: number) => void;
@@ -845,12 +947,15 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
   }, [props.editorViewRef, props.craftGutterSignals]);
 
   // Repeat-tool highlights — persistent severity-tinted marks for every
-  // occurrence of the active Repeats subtab (words / phrases / patterns).
+  // occurrence of the active Repeats subtab. Each mark carries the group's
+  // colour class and `data-repeat-group` attribute so the click/hover handlers
+  // can find and act on sibling occurrences.
   useEffect(() => {
     const view = props.editorViewRef.current;
     if (!view) return;
     const rh = props.repeatHighlights;
     if (!rh || rh.length === 0) {
+      repeatGroupPositions.map = new Map();
       try { view.dispatch({ effects: clearRepeatHighlights.of(undefined) }); } catch { /* ignore */ }
       return;
     }
@@ -858,6 +963,7 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
       const doc = view.state.doc;
       const lineCount = doc.lines;
       const decos: Range<Decoration>[] = [];
+      const groupMap = new Map<string, Array<{ from: number; to: number }>>();
       for (const r of rh) {
         if (r.line < 1 || r.line > lineCount) continue;
         const line = doc.line(r.line);
@@ -865,9 +971,26 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
         const a = Math.max(0, Math.min(r.start, lineLen));
         const b = Math.max(a, Math.min(r.end, lineLen));
         if (b <= a) continue;
-        const cls = `cm-repeat-mark cm-repeat-mark-${r.severity} cm-repeat-mark-${r.kind}`;
-        decos.push(Decoration.mark({ class: cls }).range(line.from + a, line.from + b));
+        const colorIdx = ((r.colorIndex % 6) + 6) % 6;
+        const cls =
+          `cm-repeat-mark cm-repeat-mark-${r.severity} cm-repeat-mark-${r.kind} cm-repeat-mark-c${colorIdx}`;
+        const title =
+          r.siblingCount > 1
+            ? `${r.siblingIndex + 1} of ${r.siblingCount} — click to jump to next (shift+click for previous)`
+            : undefined;
+        const attributes: Record<string, string> = { "data-repeat-group": r.groupId };
+        if (title) attributes.title = title;
+        const from = line.from + a;
+        const to = line.from + b;
+        decos.push(Decoration.mark({ class: cls, attributes }).range(from, to));
+        let arr = groupMap.get(r.groupId);
+        if (!arr) { arr = []; groupMap.set(r.groupId, arr); }
+        arr.push({ from, to });
       }
+      // Sort each group's positions for stable cycling. Decoration array must
+      // also be sorted for RangeSet construction; mark order doesn't matter.
+      for (const arr of groupMap.values()) arr.sort((a, b) => a.from - b.from);
+      repeatGroupPositions.map = groupMap;
       decos.sort((a, b) => a.from - b.from || a.to - b.to);
       view.dispatch({ effects: setRepeatHighlights.of(Decoration.set(decos, true)) });
     } catch { /* ignore */ }
@@ -1035,6 +1158,7 @@ export function StoryBodyEditor(props: StoryBodyEditorProps) {
       issueHighlightField,
       hoverHighlightField,
       repeatHighlightField,
+      repeatInteractionExtension,
       persistentIssueDecosField,
       issueGutterField,
       issueGutterExtension,
