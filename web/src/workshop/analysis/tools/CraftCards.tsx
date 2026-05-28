@@ -379,6 +379,7 @@ export function CraftClusterCard({
   goToWord,
   peekParagraph,
   clearPeek,
+  totalParagraphs,
 }: {
   cluster: CraftCluster;
   goToParagraph: (p: number) => void;
@@ -389,6 +390,8 @@ export function CraftClusterCard({
   peekParagraph?: (paragraph: number, word?: string) => void;
   /** Clear the hover highlight on mouseleave / blur. */
   clearPeek?: () => void;
+  /** When provided, renders a CraftSpark above the chips so position is visible. */
+  totalParagraphs?: number;
 }) {
   const color = cluster.color ?? "a";
   const re = useMemo(
@@ -408,7 +411,7 @@ export function CraftClusterCard({
         {cluster.severity != null ? (
           <CraftSeverityDots
             severity={cluster.severity}
-            ariaLabel={`Used ${cluster.count} time${cluster.count === 1 ? "" : "s"} — severity ${cluster.severity} of 3`}
+            ariaLabel={`Appears ${cluster.count} time${cluster.count === 1 ? "" : "s"}`}
           />
         ) : (
           <span className={`craft-cluster-tag rhyme-label-${color}`}>
@@ -422,13 +425,24 @@ export function CraftClusterCard({
             type="button"
             className="craft-cluster-reject"
             onClick={cluster.onReject}
-            title="Dismiss this group"
-            aria-label={`Dismiss ${cluster.label}`}
+            title="Hide this group"
+            aria-label={`Hide ${cluster.label}`}
           >
             ×
           </button>
         ) : null}
       </div>
+      {totalParagraphs && totalParagraphs > 0 ? (
+        <CraftSpark
+          mentions={cluster.mentions}
+          totalParagraphs={totalParagraphs}
+          color={color}
+          word={cluster.label}
+          goToParagraph={goToParagraph}
+          peekParagraph={peekParagraph}
+          clearPeek={clearPeek}
+        />
+      ) : null}
       <div className="craft-cluster-chips">
         {cluster.mentions.map((m, i) => {
           const word = m.surface ?? cluster.label;
@@ -658,6 +672,192 @@ export function CraftCallout({
     <div className={`craft-callout craft-callout--${tone}`}>
       <p className="craft-callout-title">{title}</p>
       <div className="craft-callout-body">{children}</div>
+    </div>
+  );
+}
+
+// ─── Doc map (paragraph-position strip) ──────────────────────────────────────
+
+export interface DocMapMark {
+  paragraph: number;
+  /** Color letter so different verbs/words can be told apart in the strip. */
+  color?: string;
+  /** Optional weight 1..3 — thicker ticks for heavier mentions. */
+  weight?: 1 | 2 | 3;
+  /** Surface form, used for hover-peek so the editor highlights the right word. */
+  word?: string;
+}
+
+/**
+ * A horizontal strip showing where flagged paragraphs sit in the document.
+ * Each mark is clickable and scrubs the editor on hover. Replaces the
+ * imperative "Try X" copy with a neutral at-a-glance picture of WHERE.
+ */
+export function CraftDocMap({
+  marks,
+  totalParagraphs,
+  goToParagraph,
+  peekParagraph,
+  clearPeek,
+  ariaLabel = "Where flags occur in the document",
+  hint,
+}: {
+  marks: DocMapMark[];
+  totalParagraphs: number;
+  goToParagraph: (p: number) => void;
+  peekParagraph?: (p: number, word?: string) => void;
+  clearPeek?: () => void;
+  ariaLabel?: string;
+  hint?: ReactNode;
+}) {
+  const denom = Math.max(1, totalParagraphs);
+  return (
+    <div className="craft-docmap" role="img" aria-label={ariaLabel}>
+      <div className="craft-docmap-track">
+        <span className="craft-docmap-third craft-docmap-third--early" aria-hidden />
+        <span className="craft-docmap-third craft-docmap-third--late" aria-hidden />
+        {marks.map((m, i) => {
+          const left = ((m.paragraph - 1) / denom) * 100;
+          const weight = m.weight ?? 1;
+          return (
+            <button
+              key={`${m.paragraph}-${i}`}
+              type="button"
+              className={`craft-docmap-mark craft-docmap-mark--w${weight} ${m.color ? `rhyme-label-${m.color}` : ""}`}
+              style={{ left: `${left}%` }}
+              onClick={() => goToParagraph(m.paragraph)}
+              onMouseEnter={() => peekParagraph?.(m.paragraph, m.word)}
+              onMouseLeave={() => clearPeek?.()}
+              onFocus={() => peekParagraph?.(m.paragraph, m.word)}
+              onBlur={() => clearPeek?.()}
+              aria-label={`Jump to paragraph ${m.paragraph}`}
+              title={`¶ ${m.paragraph}`}
+            />
+          );
+        })}
+      </div>
+      <div className="craft-docmap-axis">
+        <span className="craft-docmap-axis-label">start</span>
+        <span className="craft-docmap-axis-label">middle</span>
+        <span className="craft-docmap-axis-label">end</span>
+      </div>
+      {hint ? <p className="craft-docmap-hint muted small">{hint}</p> : null}
+    </div>
+  );
+}
+
+// ─── Cluster spark (inline distribution in cluster cards) ────────────────────
+
+/**
+ * A condensed strip that shows where each mention falls inside the document.
+ * Used inline in cluster cards so the reader sees position without reading
+ * line numbers. Hovering a tick scrubs the editor to that paragraph.
+ */
+export function CraftSpark({
+  mentions,
+  totalParagraphs,
+  color = "a",
+  goToParagraph,
+  peekParagraph,
+  clearPeek,
+  word,
+}: {
+  mentions: Array<{ paragraph: number }>;
+  totalParagraphs: number;
+  color?: string;
+  goToParagraph: (p: number) => void;
+  peekParagraph?: (p: number, word?: string) => void;
+  clearPeek?: () => void;
+  /** Surface word to highlight in the editor on peek. */
+  word?: string;
+}) {
+  if (totalParagraphs <= 0 || mentions.length === 0) return null;
+  const denom = Math.max(1, totalParagraphs);
+  return (
+    <div className={`craft-spark rhyme-label-${color}`} aria-hidden>
+      <span className="craft-spark-track" />
+      {mentions.map((m, i) => (
+        <button
+          key={`${m.paragraph}-${i}`}
+          type="button"
+          className="craft-spark-tick"
+          style={{ left: `${((m.paragraph - 1) / denom) * 100}%` }}
+          onClick={() => goToParagraph(m.paragraph)}
+          onMouseEnter={() => peekParagraph?.(m.paragraph, word)}
+          onMouseLeave={() => clearPeek?.()}
+          onFocus={() => peekParagraph?.(m.paragraph, word)}
+          onBlur={() => clearPeek?.()}
+          aria-label={`Jump to paragraph ${m.paragraph}`}
+          title={`¶ ${m.paragraph}`}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Fact strip (neutral, non-judgmental observations) ───────────────────────
+
+export interface CraftFact {
+  /** Big number or short value, e.g. "62%" or "12". */
+  value: ReactNode;
+  /** Label below the value, e.g. "said" or "filter words". */
+  label: ReactNode;
+  /** Optional 0..1 fraction rendered as a thin bar under the value. */
+  progress?: number;
+  /** Optional color letter for tint. */
+  color?: string;
+  /** Optional click to act on the fact (jump, filter…). */
+  onActivate?: () => void;
+}
+
+/**
+ * Replacement for prescriptive stat-cards. Instead of "you should…" copy,
+ * it lays out 1–3 facts side by side and lets the writer judge. Click a
+ * fact to act on it (e.g. jump to first untagged paragraph).
+ */
+export function CraftFactStrip({
+  facts,
+  caption,
+}: {
+  facts: CraftFact[];
+  caption?: ReactNode;
+}) {
+  if (facts.length === 0) return null;
+  return (
+    <div className="craft-facts" role="group">
+      <div className="craft-facts-row">
+        {facts.map((f, i) => {
+          const inner = (
+            <>
+              <span className="craft-fact-value">{f.value}</span>
+              <span className="craft-fact-label">{f.label}</span>
+              {f.progress != null ? (
+                <span
+                  className="craft-fact-bar"
+                  aria-hidden
+                  style={{ ["--craft-fact-pct" as never]: `${Math.round(Math.max(0, Math.min(1, f.progress)) * 100)}%` }}
+                />
+              ) : null}
+            </>
+          );
+          const className = `craft-fact ${f.color ? `rhyme-label-${f.color}` : ""}`;
+          return f.onActivate ? (
+            <button
+              key={i}
+              type="button"
+              className={`${className} craft-fact--button`}
+              onClick={f.onActivate}
+            >
+              {inner}
+            </button>
+          ) : (
+            <div key={i} className={className}>
+              {inner}
+            </div>
+          );
+        })}
+      </div>
+      {caption ? <p className="craft-facts-caption muted small">{caption}</p> : null}
     </div>
   );
 }

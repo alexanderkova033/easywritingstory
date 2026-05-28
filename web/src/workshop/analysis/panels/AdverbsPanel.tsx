@@ -5,11 +5,13 @@ import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
   CraftClusterCard,
   CraftClusterCardList,
+  CraftDocMap,
+  CraftFactStrip,
   CraftFilterField,
   CraftGroupSection,
-  CraftStatCard,
   severityFromCount,
   type CraftCluster,
+  type DocMapMark,
 } from "@/workshop/analysis/tools/CraftCards";
 import { useIgnoredCraftItems } from "@/workshop/analysis/craft-ignored-storage";
 import { LiveSectionTitle } from "../ToolTabBar";
@@ -32,16 +34,6 @@ function tierColor(count: number): "e" | "g" | "f" {
   if (count >= 2) return "g";
   return "f";
 }
-function adverbTip(count: number): string {
-  if (count >= 5) return "Heavy — try a stronger verb (“ran fast” → “sprinted”).";
-  if (count >= 2) return "Used a few times — check whether the verb already says it.";
-  return "Occasional use reads fine.";
-}
-function fillerTip(count: number): string {
-  if (count >= 5) return "Heavy — most can be deleted with no loss in meaning.";
-  if (count >= 2) return "Used a few times — often these can simply be cut.";
-  return "Occasional use reads fine.";
-}
 
 export function AdverbsPanel({
   storyId,
@@ -60,6 +52,7 @@ export function AdverbsPanel({
     useIgnoredCraftItems(storyId);
   const ignoreCategory = sub === "adverbs" ? "adverbs" : "weasels";
   const ignoredCount = countInCategory(ignoreCategory);
+  const totalParas = Math.max(1, docStats.totalLines);
 
   const adverbsByWord = useMemo(() => {
     const map = new Map<string, Array<{ paragraph: number; text: string }>>();
@@ -85,7 +78,6 @@ export function AdverbsPanel({
     const q = filter.trim().toLowerCase();
     const list = sub === "adverbs" ? a.topAdverbs : a.topWeasels;
     const byWord = sub === "adverbs" ? adverbsByWord : weaselsByWord;
-    const tip = sub === "adverbs" ? adverbTip : fillerTip;
     return list
       .filter((w) => !isIgnored(ignoreCategory, w.word))
       .filter((w) => !q || w.word.toLowerCase().includes(q))
@@ -97,7 +89,6 @@ export function AdverbsPanel({
           count: w.count,
           color: tierColor(w.count),
           severity: severityFromCount(w.count),
-          hint: tip(w.count),
           mentions: occ.map((o) => ({ paragraph: o.paragraph })),
           preview: occ[0] ? { paragraph: occ[0].paragraph, text: occ[0].text } : undefined,
           onReject: () => ignore(ignoreCategory, w.word),
@@ -117,35 +108,21 @@ export function AdverbsPanel({
 
   const empty = a.adverbTotal === 0 && a.weaselTotal === 0;
   const density = a.adverbPer100;
+  const activeHits = sub === "adverbs" ? a.adverbHits : a.weaselHits;
+  const byWord = sub === "adverbs" ? adverbsByWord : weaselsByWord;
 
-  let tone: "good" | "warn" | "info" = "info";
-  let title = "";
-  let metric: string | undefined;
-  let metricLabel: string | undefined;
-  let hint: string | undefined;
-  if (empty) {
-    tone = "good";
-    title = "Clean — strong verbs doing the work";
-    metric = "0";
-    metricLabel = "flagged";
-  } else if (density >= 4) {
-    tone = "warn";
-    title = "Heavy adverb use";
-    metric = density.toFixed(1);
-    metricLabel = "per 100w";
-    hint = "A strong verb usually beats verb + adverb.";
-  } else if (a.weaselTotal >= 6) {
-    tone = "warn";
-    title = "Filler words adding noise";
-    metric = String(a.weaselTotal);
-    metricLabel = "fillers";
-    hint = "Words like “very”, “really”, “just” can usually be deleted.";
-  } else {
-    title = "Light touch";
-    metric = density.toFixed(1);
-    metricLabel = "per 100w";
-    hint = "Looks fine. Tap any chip to jump to that paragraph.";
-  }
+  const docMarks: DocMapMark[] = useMemo(() => {
+    const marks: DocMapMark[] = [];
+    for (const h of activeHits) {
+      marks.push({
+        paragraph: h.line,
+        color: tierColor(byWord.get(h.word)?.length ?? 1),
+        word: h.word,
+        weight: 1,
+      });
+    }
+    return marks;
+  }, [activeHits, byWord]);
 
   return (
     <div
@@ -164,23 +141,65 @@ export function AdverbsPanel({
 
       {empty ? (
         <>
-          <CraftStatCard tone="good" title={title} metric={metric} metricLabel={metricLabel} hint={hint} />
+          <CraftFactStrip
+            facts={[
+              { value: 0, label: "-ly adverbs" },
+              { value: 0, label: "fillers" },
+              { value: "0.0", label: "per 100w" },
+            ]}
+            caption="No -ly adverbs or filler words (very, really, just) in this draft."
+          />
           <EmptyState title="No adverbs or filler words">
             <p className="muted small">
-              No <em>-ly</em> adverbs or weasel words (<em>very</em>, <em>really</em>,{" "}
-              <em>just</em>) spotted.
+              Detects <em>-ly</em> adverbs and weasels like <em>very</em>,{" "}
+              <em>really</em>, <em>just</em>.
             </p>
           </EmptyState>
         </>
       ) : (
         <>
-          <CraftStatCard
-            tone={tone}
-            title={title}
-            metric={metric}
-            metricLabel={metricLabel}
-            hint={hint}
+          <CraftFactStrip
+            facts={[
+              {
+                value: a.adverbTotal,
+                label: "-ly adverbs",
+                color: sub === "adverbs" ? "b" : undefined,
+                onActivate: () => {
+                  setSub("adverbs");
+                  setFilter("");
+                },
+              },
+              {
+                value: a.weaselTotal,
+                label: "fillers",
+                color: sub === "weasels" ? "b" : undefined,
+                onActivate: () => {
+                  setSub("weasels");
+                  setFilter("");
+                },
+              },
+              {
+                value: density.toFixed(1),
+                label: "adv / 100w",
+              },
+              {
+                value: a.adverbTotal + a.weaselTotal,
+                label: "total flags",
+              },
+            ]}
+            caption="Tap a fact to switch tabs. Each tick below is one flagged word."
           />
+
+          {docMarks.length > 0 ? (
+            <CraftDocMap
+              marks={docMarks}
+              totalParagraphs={totalParas}
+              goToParagraph={goToLine}
+              peekParagraph={peekToLine}
+              clearPeek={clearHoverPeek}
+              hint={`Doc-map for ${sub === "adverbs" ? "-ly adverbs" : "filler words"}.`}
+            />
+          ) : null}
 
           <div className="rep-subtabs" role="tablist" aria-label="Adverb categories">
             <button
@@ -238,6 +257,7 @@ export function AdverbsPanel({
                     goToWord={goToWordInLine}
                     peekParagraph={peekToLine}
                     clearPeek={clearHoverPeek}
+                    totalParagraphs={totalParas}
                   />
                 ))}
               </CraftClusterCardList>

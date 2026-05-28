@@ -11,7 +11,11 @@ import {
   PhraseRepeatCard,
   RepeatedWordCard,
 } from "@/workshop/analysis/tools/RepetitionCards";
-import { CraftStatCard } from "@/workshop/analysis/tools/CraftCards";
+import {
+  CraftDocMap,
+  CraftFactStrip,
+  type DocMapMark,
+} from "@/workshop/analysis/tools/CraftCards";
 import { useIgnoredCraftItems } from "@/workshop/analysis/craft-ignored-storage";
 import { LiveSectionTitle } from "../ToolTabBar";
 
@@ -81,26 +85,47 @@ export function RepeatPanel({
     repetitionCounts.words +
     repetitionCounts.phrases +
     repetitionCounts.patterns;
+  const totalParas = Math.max(1, docStats.totalLines);
 
-  let tone: "good" | "warn" | "info" = "info";
-  let title = "";
-  let metricLabel: string;
-  let hint: string | undefined;
-  if (totalRepeats === 0) {
-    tone = "good";
-    title = "No repeats";
-    metricLabel = "clean";
-    hint = "No non-stopword words, phrases, or patterns repeat in this draft.";
-  } else if (repetitionCounts.words >= 6 || repetitionCounts.phrases >= 3) {
-    tone = "warn";
-    title = "Several echoes worth a look";
-    metricLabel = "repeats";
-    hint = "A few repeated words or phrases stand out. Tap any to jump to that line.";
-  } else {
-    title = "A few echoes spotted";
-    metricLabel = "repeats";
-    hint = "Most repeats are light. Tap any to jump to that line.";
-  }
+  // Build a doc-map for the active sub-tab so the user sees position at a glance.
+  const docMarks: DocMapMark[] = useMemo(() => {
+    const marks: DocMapMark[] = [];
+    if (repeatSubTab === "words") {
+      for (const r of repeated) {
+        for (const o of r.occurrences) {
+          marks.push({
+            paragraph: o.line,
+            color: r.count >= 5 ? "e" : r.count >= 3 ? "g" : "f",
+            word: r.display,
+            weight: 1,
+          });
+        }
+      }
+    } else if (repeatSubTab === "phrases") {
+      for (const p of repetition.phrases) {
+        for (const l of p.lines) {
+          marks.push({
+            paragraph: l,
+            color: p.count >= 4 ? "e" : "g",
+            word: p.display,
+            weight: 2,
+          });
+        }
+      }
+    } else {
+      for (const g of repetition.anaphora) {
+        for (const o of g.occurrences) {
+          marks.push({ paragraph: o.line, color: "i", weight: 2 });
+        }
+      }
+      for (const g of repetition.epistrophe) {
+        for (const o of g.occurrences) {
+          marks.push({ paragraph: o.line, color: "j", weight: 2 });
+        }
+      }
+    }
+    return marks;
+  }, [repeatSubTab, repeated, repetition]);
 
   return (
     <div
@@ -120,13 +145,54 @@ export function RepeatPanel({
           Tools updating…
         </p>
       ) : null}
-      <CraftStatCard
-        tone={tone}
-        title={title}
-        metric={totalRepeats}
-        metricLabel={metricLabel}
-        hint={hint}
+      <CraftFactStrip
+        facts={[
+          {
+            value: repetitionCounts.words,
+            label: "words",
+            color: repeatSubTab === "words" ? "b" : undefined,
+            onActivate: () => setRepeatSubTab("words"),
+          },
+          {
+            value: repetitionCounts.phrases,
+            label: "phrases",
+            color: repeatSubTab === "phrases" ? "b" : undefined,
+            onActivate: () => setRepeatSubTab("phrases"),
+          },
+          {
+            value: repetitionCounts.patterns,
+            label: "patterns",
+            color: repeatSubTab === "patterns" ? "b" : undefined,
+            onActivate: () => setRepeatSubTab("patterns"),
+          },
+          {
+            value: totalRepeats,
+            label: "total",
+          },
+        ]}
+        caption={
+          totalRepeats === 0
+            ? "No repeated non-stopword words, phrases, or patterns."
+            : "Each fact is a tab. Tick map below shows where these repeats sit."
+        }
       />
+
+      {docMarks.length > 0 ? (
+        <CraftDocMap
+          marks={docMarks}
+          totalParagraphs={totalParas}
+          goToParagraph={goToLine}
+          peekParagraph={peekToLine}
+          clearPeek={clearHoverPeek}
+          hint={
+            repeatSubTab === "words"
+              ? "One tick per repeated word occurrence."
+              : repeatSubTab === "phrases"
+                ? "One tick per repeated phrase occurrence."
+                : "Ticks mark line-start (anaphora) and line-end (epistrophe) echoes."
+          }
+        />
+      ) : null}
       <div className="rep-subtabs" role="tablist" aria-label="Repeats categories">
         <button
           type="button"

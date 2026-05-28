@@ -223,6 +223,8 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           storyLines={props.storyLines}
           heavyToolsStale={props.heavyToolsStale}
           goToLine={props.goToLine}
+          peekToLine={props.peekToLine}
+          clearHoverPeek={props.clearHoverPeek}
         />
       ) : null}
 
@@ -233,6 +235,8 @@ export function WorkshopToolPanels(props: WorkshopToolPanelsProps) {
           storyLines={props.storyLines}
           heavyToolsStale={props.heavyToolsStale}
           goToLine={props.goToLine}
+          peekToLine={props.peekToLine}
+          clearHoverPeek={props.clearHoverPeek}
         />
       ) : null}
 

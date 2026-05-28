@@ -5,10 +5,11 @@ import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
   CraftBeatList,
   CraftControls,
-  CraftStatCard,
+  CraftDocMap,
+  CraftFactStrip,
   CraftToggle,
-  TripleDistributionBar,
   type BeatSegment,
+  type DocMapMark,
 } from "@/workshop/analysis/tools/CraftCards";
 import { LiveSectionTitle } from "../ToolTabBar";
 
@@ -18,6 +19,8 @@ export interface PovPanelProps {
   storyLines: string[];
   heavyToolsStale: boolean;
   goToLine: (line1Based: number) => void;
+  peekToLine?: (line1Based: number, word?: string) => void;
+  clearHoverPeek?: () => void;
 }
 
 function povName(p: string): string {
@@ -25,13 +28,6 @@ function povName(p: string): string {
   if (p === "second") return "second person";
   if (p === "third") return "third person";
   return "mixed";
-}
-
-function povCue(p: string): string {
-  if (p === "first") return "I / we / my";
-  if (p === "second") return "you / your";
-  if (p === "third") return "he / she / they";
-  return "";
 }
 
 const MAX_ROWS = 80;
@@ -42,6 +38,8 @@ export function PovPanel({
   storyLines,
   heavyToolsStale,
   goToLine,
+  peekToLine,
+  clearHoverPeek,
 }: PovPanelProps) {
   const p = craft.pov;
   const [hideNeutral, setHideNeutral] = useState(true);
@@ -49,45 +47,27 @@ export function PovPanel({
 
   const total = p.totals.first + p.totals.second + p.totals.third;
   const dominant = p.dominant;
-  const dominantTotal =
-    dominant === "first"
-      ? p.totals.first
-      : dominant === "second"
-        ? p.totals.second
-        : dominant === "third"
-          ? p.totals.third
-          : 0;
-  const dominantPct = total > 0 ? Math.round((dominantTotal / total) * 100) : 0;
+  const totalParas = Math.max(1, docStats.totalLines);
 
-  let tone: "good" | "warn" | "info" = "info";
-  let title: string;
-  let metric: string | undefined;
-  let metricLabel: string | undefined;
-  let progress: number | undefined;
-  let hint: string | undefined;
-  if (total === 0) {
-    title = "No POV pronouns yet";
-    hint = "Detected from I/we, you, and he/she/they.";
-  } else if (dominant === "mixed") {
-    tone = "warn";
-    title = "POV is split — pick one";
-    metric = "mixed";
-    hint = "Short stories usually pick one POV and hold it the whole way through.";
-  } else if (p.conflicts.length === 0) {
-    tone = "good";
-    title = `Consistent ${povName(dominant)}`;
-    metric = `${dominantPct}%`;
-    metricLabel = povCue(dominant);
-    progress = dominantPct / 100;
-  } else {
-    tone = "warn";
-    const n = p.conflicts.length;
-    title = `Mostly ${povName(dominant)} — ${n} slip`;
-    metric = String(n);
-    metricLabel = "off";
-    progress = dominantPct / 100;
-    hint = "Each paragraph below shows its pronoun mix and a fit %.";
-  }
+  const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
+  const firstPct = pct(p.totals.first);
+  const secondPct = pct(p.totals.second);
+  const thirdPct = pct(p.totals.third);
+
+  // Doc map of off-POV paragraphs so the writer sees clustering at a glance.
+  const offMarks: DocMapMark[] = useMemo(() => {
+    if (dominant === "mixed" || dominant === "unknown") return [];
+    const marks: DocMapMark[] = [];
+    for (const pl of p.perLine) {
+      if (pl.dominant === "none" || pl.dominant === dominant) continue;
+      marks.push({
+        paragraph: pl.line,
+        color: pl.dominant === "second" ? "g" : "e",
+        weight: 2,
+      });
+    }
+    return marks;
+  }, [p.perLine, dominant]);
 
   // Build per-paragraph beat rows. Map kinds so dominant POV = primary, off = warn, third = accent.
   const rows = useMemo(() => {
@@ -181,20 +161,53 @@ export function PovPanel({
         </EmptyState>
       ) : (
         <>
-          <CraftStatCard
-            tone={tone}
-            title={title}
-            metric={metric}
-            metricLabel={metricLabel}
-            progress={progress}
-            hint={hint}
+          <CraftFactStrip
+            facts={[
+              {
+                value: `${firstPct}%`,
+                label: "1st (I/we)",
+                progress: firstPct / 100,
+                color: dominant === "first" ? "b" : "a",
+              },
+              {
+                value: `${secondPct}%`,
+                label: "2nd (you)",
+                progress: secondPct / 100,
+                color: dominant === "second" ? "b" : "g",
+              },
+              {
+                value: `${thirdPct}%`,
+                label: "3rd (he/she)",
+                progress: thirdPct / 100,
+                color: dominant === "third" ? "b" : "a",
+              },
+              {
+                value: p.conflicts.length,
+                label: p.conflicts.length === 1 ? "off-POV ¶" : "off-POV ¶s",
+                color: p.conflicts.length > 0 ? "e" : undefined,
+                onActivate:
+                  p.conflicts.length > 0
+                    ? () => goToLine(p.conflicts[0]!.line)
+                    : undefined,
+              },
+            ]}
+            caption={
+              dominant === "mixed" || dominant === "unknown"
+                ? "Mixed POV — three perspectives appear in roughly equal share."
+                : `Reads as ${povName(dominant)}. Hover ticks below to peek at off-POV paragraphs.`
+            }
           />
 
-          <TripleDistributionBar
-            first={{ label: "1st", value: p.totals.first }}
-            second={{ label: "2nd", value: p.totals.second }}
-            third={{ label: "3rd", value: p.totals.third }}
-          />
+          {offMarks.length > 0 ? (
+            <CraftDocMap
+              marks={offMarks}
+              totalParagraphs={totalParas}
+              goToParagraph={goToLine}
+              peekParagraph={peekToLine}
+              clearPeek={clearHoverPeek}
+              hint="Each tick is a paragraph where a different POV pronoun appears."
+            />
+          ) : null}
 
           <CraftControls ariaLabel="POV filters">
             <CraftToggle

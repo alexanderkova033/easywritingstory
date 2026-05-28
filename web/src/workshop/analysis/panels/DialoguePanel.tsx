@@ -6,12 +6,14 @@ import {
   CraftCallout,
   CraftClusterCard,
   CraftClusterCardList,
+  CraftDocMap,
+  CraftFactStrip,
   CraftFilterField,
   CraftGroupSection,
-  CraftStatCard,
   ParaPillList,
   severityFromCount,
   type CraftCluster,
+  type DocMapMark,
 } from "@/workshop/analysis/tools/CraftCards";
 import { useIgnoredCraftItems } from "@/workshop/analysis/craft-ignored-storage";
 import { LiveSectionTitle } from "../ToolTabBar";
@@ -33,14 +35,9 @@ const NEUTRAL = new Set(["said", "says", "saying"]);
 
 /** Severity tier → fixed color letter so the palette stays consistent. */
 function tierColor(count: number): "e" | "g" | "f" {
-  if (count >= 5) return "e"; // red — heavy
-  if (count >= 2) return "g"; // amber — moderate
-  return "f"; // teal — light
-}
-function tierTip(count: number): string {
-  if (count >= 5) return "Heavy use — try swapping a few for plain “said” or action beats.";
-  if (count >= 2) return "Used a few times — check whether plain “said” would disappear better.";
-  return "Used once or twice — fine.";
+  if (count >= 5) return "e";
+  if (count >= 2) return "g";
+  return "f";
 }
 
 export function DialoguePanel({
@@ -58,6 +55,7 @@ export function DialoguePanel({
   const { ignore, restoreAll, isIgnored, countInCategory } =
     useIgnoredCraftItems(storyId);
   const ignoredCount = countInCategory(IGNORE_CATEGORY);
+  const totalParas = Math.max(1, docStats.totalLines);
 
   const occurrencesByVerb = useMemo(() => {
     const map = new Map<
@@ -90,7 +88,6 @@ export function DialoguePanel({
           count: v.count,
           color: tierColor(v.count),
           severity: severityFromCount(v.count),
-          hint: tierTip(v.count),
           mentions: occ.map((o) => ({ paragraph: o.paragraph })),
           preview: occ[0]
             ? { paragraph: occ[0].paragraph, text: occ[0].lineText }
@@ -102,41 +99,25 @@ export function DialoguePanel({
 
   const totalTags = d.saidCount + d.strongTagCount;
   const saidPct = totalTags > 0 ? Math.round((d.saidCount / totalTags) * 100) : 0;
-  const fancyHeavy = d.strongTagCount > d.saidCount && totalTags >= 4;
+  const otherPct = totalTags > 0 ? 100 - saidPct : 0;
 
-  let tone: "good" | "warn" | "info" = "info";
-  let title = "";
-  let metric: string | undefined;
-  let metricLabel: string | undefined;
-  let progress: number | undefined;
-  let hint: string | undefined;
-  if (d.dialogueLineCount === 0) {
-    title = "No dialogue yet";
-  } else if (d.unattributed.length > 0) {
-    tone = "warn";
-    title = "Some speech is missing a speaker";
-    metric = String(d.unattributed.length);
-    metricLabel = "untagged";
-    hint = "Readers may lose track of who’s talking.";
-  } else if (fancyHeavy) {
-    tone = "warn";
-    title = "Loud tags outweigh plain “said”";
-    metric = `${saidPct}%`;
-    metricLabel = "said";
-    progress = saidPct / 100;
-    hint = "Most editors keep “said” the workhorse and use fancier verbs sparingly.";
-  } else if (totalTags > 0) {
-    tone = "good";
-    title = "Dialogue reads cleanly";
-    metric = `${saidPct}%`;
-    metricLabel = "said";
-    progress = saidPct / 100;
-    hint = `${d.dialogueLineCount} paragraph${d.dialogueLineCount === 1 ? "" : "s"} of speech, all attributed.`;
-  } else {
-    title = `${d.dialogueLineCount} dialogue paragraph${d.dialogueLineCount === 1 ? "" : "s"}`;
-    metric = "0";
-    metricLabel = "tags";
-  }
+  // Build a doc-map of every attribution + every untagged paragraph so the
+  // writer sees WHERE the speech sits at a glance.
+  const docMarks: DocMapMark[] = useMemo(() => {
+    const marks: DocMapMark[] = [];
+    for (const o of d.occurrences) {
+      marks.push({
+        paragraph: o.line,
+        color: NEUTRAL.has(o.verb) ? undefined : tierColor(occurrencesByVerb.get(o.verb)?.length ?? 1),
+        word: o.verb,
+        weight: NEUTRAL.has(o.verb) ? 1 : 2,
+      });
+    }
+    for (const p of d.unattributed) {
+      marks.push({ paragraph: p, color: "e", weight: 3 });
+    }
+    return marks;
+  }, [d.occurrences, d.unattributed, occurrencesByVerb]);
 
   return (
     <div
@@ -161,17 +142,50 @@ export function DialoguePanel({
         </EmptyState>
       ) : (
         <>
-          <CraftStatCard
-            tone={tone}
-            title={title}
-            metric={metric}
-            metricLabel={metricLabel}
-            progress={progress}
-            hint={hint}
+          <CraftFactStrip
+            facts={[
+              {
+                value: d.dialogueLineCount,
+                label: d.dialogueLineCount === 1 ? "paragraph" : "paragraphs",
+              },
+              {
+                value: `${saidPct}%`,
+                label: "said",
+                progress: saidPct / 100,
+                color: "b",
+              },
+              {
+                value: `${otherPct}%`,
+                label: "other tags",
+                progress: otherPct / 100,
+                color: "g",
+              },
+              {
+                value: d.unattributed.length,
+                label: d.unattributed.length === 1 ? "untagged" : "untagged",
+                color: d.unattributed.length > 0 ? "e" : undefined,
+                onActivate:
+                  d.unattributed.length > 0
+                    ? () => goToLine(d.unattributed[0]!)
+                    : undefined,
+              },
+            ]}
+            caption="Hover any tick below to peek at that paragraph; click to jump."
           />
 
+          {docMarks.length > 0 ? (
+            <CraftDocMap
+              marks={docMarks}
+              totalParagraphs={totalParas}
+              goToParagraph={goToLine}
+              peekParagraph={peekToLine}
+              clearPeek={clearHoverPeek}
+              hint="Each tick is one tagged line. Red ticks mark untagged speech."
+            />
+          ) : null}
+
           {d.unattributed.length > 0 ? (
-            <CraftCallout title="Untagged speech">
+            <CraftCallout tone="info" title="Untagged paragraphs">
               <ParaPillList
                 paragraphs={d.unattributed.slice(0, 24)}
                 goTo={goToLine}
@@ -197,7 +211,7 @@ export function DialoguePanel({
               {clusters.length === 0 ? (
                 <p className="muted small">
                   {ignoredCount > 0
-                    ? "No verbs left — everything you flagged is hidden."
+                    ? "No verbs left — everything you hid is below."
                     : "No verbs match this filter."}
                 </p>
               ) : (
@@ -210,6 +224,7 @@ export function DialoguePanel({
                       goToWord={goToWordInLine}
                       peekParagraph={peekToLine}
                       clearPeek={clearHoverPeek}
+                      totalParagraphs={totalParas}
                     />
                   ))}
                 </CraftClusterCardList>

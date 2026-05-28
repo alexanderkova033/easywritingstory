@@ -4,10 +4,12 @@ import type { StoryCraftAnalysis } from "@/workshop/analysis/story-craft";
 import { EmptyState, NoLinesYetHint } from "@/workshop/analysis/tools/shared";
 import {
   CraftCharacterArc,
+  CraftDocMap,
+  CraftFactStrip,
   CraftFilterField,
   CraftGroupSection,
-  CraftStatCard,
   colorLetterForIndex,
+  type DocMapMark,
 } from "@/workshop/analysis/tools/CraftCards";
 import { buildPhraseRegex, cropAroundMatch, escapeRegex, highlightInLine } from "@/workshop/analysis/tools/helpers";
 import { LiveSectionTitle } from "../ToolTabBar";
@@ -50,27 +52,24 @@ export function CharactersPanel({
   const vanishCount = c.characters.filter((ch) => ch.vanishes).length;
   const lead = c.characters[0];
 
-  let tone: "good" | "warn" | "info" = "info";
-  let title = "";
-  let metric: string | undefined;
-  let metricLabel: string | undefined;
-  let hint: string | undefined;
-  if (c.characters.length === 0) {
-    title = "No named characters yet";
-    hint = "Capitalized names that appear at least twice will show up here.";
-  } else if (vanishCount > 0) {
-    tone = "warn";
-    title = `${vanishCount} vanish${vanishCount === 1 ? "es" : ""} before the ending`;
-    metric = String(vanishCount);
-    metricLabel = "loose";
-    hint = "Appears in the opening third but never returns in the final third — possible loose thread.";
-  } else {
-    tone = "good";
-    title = lead ? `${lead.display} leads` : "All named characters return";
-    metric = String(c.characters.length);
-    metricLabel = c.characters.length === 1 ? "named" : "cast";
-    hint = "Every named character returns by the final third.";
-  }
+  // Doc-map of first-appearances so the reader sees when each name enters.
+  const docMarks: DocMapMark[] = useMemo(() => {
+    const marks: DocMapMark[] = [];
+    [...c.characters]
+      .sort((a, b) => {
+        if (a.vanishes !== b.vanishes) return a.vanishes ? -1 : 1;
+        return b.count - a.count;
+      })
+      .forEach((ch, i) => {
+        marks.push({
+          paragraph: ch.firstLine,
+          color: colorLetterForIndex(i),
+          word: ch.display,
+          weight: ch.vanishes ? 3 : 2,
+        });
+      });
+    return marks;
+  }, [c.characters]);
 
   // Vanishing characters first, then by mention count. Assign a stable color
   // letter from the canonical name's hash so the chip colour matches the arc.
@@ -119,7 +118,44 @@ export function CharactersPanel({
         </EmptyState>
       ) : (
         <>
-          <CraftStatCard tone={tone} title={title} metric={metric} metricLabel={metricLabel} hint={hint} />
+          <CraftFactStrip
+            facts={[
+              {
+                value: c.characters.length,
+                label: c.characters.length === 1 ? "named" : "cast",
+              },
+              {
+                value: c.totalMentions,
+                label: "mentions",
+              },
+              lead
+                ? {
+                    value: lead.display,
+                    label: `${lead.count}× lead`,
+                    color: "b",
+                    onActivate: () => goToLine(lead.firstLine),
+                  }
+                : { value: "—", label: "lead" },
+              {
+                value: vanishCount,
+                label: vanishCount === 1 ? "early-only" : "early-only",
+                color: vanishCount > 0 ? "g" : undefined,
+              },
+            ]}
+            caption="“Early-only” names appear in the first third but not the last — could be a deliberate exit or a loose thread."
+          />
+
+          {docMarks.length > 0 ? (
+            <CraftDocMap
+              marks={docMarks}
+              totalParagraphs={totalParas}
+              goToParagraph={goToLine}
+              peekParagraph={peekToLine}
+              clearPeek={clearHoverPeek}
+              hint="First appearance of each named character. Hover to peek."
+            />
+          ) : null}
+
 
           <CraftGroupSection
             label={`Cast · ${c.characters.length}`}
@@ -154,8 +190,11 @@ export function CharactersPanel({
                         <span className="craft-cluster-label">{ch.display}</span>
                         <span className="craft-cluster-count">×{ch.count}</span>
                         {ch.vanishes ? (
-                          <span className="craft-cluster-pill craft-cluster-pill--warn">
-                            vanishes
+                          <span
+                            className="craft-cluster-pill craft-cluster-pill--warn"
+                            title="Appears in the first third but not the last"
+                          >
+                            early only
                           </span>
                         ) : null}
                       </div>

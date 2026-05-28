@@ -7778,6 +7778,228 @@
   transform: translateX(-1px) scaleY(1.4);
 }
 
+/* ── Doc map (per-panel position strip) ─────────────────────────────────── */
+.craft-docmap {
+  margin: 0.35rem 0 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.craft-docmap-track {
+  position: relative;
+  height: 1.3rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 45%, transparent);
+  overflow: visible;
+}
+
+.craft-docmap-third {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 33.3333%;
+  pointer-events: none;
+}
+
+.craft-docmap-third--early {
+  left: 0;
+  border-right: 1px dashed color-mix(in srgb, var(--muted) 55%, transparent);
+}
+
+.craft-docmap-third--late {
+  right: 0;
+  border-left: 1px dashed color-mix(in srgb, var(--muted) 55%, transparent);
+}
+
+.craft-docmap-mark {
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 0.95rem;
+  margin-top: -0.475rem;
+  margin-left: -3px;
+  border: 0;
+  padding: 0;
+  border-radius: 2px;
+  background: var(--card-color, var(--accent));
+  color: var(--card-color, var(--accent));
+  cursor: pointer;
+  opacity: 0.85;
+  transition: transform 0.1s ease, opacity 0.1s ease, box-shadow 0.1s ease;
+}
+
+.craft-docmap-mark--w2 {
+  width: 7px;
+  height: 1.05rem;
+  margin-top: -0.525rem;
+}
+
+.craft-docmap-mark--w3 {
+  width: 8px;
+  height: 1.2rem;
+  margin-top: -0.6rem;
+}
+
+.craft-docmap-mark:hover,
+.craft-docmap-mark:focus-visible {
+  opacity: 1;
+  outline: none;
+  transform: scaleY(1.15);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--card-color, var(--accent)) 30%, transparent);
+}
+
+.craft-docmap-axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 0.05rem;
+}
+
+.craft-docmap-axis-label {
+  opacity: 0.7;
+}
+
+.craft-docmap-hint {
+  margin: 0;
+}
+
+/* ── Cluster spark (inline distribution in cluster cards) ───────────────── */
+.craft-spark {
+  position: relative;
+  height: 0.65rem;
+  margin: 0.4rem 0 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 40%, transparent);
+}
+
+.craft-spark-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.craft-spark-tick {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 3px;
+  margin-left: -1.5px;
+  border: 0;
+  padding: 0;
+  border-radius: 1px;
+  background: var(--card-color, currentColor);
+  color: var(--card-color, currentColor);
+  opacity: 0.85;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+.craft-spark-tick:hover,
+.craft-spark-tick:focus-visible {
+  outline: none;
+  opacity: 1;
+  transform: scaleY(1.4);
+}
+
+/* ── Fact strip (neutral, non-judgmental observations) ──────────────────── */
+.craft-facts {
+  margin: 0.35rem 0 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.craft-facts-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5.4rem, 1fr));
+  gap: 0.45rem;
+}
+
+.craft-fact {
+  --card-color: var(--accent);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.1rem;
+  padding: 0.5rem 0.6rem 0.55rem;
+  border-radius: 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--card-color) 28%, var(--border));
+  background: color-mix(in srgb, var(--card-color) 5%, var(--bg));
+  text-align: left;
+  min-width: 0;
+}
+
+.craft-fact--button {
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: transform 0.08s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+
+.craft-fact--button:hover {
+  background: color-mix(in srgb, var(--card-color) 10%, var(--bg));
+  transform: translateY(-1px);
+}
+
+.craft-fact--button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--card-color) 35%, transparent);
+}
+
+.craft-fact-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--card-color);
+  line-height: 1.1;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.craft-fact-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--card-color) 70%, var(--muted));
+}
+
+.craft-fact-bar {
+  position: relative;
+  display: block;
+  height: 3px;
+  width: 100%;
+  margin-top: 0.25rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card-color) 14%, transparent);
+  overflow: hidden;
+}
+
+.craft-fact-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: var(--craft-fact-pct, 0%);
+  background: color-mix(in srgb, var(--card-color) 70%, transparent);
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.craft-facts-caption {
+  margin: 0;
+}
+
 /* ============================================================
    Snapshots panel — clean visual rework
    ============================================================ */
