@@ -14,7 +14,9 @@ function centerEffect(pos: number) {
   return EditorView.scrollIntoView(pos, { y: "center" });
 }
 
-/** Select a logical line in a CodeMirror 6 view (1-based line numbers). */
+/** Place the cursor at the start of a logical line in a CodeMirror 6 view
+ * (1-based line numbers). No selection — jumps land as a caret so users can
+ * start typing immediately without overwriting the line. */
 export function focusLineInEditor(
   view: EditorView,
   line1Based: number,
@@ -25,7 +27,7 @@ export function focusLineInEditor(
   const line = doc.line(n);
   const center = opts.center !== false;
   view.dispatch({
-    selection: { anchor: line.from, head: line.to },
+    selection: { anchor: line.from, head: line.from },
     effects: center ? centerEffect(line.from) : undefined,
     scrollIntoView: !center,
   });

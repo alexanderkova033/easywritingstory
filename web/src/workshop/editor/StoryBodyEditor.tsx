@@ -241,7 +241,7 @@ function revealRepeatCard(group: string) {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     card.scrollIntoView({
       behavior: prefersReducedMotion ? "auto" : "smooth",
-      block: "nearest",
+      block: "center",
     });
   } catch { /* ignore */ }
   card.classList.add("rep-card-jumped");
